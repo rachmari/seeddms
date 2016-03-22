@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package packagerversion="1.8.1" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+ <name>SeedDMS_Preview</name>
+ <channel>pear.php.net</channel>
+ <summary>Create thumbnails from document content for SeedDMS</summary>
+ <description>SeedDMS is a web based document management system (DMS). These
+ are the classes to create preview images from the document content.</description>
+ <lead>
+  <name>Uwe Steinmann</name>
+  <user>steinm</user>
+  <email>uwe@steinmann.cx</email>
+  <active>yes</active>
+ </lead>
+ <date>2016-02-11</date>
+ <time>09:36:57</time>
+ <version>
+  <release>1.1.5</release>
+  <api>1.1.5</api>
+ </version>
+ <stability>
+  <release>stable</release>
+  <api>stable</api>
+ </stability>
+ <license uri="http://opensource.org/licenses/gpl-license">GPL License</license>
+ <notes>
+add method getFilesize()
+timeout for external commands can be passed to contructor of SeedDMS_Preview_Previewer
+ </notes>
+ <contents>
+  <dir baseinstalldir="SeedDMS" name="/">
+   <dir name="Preview">
+    <file name="Previewer.php" role="php">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+   </dir> <!-- /Lucene -->
+   <dir name="tests">
+   </dir> <!-- /tests -->
+   <file name="Preview.php" role="php">
+    <tasks:replace from="@package_version@" to="version" type="package-info" />
+   </file>
+  </dir> <!-- / -->
+ </contents>
+ <dependencies>
+  <required>
+   <php>
+    <min>4.3.0</min>
+   </php>
+   <pearinstaller>
+    <min>1.5.4</min>
+   </pearinstaller>
+  </required>
+ </dependencies>
+ <phprelease />
+ <changelog>
+  <release>
+   <date>2012-11-20</date>
+   <time>08:05:38</time>
+   <version>
+    <release>1.0.0</release>
+    <api>1.0.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <license uri="http://opensource.org/licenses/gpl-license">GPL License</license>
+   <notes>
+ initial version
+   </notes>
+  </release>
+  <release>
+   <date>2013-04-29</date>
+   <time>19:34:07</time>
+   <version>
+    <release>1.1.0</release>
+    <api>1.1.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <license uri="http://opensource.org/licenses/gpl-license">GPL License</license>
+   <notes>
+preview image can also be created from a document file (SeedDMS_Core_DocumentFile)
+   </notes>
+  </release>
+  <release>
+   <date>2014-03-18</date>
+   <time>16:34:59</time>
+   <version>
+    <release>1.1.1</release>
+    <api>1.1.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <license uri="http://opensource.org/licenses/gpl-license">GPL License</license>
+   <notes>
+add converters for .tar.gz, .ps, .txt
+   </notes>
+  </release>
+  <release>
+   <date>2014-04-10</date>
+   <time>20:29:39</time>
+   <version>
+    <release>1.1.2</release>
+    <api>1.1.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <license uri="http://opensource.org/licenses/gpl-license">GPL License</license>
+   <notes>
+create fixed width image with proportional height
+   </notes>
+  </release>
+  <release>
+   <date>2015-02-13</date>
+   <time>20:29:39</time>
+   <version>
+    <release>1.1.3</release>
+    <api>1.1.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <license uri="http://opensource.org/licenses/gpl-license">GPL License</license>
+   <notes>
+preview images will also be recreated if the object this image belongs is of newer date than the image itself. This happens if versions are being deleted and than a new version is uploaded. Because the new version will get the version number of the old version, it will also take over the old preview image.Comparing the creation date of the image with the object detects this case.
+   </notes>
+  </release>
+  <release>
+   <date>2015-08-08</date>
+   <time>09:36:57</time>
+   <version>
+    <release>1.1.4</release>
+    <api>1.1.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <license uri="http://opensource.org/licenses/gpl-license">GPL License</license>
+   <notes>
+command for creating the preview will be called with a given timeout
+   </notes>
+  </release>
+ </changelog>
+</package>

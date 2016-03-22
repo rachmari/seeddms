@@ -1,0 +1,53 @@
+WebDAV
+-----------------------------------------------
+
+SeedDMS has support for WebDAV which allows to easily add, delete,
+move, copy and modify documents. All operating systems have support
+for WebDAV as well, but the implemtations and their behaviour varys
+and consequently you may run into various problems. If this happens
+just file a bug report at https://sourceforge.net/projects/seeddms
+
+The folder structure in SeedDMS is similar to a regular file system
+but it is not identical. SeedDMS distinguishes between a document
+and its content, while a file system knows just files.
+In SeedDMS a document is uniquely identified
+by its document id and not neccessarily by its name. A filesystem
+requires a unique paths for each file. Two identical files in the
+same folder are not possible. SeedDMS can handle identifcally named
+documents in one folder. In order to prevent any problems arising from
+this, you should always disallow identical document names in the
+settings. By definition a file in WebDAV is mapped on the latest
+version of a document in SeedDMS. There is no way to access previous
+versions of a document via WebDAV. Whenever you modify a file,
+a new version will be created. Unfortunately, this has some very
+nasty side effects when you often save a file, because any save
+operation will create a new version. This is because the WebDAV
+server replaces the content of document instead of creating a new
+version if a document is saved again.
+
+Various programms have differnt strategies to save files to disk and
+prevent data lost under all circumstances. Those strategies often don't
+work very well an a WebDAV-Server. The following will list some of those
+strategies.
+
+VIM
+=========================
+
+vim does a lot more than just reading and writing the file you want
+to edit. It creates swap and backup files for data recovery if vim crashes
+or is being kill unexpectivly. On a low bandwidth connection this can
+slow down the editing. For that reason you should either not create the
+swap file at all or create it outside the WebDAV server. A second problem
+arises from how vim modifіes the file you are editing. Before a file
+is saved a backup is created and the new content is written into a new
+file with the name of the original file. On a file system you
+won't see a difference between the file before and after saveing, though
+is actually a new one. In SeedDMS you won't notice a difference either
+if just looking at the document name. It's still the same, but the
+document id has changed. So saving a document will delete the
+old document and create a new one instead of creating a new version of
+the old document. If you don't want this behaviour, then tell vim
+to not create the backup. Creating the backup file in a directory
+outside of WebDAV doesn't help in this case.
+
+vi "+set nobackup" "+set nobackuwrite" -n test.txt

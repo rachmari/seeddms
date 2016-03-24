@@ -302,6 +302,7 @@ CREATE TABLE `tblDocumentFiles` (
   `id` int(11) NOT NULL auto_increment,
   `document` int(11) NOT NULL default '0',
   `userID` int(11) NOT NULL default '0',
+  `content` int(11) NOT NULL default '0',
   `comment` text,
   `name` varchar(150) default NULL,
   `date` int(12) default NULL,
@@ -310,7 +311,7 @@ CREATE TABLE `tblDocumentFiles` (
   `fileType` varchar(10) NOT NULL default '',
   `mimeType` varchar(100) NOT NULL default '',  
   PRIMARY KEY  (`id`),
-  CONSTRAINT `tblDocumentFiles_document` FOREIGN KEY (`document`) REFERENCES `tblDocuments` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `tblDocumentFiles_content` FOREIGN KEY (`content`) REFERENCES `tblDocumentContent` (`id`) ON DELETE CASCADE,
   CONSTRAINT `tblDocumentFiles_user` FOREIGN KEY (`userID`) REFERENCES `tblUsers` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

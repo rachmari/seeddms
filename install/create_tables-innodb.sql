@@ -300,7 +300,6 @@ CREATE TABLE `tblDocumentLinks` (
 
 CREATE TABLE `tblDocumentFiles` (
   `id` int(11) NOT NULL auto_increment,
-  `document` int(11) NOT NULL default '0',
   `userID` int(11) NOT NULL default '0',
   `content` int(11) NOT NULL default '0',
   `comment` text,

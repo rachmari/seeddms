@@ -1720,41 +1720,45 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 
 	function getDocumentFile($ID) { /* {{{ */
 		$db = $this->_dms->getDB();
+		$latest_content = $this->getLatestContent();
 
 		if (!is_numeric($ID)) return false;
-
-		$queryStr = "SELECT * FROM tblDocumentFiles WHERE document = " . $this->_id ." AND id = " . (int) $ID;
+		$queryStr = "SELECT * FROM tblDocumentFiles WHERE content = " . $latest_content->_id ." AND id = " . (int) $ID;
 		$resArr = $db->getResultArray($queryStr);
 		if ((is_bool($resArr) && !$resArr) || count($resArr)==0) return false;
 
 		$resArr = $resArr[0];
-		return new SeedDMS_Core_DocumentFile($resArr["id"], $this, $resArr["userID"], $resArr["comment"], $resArr["date"], $resArr["dir"], $resArr["fileType"], $resArr["mimeType"], $resArr["orgFileName"], $resArr["name"]);
+
+		return new SeedDMS_Core_DocumentFile($resArr["id"], $latest_content, $resArr["userID"], $resArr["comment"], $resArr["date"], $resArr["dir"], $resArr["fileType"], $resArr["mimeType"], $resArr["orgFileName"], $resArr["name"], $resArr["fileSize"], $resArr["checksum"]);
 	} /* }}} */
 
 	function getDocumentFiles() { /* {{{ */
 		if (!isset($this->_documentFiles)) {
 			$db = $this->_dms->getDB();
+			$latest_content = $this->getLatestContent();
 
-			$queryStr = "SELECT * FROM tblDocumentFiles WHERE document = " . $this->_id." ORDER BY `date` DESC";
+			$queryStr = "SELECT * FROM tblDocumentFiles WHERE content = " . $latest_content->_id . " ORDER BY `date` DESC";
 			$resArr = $db->getResultArray($queryStr);
 			if (is_bool($resArr) && !$resArr) return false;
 
 			$this->_documentFiles = array();
 
 			foreach ($resArr as $row) {
-				array_push($this->_documentFiles, new SeedDMS_Core_DocumentFile($row["id"], $this, $row["userID"], $row["comment"], $row["date"], $row["dir"], $row["fileType"], $row["mimeType"], $row["orgFileName"], $row["name"]));
+				array_push($this->_documentFiles, new SeedDMS_Core_DocumentFile($row["id"], $latest_content, $row["userID"], $row["comment"], $row["date"], $row["dir"], $row["fileType"], $row["mimeType"], $row["orgFileName"], $row["name"], $row["fileSize"], $row["checksum"]));
 			}
 		}
 		return $this->_documentFiles;
 	} /* }}} */
 
-	function addDocumentFile($name, $comment, $user, $tmpFile, $orgFileName,$fileType, $mimeType ) { /* {{{ */
+	function addDocumentFile($name, $comment, $user, $tmpFile, $orgFileName,$fileType, $mimeType) { /* {{{ */
 		$db = $this->_dms->getDB();
-
 		$dir = $this->getDir();
+		$latest_content = $this->getLatestContent();
+		$filesize = SeedDMS_Core_File::fileSize($tmpFile);
+		$checksum = SeedDMS_Core_File::checksum($tmpFile);
 
-		$queryStr = "INSERT INTO tblDocumentFiles (comment, date, dir, document, fileType, mimeType, orgFileName, userID, name) VALUES ".
-			"(".$db->qstr($comment).", ".$db->getCurrentTimestamp().", ".$db->qstr($dir).", ".$this->_id.", ".$db->qstr($fileType).", ".$db->qstr($mimeType).", ".$db->qstr($orgFileName).",".$user->getID().",".$db->qstr($name).")";
+		$queryStr = "INSERT INTO tblDocumentFiles (comment, userID, date, dir, content, fileType, mimeType, orgFileName, name, fileSize, checksum) VALUES ".
+			"(".$db->qstr($comment).", ".$user->getID().", ".$db->getCurrentTimestamp().", ".$db->qstr($dir).", ".$latest_content->getID().", ".$db->qstr($fileType).", ".$db->qstr($mimeType).", ".$db->qstr($orgFileName).",".$db->qstr($name).", ".$filesize.", ".$db->qstr($checksum).")";
 		if (!$db->getResult($queryStr)) return false;
 
 		$id = $db->getInsertID();
@@ -1772,6 +1776,23 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 
 		return true;
 	} /* }}} */
+
+	function getFilesByVersion($content) {
+		if (!isset($this->_documentFiles)) {
+			$db = $this->_dms->getDB();
+			$current_content = $this->getLatestContent();
+			$queryStr = "SELECT * FROM tblDocumentFiles WHERE content = " . $content . " ORDER BY `date` DESC";
+			$resArr = $db->getResultArray($queryStr);
+			if (is_bool($resArr) && !resArr) return false;
+
+			$this->_documentFiles = array();
+
+			foreach ($resArr as $row) {
+				array_push($this->_documentFiles, new SeedDMS_Core_DocumentFile($row["id"], $this, $row["userID"], $row["comment"], $row["date"], $row["dir"], $row["fileType"], $row["mimeType"], $row["orgFileName"], $row["name"]));
+			}
+		}
+		return $this->_documentFiles;
+	}
 
 	function removeDocumentFile($ID) { /* {{{ */
 		$db = $this->_dms->getDB();
@@ -4268,7 +4289,7 @@ class SeedDMS_Core_DocumentFile { /* {{{ */
 	/**
 	 * @var object reference to document this file belongs to
 	 */
-	protected $_document;
+	protected $_content;
 
 	/**
 	 * @var integer id of user who is the owner of this link
@@ -4313,9 +4334,19 @@ class SeedDMS_Core_DocumentFile { /* {{{ */
 	 */
 	protected $_name;
 
-	function SeedDMS_Core_DocumentFile($id, $document, $userID, $comment, $date, $dir, $fileType, $mimeType, $orgFileName,$name) {
+		/**
+	 * @var string name of the file as given by the user
+	 */
+	protected $_fileSize;
+
+		/**
+	 * @var string name of the file as given by the user
+	 */
+	protected $_checksum;
+
+	function SeedDMS_Core_DocumentFile($id, $content, $userID, $comment, $date, $dir, $fileType, $mimeType, $orgFileName,$name, $fileSize, $checksum) {
 		$this->_id = $id;
-		$this->_document = $document;
+		$this->_content = $content;
 		$this->_userID = $userID;
 		$this->_comment = $comment;
 		$this->_date = $date;
@@ -4324,10 +4355,12 @@ class SeedDMS_Core_DocumentFile { /* {{{ */
 		$this->_mimeType = $mimeType;
 		$this->_orgFileName = $orgFileName;
 		$this->_name = $name;
+		$this->_fileSize = $fileSize;
+		$this->_checksum = $checksum;
 	}
 
 	function getID() { return $this->_id; }
-	function getDocument() { return $this->_document; }
+	function getContent() { return $this->_content; }
 	function getUserID() { return $this->_userID; }
 	function getComment() { return $this->_comment; }
 	function getDate() { return $this->_date; }
@@ -4336,15 +4369,22 @@ class SeedDMS_Core_DocumentFile { /* {{{ */
 	function getMimeType() { return $this->_mimeType; }
 	function getOriginalFileName() { return $this->_orgFileName; }
 	function getName() { return $this->_name; }
+	function getFileSize() { return $this->_fileSize; }
+	function getChecksum() { return $this->_checksum; }
 
 	function getUser() {
-		if (!isset($this->_user))
-			$this->_user = $this->_document->_dms->getUser($this->_userID);
+		if(!isset($this->_user)) {
+			$this->_user = $this->_content->getUser();
+		}
 		return $this->_user;
 	}
 
 	function getPath() {
-		return $this->_document->getDir() . "f" .$this->_id . $this->_fileType;
+		return $this->_dir . "f" .$this->_id . $this->_fileType;
+	}
+
+	function getDocument() { 
+		return $this->_content->getDocument(); 
 	}
 
 } /* }}} */

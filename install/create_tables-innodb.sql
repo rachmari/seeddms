@@ -308,7 +308,9 @@ CREATE TABLE `tblDocumentFiles` (
   `dir` varchar(255) NOT NULL default '',
   `orgFileName` varchar(150) NOT NULL default '',
   `fileType` varchar(10) NOT NULL default '',
-  `mimeType` varchar(100) NOT NULL default '',  
+  `mimeType` varchar(100) NOT NULL default '',
+  `fileSize` BIGINT,
+  `checksum` char(32), 
   PRIMARY KEY  (`id`),
   CONSTRAINT `tblDocumentFiles_content` FOREIGN KEY (`content`) REFERENCES `tblDocumentContent` (`id`) ON DELETE CASCADE,
   CONSTRAINT `tblDocumentFiles_user` FOREIGN KEY (`userID`) REFERENCES `tblUsers` (`id`)

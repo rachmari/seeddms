@@ -319,7 +319,7 @@ $(document).ready( function() {
 		input.trigger('fileselect', [numFiles, label]);
 	});
 
-	$('#upload-files').on('fileselect', '.btn-file :file', function(event, numFiles, label) {
+	$('.upload-files').on('fileselect', '.btn-file :file', function(event, numFiles, label) {
 		var input = $(this).parents('.input-append').find(':text'),
 		log = numFiles > 1 ? numFiles + ' files selected' : label;
 	

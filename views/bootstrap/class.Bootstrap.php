@@ -836,14 +836,12 @@ $(document).ready(function () {
 
 	function printFileChooser($varname='userfile', $multiple=false, $accept='') { /* {{{ */
 ?>
-	<div id="upload-files">
-		<div id="upload-file">
-			<div class="input-append">
-				<input type="text" class="form-control" readonly>
-				<span class="btn btn-default btn-file">
-					<?php printMLText("browse");?>&hellip; <input id="<?php echo $varname; ?>" type="file" name="<?php echo $varname; ?>"<?php if($multiple) echo " multiple"; ?><?php if($accept) echo " accept=\"".$accept."\""; ?>>
-				</span>
-			</div>
+	<div class="upload-files">
+		<div class="input-append">
+			<input type="text" class="form-control" readonly>
+			<span class="btn btn-default btn-file">
+				<?php printMLText("browse");?>&hellip; <input id="<?php echo $varname; ?>" type="file" name="<?php echo $varname; ?>"<?php if($multiple) echo " multiple"; ?><?php if($accept) echo " accept=\"".$accept."\""; ?>>
+			</span>
 		</div>
 	</div>
 <?php

@@ -301,7 +301,56 @@ for ($file_num=0;$file_num<count($_FILES["userfile"]["tmp_name"]);$file_num++){
 	if (is_bool($res) && !$res) {
 		UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("error_occured"));
 	} else {
+		// Add attachment files
 		$document = $res[0];
+		$document_id = $document->getID();
+
+		/* Todo: Currently there is no name or comment for attachments,
+		   so instantiate with an empty string. Name will be added
+		   in the future. */
+		$name = "";
+		$comment = "";
+
+
+		for ($file_num=0; $file_num<count($_FILES["attachfile"]["tmp_name"]); $file_num++){
+			/*
+				Perform some checks before proceeding with storage
+				Ensure files were uploaded to the server via HTTP POST
+			*/
+			if (is_uploaded_file($_FILES["attachfile"]["tmp_name"][$file_num])){
+				// Check for a size of 0
+			    if ($_FILES["attachfile"]["size"][$file_num] == 0) {
+			        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_zerosize"));
+			    }
+			    // Check for any logged errors
+			    if ($_FILES['attachfile']['error'][$file_num] != 0){
+			        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
+			    }
+			}
+
+			// Location of file in tmp directory
+			$attachfiletmp = $_FILES["attachfile"]["tmp_name"][$file_num];
+			// MIME type of file
+			$attachfiletype = $_FILES["attachfile"]["type"][$file_num];
+			// Original file name
+			$attachfilename = $_FILES["attachfile"]["name"][$file_num];
+
+			$fileType = ".".pathinfo($attachfilename, PATHINFO_EXTENSION);
+
+			if($settings->_overrideMimeType) {
+				$finfo = finfo_open(FILEINFO_MIME_TYPE);
+				$attachfiletype = finfo_file($finfo, $attachfiletmp);
+			}
+
+			// Add the document file to the database
+			$res = $document->addDocumentFile($name, $comment, $user, $attachfiletmp,
+			                                  basename($attachfilename),$fileType, $attachfiletype );
+
+			if(!$res) {
+				UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),"Attachment files not uploaded");
+			}
+		}
+
 		if(isset($GLOBALS['SEEDDMS_HOOKS']['addDocument'])) {
 			foreach($GLOBALS['SEEDDMS_HOOKS']['addDocument'] as $hookObj) {
 				if (method_exists($hookObj, 'postAddDocument')) {

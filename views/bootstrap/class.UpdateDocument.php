@@ -171,6 +171,14 @@ $(document).ready( function() {
 ?>
 			</td>
 		</tr>
+		<tr>
+            <td><?php printMLText("attach_file");?>:</td>
+            <td>
+<?php
+    $this->printFileChooser('attachfile[]', true);
+?>
+            </td>
+        </tr>
 <?php if($dropfolderdir) { ?>
 		<tr>
 			<td><?php printMLText("dropfolder_file");?>:</td>

@@ -12,12 +12,10 @@
  *             2010-2012 Uwe Steinmann
  * @version    Release: @package_version@
  */
-
 /**
  * Include parent class
  */
 require_once("class.Bootstrap.php");
-
 /**
  * Class which outputs the html page for AddDocument view
  *
@@ -30,7 +28,6 @@ require_once("class.Bootstrap.php");
  * @version    Release: @package_version@
  */
 class SeedDMS_View_AddDocument extends SeedDMS_Bootstrap_Style {
-
 	function show() { /* {{{ */
 		$dms = $this->params['dms'];
 		$user = $this->params['user'];
@@ -46,7 +43,6 @@ class SeedDMS_View_AddDocument extends SeedDMS_Bootstrap_Style {
 		$sortusersinlist = $this->params['sortusersinlist'];
 		$orderby = $this->params['orderby'];
 		$folderid = $folder->getId();
-
 		$this->htmlStartPage(getMLText("folder_title", array("foldername" => htmlspecialchars($folder->getName()))));
 		$this->globalNavigation($folder);
 		$this->contentStart();
@@ -83,13 +79,11 @@ function checkForm()
 	}
 	return true;
 }
-
 $(document).ready(function() {
 	$('#new-file').click(function(event) {
 			$("#upload-file").clone().appendTo("#upload-files").removeAttr("id").children('div').children('input').val('');
 	});
 });
-
 </script>
 
 <?php
@@ -209,6 +203,15 @@ $(document).ready(function() {
 			<a class="" id="new-file"><?php printMLtext("add_multiple_files") ?></a>
 			</td>
 		</tr>
+
+        <tr>
+            <td><?php printMLText("attach_file");?>:</td>
+            <td>
+<?php
+    $this->printFileChooser('attachfile[]', true);
+?>
+            </td>
+        </tr>
 <?php if($dropfolderdir) { ?>
 		<tr>
 			<td><?php printMLText("dropfolder_file");?>:</td>
@@ -312,7 +315,6 @@ $(document).ready(function() {
 					if (!$enableselfrevapp && $usr->getID()==$user->getID()) continue; 
 					$mandatory=false;
 					foreach ($res as $r) if ($r['reviewerUserID']==$usr->getID()) $mandatory=true;
-
 					if ($mandatory) print "<option disabled=\"disabled\" value=\"".$usr->getID()."\">". htmlspecialchars($usr->getLogin()." - ".$usr->getFullName())."</option>";
 					else print "<option value=\"".$usr->getID()."\">". htmlspecialchars($usr->getLogin()." - ".$usr->getFullName())."</option>";
 				}
@@ -334,7 +336,6 @@ $(document).ready(function() {
 						echo "</div>\n";
 					}
 				}
-
 				/* Check for mandatory reviewer without access */
 				foreach($res as $r) {
 					if($r['reviewerUserID']) {
@@ -363,7 +364,6 @@ $(document).ready(function() {
 			
 				$mandatory=false;
 				foreach ($res as $r) if ($r['reviewerGroupID']==$grp->getID()) $mandatory=true;	
-
 				if ($mandatory) print "<option value=\"".$grp->getID()."\" disabled=\"disabled\">".htmlspecialchars($grp->getName())."</option>";
 				else print "<option value=\"".$grp->getID()."\">".htmlspecialchars($grp->getName())."</option>";
 			}
@@ -419,7 +419,6 @@ $(document).ready(function() {
 			$res=$user->getMandatoryApprovers();
 			foreach ($docAccess["users"] as $usr) {
 				if (!$enableselfrevapp && $usr->getID()==$user->getID()) continue; 
-
 				$mandatory=false;
 				foreach ($res as $r) if ($r['approverUserID']==$usr->getID()) $mandatory=true;
 				
@@ -444,7 +443,6 @@ $(document).ready(function() {
 						echo "</div>\n";
 					}
 				}
-
 				/* Check for mandatory approvers without access */
 				foreach($res as $r) {
 					if($r['approverUserID']) {
@@ -473,10 +471,8 @@ $(document).ready(function() {
 			
 				$mandatory=false;
 				foreach ($res as $r) if ($r['approverGroupID']==$grp->getID()) $mandatory=true;	
-
 				if ($mandatory) print "<option value=\"". $grp->getID() ."\" disabled=\"disabled\">".htmlspecialchars($grp->getName())."</option>";
 				else print "<option value=\"". $grp->getID() ."\">".htmlspecialchars($grp->getName())."</option>";
-
 			}
 ?>
 			</select>
@@ -496,7 +492,6 @@ $(document).ready(function() {
 						echo "</div>\n";
 					}
 				}
-
 				/* Check for mandatory approver groups without access */
 				foreach($res as $r) {
 					if ($r['approverGroupID']) {
@@ -567,7 +562,6 @@ $(document).ready(function() {
 <?php
 		$this->contentContainerEnd();
 		$this->htmlEndPage();
-
 	} /* }}} */
 }
 ?>

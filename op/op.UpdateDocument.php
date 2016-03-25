@@ -233,7 +233,7 @@ if ($_FILES['userfile']['error'] == 0) {
 	}
 	else {
 		// Add attachment files
-	/* Todo: Currently there is no name or comment for attachments,
+		/* Todo: Currently there is no name or comment for attachments,
 		   so instantiate with an empty string. Name will be added
 		   in the future. */
 		$name = "";
@@ -254,29 +254,28 @@ if ($_FILES['userfile']['error'] == 0) {
 			    if ($_FILES['attachfile']['error'][$file_num] != 0){
 			        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
 			    }
-			}
+			 	// Location of file in tmp directory
+				$attachfiletmp = $_FILES["attachfile"]["tmp_name"][$file_num];
+				// MIME type of file
+				$attachfiletype = $_FILES["attachfile"]["type"][$file_num];
+				// Original file name
+				$attachfilename = $_FILES["attachfile"]["name"][$file_num];
 
-			// Location of file in tmp directory
-			$attachfiletmp = $_FILES["attachfile"]["tmp_name"][$file_num];
-			// MIME type of file
-			$attachfiletype = $_FILES["attachfile"]["type"][$file_num];
-			// Original file name
-			$attachfilename = $_FILES["attachfile"]["name"][$file_num];
+				$fileType = ".".pathinfo($attachfilename, PATHINFO_EXTENSION);
 
-			$fileType = ".".pathinfo($attachfilename, PATHINFO_EXTENSION);
+				if($settings->_overrideMimeType) {
+					$finfo = finfo_open(FILEINFO_MIME_TYPE);
+					$attachfiletype = finfo_file($finfo, $attachfiletmp);
+				}
 
-			if($settings->_overrideMimeType) {
-				$finfo = finfo_open(FILEINFO_MIME_TYPE);
-				$attachfiletype = finfo_file($finfo, $attachfiletmp);
-			}
+				// Add the document file to the database
+				$res = $document->addDocumentFile($name, $comment, $user, $attachfiletmp,
+				                                  basename($attachfilename), $fileType, $attachfiletype );
 
-			// Add the document file to the database
-			$res = $document->addDocumentFile($name, $comment, $user, $attachfiletmp,
-			                                  basename($attachfilename), $fileType, $attachfiletype );
-
-			// Todo: Need to remove document from database if error occurs
-			if(!$res) {
-				UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),"Attachment files not uploaded");
+				// Todo: Need to remove document from database if error occurs
+				if(!$res) {
+					UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),"Attachment files not uploaded");
+				}
 			}
 		}
 		// Send notification to subscribers.

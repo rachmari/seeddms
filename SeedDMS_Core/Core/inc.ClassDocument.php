@@ -1750,6 +1750,20 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 		return $this->_documentFiles;
 	} /* }}} */
 
+	function getFilesByVersion($content) {
+		$db = $this->_dms->getDB();
+		$queryStr = "SELECT * FROM tblDocumentFiles WHERE content = " . $content->_id . " ORDER BY `date` DESC";
+		$resArr = $db->getResultArray($queryStr);
+		if (is_bool($resArr) && !resArr) return false;
+
+		$documentFilesByVer = array();
+
+		foreach ($resArr as $row) {
+			array_push($documentFilesByVer, new SeedDMS_Core_DocumentFile($row["id"], $content, $row["userID"], $row["comment"], $row["date"], $row["dir"], $row["fileType"], $row["mimeType"], $row["orgFileName"], $row["name"]));
+		}
+		return $documentFilesByVer;
+	}
+
 	function addDocumentFile($name, $comment, $user, $tmpFile, $orgFileName,$fileType, $mimeType) { /* {{{ */
 		$db = $this->_dms->getDB();
 		$dir = $this->getDir();
@@ -1776,23 +1790,6 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 
 		return true;
 	} /* }}} */
-
-	function getFilesByVersion($content) {
-		if (!isset($this->_documentFiles)) {
-			$db = $this->_dms->getDB();
-			$current_content = $this->getLatestContent();
-			$queryStr = "SELECT * FROM tblDocumentFiles WHERE content = " . $content . " ORDER BY `date` DESC";
-			$resArr = $db->getResultArray($queryStr);
-			if (is_bool($resArr) && !resArr) return false;
-
-			$this->_documentFiles = array();
-
-			foreach ($resArr as $row) {
-				array_push($this->_documentFiles, new SeedDMS_Core_DocumentFile($row["id"], $this, $row["userID"], $row["comment"], $row["date"], $row["dir"], $row["fileType"], $row["mimeType"], $row["orgFileName"], $row["name"]));
-			}
-		}
-		return $this->_documentFiles;
-	}
 
 	function removeDocumentFile($ID) { /* {{{ */
 		$db = $this->_dms->getDB();
@@ -2147,7 +2144,7 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 	 */
 	function getTimeline() { /* {{{ */
 		$db = $this->_dms->getDB();
-
+		$latest_content_id = $this->getLatestContent()->_id;
 		$timeline = array();
 
 		/* No need to add entries for new version because the status log
@@ -2163,7 +2160,7 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 		}
 		 */
 
-		$queryStr = "SELECT * FROM tblDocumentFiles WHERE document = " . $this->_id;
+		$queryStr = "SELECT * FROM tblDocumentFiles WHERE content = " . $latest_content_id;
 		$resArr = $db->getResultArray($queryStr);
 		if (is_bool($resArr) && $resArr == false)
 			return false;

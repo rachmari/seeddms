@@ -326,28 +326,31 @@ for ($file_num=0;$file_num<count($_FILES["userfile"]["tmp_name"]);$file_num++){
 			    if ($_FILES['attachfile']['error'][$file_num] != 0){
 			        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
 			    }
-			}
 
-			// Location of file in tmp directory
-			$attachfiletmp = $_FILES["attachfile"]["tmp_name"][$file_num];
-			// MIME type of file
-			$attachfiletype = $_FILES["attachfile"]["type"][$file_num];
-			// Original file name
-			$attachfilename = $_FILES["attachfile"]["name"][$file_num];
+			    /*
+			    	If checks pass add the attachment file(s)
+			    	Location of file in tmp directory
+			 	*/
+				$attachfiletmp = $_FILES["attachfile"]["tmp_name"][$file_num];
+				// MIME type of file
+				$attachfiletype = $_FILES["attachfile"]["type"][$file_num];
+				// Original file name
+				$attachfilename = $_FILES["attachfile"]["name"][$file_num];
 
-			$fileType = ".".pathinfo($attachfilename, PATHINFO_EXTENSION);
+				$fileType = ".".pathinfo($attachfilename, PATHINFO_EXTENSION);
 
-			if($settings->_overrideMimeType) {
-				$finfo = finfo_open(FILEINFO_MIME_TYPE);
-				$attachfiletype = finfo_file($finfo, $attachfiletmp);
-			}
+				if($settings->_overrideMimeType) {
+					$finfo = finfo_open(FILEINFO_MIME_TYPE);
+					$attachfiletype = finfo_file($finfo, $attachfiletmp);
+				}
 
-			// Add the document file to the database
-			$res = $document->addDocumentFile($name, $comment, $user, $attachfiletmp,
-			                                  basename($attachfilename),$fileType, $attachfiletype );
+				// Add the document file to the database
+				$res = $document->addDocumentFile($name, $comment, $user, $attachfiletmp,
+				                                  basename($attachfilename),$fileType, $attachfiletype );
 
-			if(!$res) {
-				UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),"Attachment files not uploaded");
+				if(!$res) {
+					UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),"Attachment files not uploaded");
+				}
 			}
 		}
 

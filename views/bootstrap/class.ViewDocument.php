@@ -510,9 +510,9 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 		print "</ul>";
 		echo "</td>";
 
-		// Attachment Listing Begin
-		print "<tr><td></td><td colspan='4'><b>".getMLText("attach_file")."</b></td></tr>";
 		if (count($files) > 0) {
+			// Attachment Listing Begin
+			print "<tr><td></td><td colspan='4'><b>".getMLText("attach_file")."</b></td></tr>";
 			foreach($files as $file) {
 
 				$file_exists=file_exists($dms->contentDir . $file->getPath());
@@ -561,10 +561,8 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 				print "</ul></td>";
 				print "</tr>";
 			}
-			print "</tbody>\n</table>\n";
-
 		}
-		else printMLText("no_attached_files");
+		print "</tbody>\n</table>\n";
 		$this->contentContainerEnd(); // Attachment Listing End
 
 		if($user->isAdmin()) {
@@ -1064,10 +1062,10 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 				print "</ul>";
 				print "</td>\n</tr>\n";
 
-				// List attachments for each version
 				$ver_files = $document->getFilesByVersion($version);
-				print "<tr><td></td><td colspan='4'><b>".getMLText("attach_file")."</b></td></tr>";
 				if(count($ver_files) > 0) {
+					// List attachments for each version
+					print "<tr><td></td><td colspan='4'><b>".getMLText("attach_file")."</b></td></tr>";
 					foreach($ver_files as $ver_file) {
 						$file_exists=file_exists($dms->contentDir . $ver_file->getPath());
 

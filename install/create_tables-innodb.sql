@@ -316,7 +316,32 @@ CREATE TABLE `tblDocumentFiles` (
   CONSTRAINT `tblDocumentFiles_user` FOREIGN KEY (`userID`) REFERENCES `tblUsers` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- 
+-- Table structure for table `tblSpecNumbers`
+-- 
 
+CREATE TABLE `tblSpecNumbers` (
+  `id` int(11) NOT NULL auto_increment,
+  `documentID` int(11) NOT NULL default '0',
+  `number` varchar(150) default NULL, 
+  `parade` smallint(1) default '1',
+  PRIMARY KEY  (`id`),
+  CONSTRAINT `tblSpecNumbers_document` FOREIGN KEY (`documentID`) REFERENCES `tblDocuments` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- 
+-- Table structure for table `tblSpecNumbers`
+-- 
+
+CREATE TABLE `tblMemoNumbers` (
+  `id` int(11) NOT NULL auto_increment,
+  `userID` int(11) NOT NULL default '0',
+  `documentID` int(11) NOT NULL default '0',
+  `number` varchar(150) default NULL, 
+  `parade` smallint(1) default '1',
+  PRIMARY KEY  (`id`),
+  CONSTRAINT `tblMemoNumbers_document` FOREIGN KEY (`documentID`) REFERENCES `tblDocuments` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 

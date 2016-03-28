@@ -196,6 +196,38 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 		return $document;
 	} /* }}} */
 
+	/*
+	 * Return the unique document number if category is a spec or memo
+	 *
+	 * @return string document number or false if query failed
+	 */
+	function getDocNum() { /* {{{ */
+		$db = $this->_dms->getDB();
+		$categories = $this->getCategories();
+		if (count($categories) == 1) {
+			$category = $categories[0];
+			$catName = $category->getName();
+			if($catName == 'spec' || $catName == 'Spec') {
+				$queryStr = "SELECT number AS num FROM tblSpecNumbers where document=".$this->_id;
+				$resArr = $db->getResultArray($queryStr);
+				if (is_bool($resArr) && $resArr == false)
+					return false;
+				if (count($resArr) != 1)
+					return false;
+				return $resArr[0]['num'];
+			}
+			elseif ($catName == 'memo' || $catName == 'Memo') {
+				$queryStr = "SELECT number AS num FROM tblMemoNumbers where document=".$this->_id;
+				$resArr = $db->getResultArray($queryStr);
+				if (is_bool($resArr) && $resArr == false)
+					return false;
+				if (count($resArr) != 1)
+					return false;
+				return $resArr[0]['num'];
+			}
+		}
+		return false;
+	} /* }}} */
 
 	/*
 	 * Return the directory of the document in the file system relativ

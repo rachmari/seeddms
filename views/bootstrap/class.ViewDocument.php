@@ -404,7 +404,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 		$this->contentContainerStart();
 		print "<table class=\"table\">";
 		print "<thead>\n<tr>\n";
-		print "<th width='*'></th>\n";
+		print "<th width='*'>".getMLText("doc_number")."</th>\n";
 		print "<th width='*'>".getMLText("file")."</th>\n";
 		print "<th width='25%'>".getMLText("comment")."</th>\n";
 		print "<th width='15%'>".getMLText("status")."</th>\n";
@@ -422,11 +422,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 				print "<a href=\"../op/op.Download.php?documentid=".$documentid."&version=".$latestContent->getVersion()."\">";
 			}
 		}
-		if($previewer->hasPreview($latestContent)) {
-			print("<img class=\"mimeicon\" width=\"".$previewwidthdetail."\" src=\"../op/op.Preview.php?documentid=".$document->getID()."&version=".$latestContent->getVersion()."&width=".$previewwidthdetail."\" title=\"".htmlspecialchars($latestContent->getMimeType())."\">");
-		} else {
-			print "<img class=\"mimeicon\" src=\"".$this->getMimeIcon($latestContent->getFileType())."\" title=\"".htmlspecialchars($latestContent->getMimeType())."\">";
-		}
+		print $document->getDocNum();
 		if ($file_exists) {
 			print "</a>";
 		}

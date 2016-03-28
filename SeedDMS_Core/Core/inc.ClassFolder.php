@@ -789,7 +789,7 @@ class SeedDMS_Core_Folder extends SeedDMS_Core_Object {
 	 *        containing two elements. The first one is the new document, the
 	 *        second one is the result set returned when inserting the content.
 	 */
-	function addDocument($name, $comment, $expires, $owner, $keywords, $categories, $tmpFile, $orgFileName, $fileType, $mimeType, $sequence, $reviewers=array(), $approvers=array(),$reqversion=0,$version_comment="", $attributes=array(), $version_attributes=array(), $workflow=null) { /* {{{ */
+	function addDocument($name, $comment, $expires, $owner, $keywords, $categories, $tmpFile, $orgFileName, $fileType, $mimeType, $sequence, $reviewers=array(), $approvers=array(),$reqversion=0,$version_comment="", $attributes=array(), $version_attributes=array(), $workflow=null, $docNumber=null, $paradeDoc=1) { /* {{{ */
 		$db = $this->_dms->getDB();
 
 		$expires = (!$expires) ? 0 : $expires;
@@ -815,9 +815,7 @@ class SeedDMS_Core_Folder extends SeedDMS_Core_Object {
 
 		$document = $this->_dms->getDocument($db->getInsertID());
 
-//		if ($version_comment!="")
-			$res = $document->addContent($version_comment, $owner, $tmpFile, $orgFileName, $fileType, $mimeType, $reviewers, $approvers, $reqversion, $version_attributes, $workflow);
-//		else $res = $document->addContent($comment, $owner, $tmpFile, $orgFileName, $fileType, $mimeType, $reviewers, $approvers,$reqversion, $version_attributes, $workflow);
+		$res = $document->addContent($version_comment, $owner, $tmpFile, $orgFileName, $fileType, $mimeType, $reviewers, $approvers, $reqversion, $version_attributes, $workflow);
 
 		if (is_bool($res) && !$res) {
 			$db->rollbackTransaction();
@@ -826,6 +824,74 @@ class SeedDMS_Core_Folder extends SeedDMS_Core_Object {
 
 		if($categories) {
 			$document->setCategories($categories);
+			/*
+				Check if the category name is either 'spec' or 'memo'
+				If so, then get the next available document for the
+				category type.
+			*/
+			foreach($categories as $category) {
+				$catName = $category->getName();
+				$catID = $category->getID();
+				if($catName == "Memo" || $catName == "memo") {
+					if($docNumber == null) {
+						// Add a new Parade document and generate new number
+						$queryStr = "INSERT INTO tblMemoNumbers (document, userID) VALUES (".$document->getID().", ".$owner->getID().")";
+						if (!$db->getResult($queryStr)) {
+							$db->rollbackTransaction();
+							return false;
+						}
+						$memoID = $db->getInsertID();
+						// Get count of memos by user to generate the next doc num
+						$resArr = $db->getResultArray("SELECT COUNT(*) AS num FROM tblMemoNumbers WHERE userID=".$owner->getID()." FOR UPDATE");
+						// Document indexes will start at 0
+						$docIndex = (integer)$resArr[0]["num"]-1;
+						// Assemble the new document number in format: <user login>-<index>
+						$docNum = $owner->_login."-".$docIndex;
+						$queryStr = "UPDATE tblMemoNumbers SET number='".$docNum."' WHERE id=".$memoID;
+						if (!$db->getResult($queryStr)) {
+							$db->rollbackTransaction();
+							return false;
+						}
+					} else {
+						// Allow adding previously created documents with existing numbers.
+						$queryStr = "INSERT INTO tblMemoNumbers (document, userID, number, parade) VALUES (".$document->getID().", ".$owner->getID().", ".$docNumber.", ".$paradeDoc.")";
+						if (!$db->getResult($queryStr)) {
+							$db->rollbackTransaction();
+							return false;
+						}
+					}
+				}
+				elseif($catName == "Spec" || $catName == "spec") {
+					// Add a new Parade document and generate new number
+					if($docNumber == null) {
+						$queryStr = "INSERT INTO tblSpecNumbers (document) VALUES (".$document->getID().")";
+						if (!$db->getResult($queryStr)) {
+							$db->rollbackTransaction();
+							return false;
+						}
+						$specID = $db->getInsertID();
+						// Get count of memos by user to generate the next doc num
+						$resArr = $db->getResultArray("SELECT COUNT(*) AS num FROM tblSpecNumbers WHERE parade=1 FOR UPDATE");
+						// Document indexes will start at 0
+						$docIndex = (integer)$resArr[0]["num"]-1;
+						$paddedNumber = str_pad($docIndex, 5, '0', STR_PAD_LEFT);
+						// Assemble the new document number in format: PS-<index>
+						$docNum = "PS-".$paddedNumber;
+						$queryStr = "UPDATE tblSpecNumbers SET number='".$docNum."' WHERE id=".$specID;
+						if (!$db->getResult($queryStr)) {
+							$db->rollbackTransaction();
+							return false;
+						}
+					} else {
+						// Allow adding previously created documents with existing numbers.
+						$queryStr = "INSERT INTO tblSpecNumbers (document, number, parade) VALUES (".$document->getID().", ".$docNumber.", ".$parade.")";
+						if (!$db->getResult($queryStr)) {
+							$db->rollbackTransaction();
+							return false;
+						}
+					}
+				}
+			}
 		}
 
 		if($attributes) {

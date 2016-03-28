@@ -448,7 +448,7 @@ class SeedDMS_View_Search extends SeedDMS_Bootstrap_Style {
 
 			print "<table class=\"table\">";
 			print "<thead>\n<tr>\n";
-			print "<th></th>\n";
+			print "<th>".getMLText("doc_number")."</th>\n";
 			print "<th>".getMLText("name")."</th>\n";
 			print "<th>".getMLText("attributes")."</th>\n";
 			print "<th>".getMLText("status")."</th>\n";
@@ -466,7 +466,8 @@ class SeedDMS_View_Search extends SeedDMS_Bootstrap_Style {
 						$owner = $document->getOwner();
 						$lc = $document->getLatestContent();
 						$version = $lc->getVersion();
-						$previewer->createPreview($lc);
+                        $docNumber = $document->getDocNum();
+						//$previewer->createPreview($lc);
 
 						if (in_array(3, $searchin))
 							$comment = $this->markQuery(htmlspecialchars($document->getComment()));
@@ -480,12 +481,7 @@ class SeedDMS_View_Search extends SeedDMS_Bootstrap_Style {
 						} else {
 							$docName = htmlspecialchars($document->getName());
 						}
-						print "<td><a class=\"standardText\" href=\"../out/out.ViewDocument.php?documentid=".$document->getID()."\">";
-						if($previewer->hasPreview($lc)) {
-							print "<img class=\"mimeicon\" width=\"".$previewwidth."\"src=\"../op/op.Preview.php?documentid=".$document->getID()."&version=".$lc->getVersion()."&width=".$previewwidth."\" title=\"".htmlspecialchars($lc->getMimeType())."\">";
-						} else {
-							print "<img class=\"mimeicon\" src=\"".$this->getMimeIcon($lc->getFileType())."\" title=\"".htmlspecialchars($lc->getMimeType())."\">";
-						}
+						print "<td><a class=\"standardText\" href=\"../out/out.ViewDocument.php?documentid=".$document->getID()."\">".$docNumber;
 						print "</a></td>";
 						print "<td><a class=\"standardText\" href=\"../out/out.ViewDocument.php?documentid=".$document->getID()."\">/";
 						$folder = $document->getFolder();

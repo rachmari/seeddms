@@ -293,7 +293,7 @@ for ($file_num=0;$file_num<count($_FILES["userfile"]["tmp_name"]);$file_num++){
 	}
 
 	$res = $folder->addDocument($name, $comment, $expires, $user, $keywords,
-															$cats, $userfiletmp, basename($userfilename),
+								$cats, $userfiletmp, basename($userfilename),
 	                            $fileType, $userfiletype, $sequence,
 	                            $reviewers, $approvers, $reqversion,
 	                            $version_comment, $attributes, $attributes_version, $workflow);

@@ -93,6 +93,28 @@ switch($command) {
 		}	
 		break; /* }}} */
 
+	case 'searchnumber': /* {{{ */
+		$numbers = $_GET['query'];
+		$db = $dms->getDB();
+		$exists = array();
+		$missing = array();
+
+		foreach($numbers as $number) {
+			$docID = $dms->getDocumentIDByNumber($number);
+			if($docID) {
+				$queryStr="SELECT name AS title FROM tblDocuments WHERE id='".$docID."'";
+				$resArr = $db->getResultArray($queryStr);
+				$docInfo = array("number" => $number, "title" => $resArr[0]['title']);
+				array_push($exists, $docInfo);
+			} else {
+				array_push($missing, $number);
+			}
+		}
+		$results = array("exists"=>$exists, "missing"=>$missing);
+		header('Content-Type: application/json');
+		echo json_encode($results);
+		break; /* }}} */
+
 	case 'searchdocument': /* {{{ */
 		if($user) {
 			$query = $_GET['query'];

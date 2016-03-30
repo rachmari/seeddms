@@ -2265,6 +2265,52 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
  */
 class SeedDMS_Core_DocumentContent extends SeedDMS_Core_Object { /* {{{ */
 
+    /**
+     * Add a PDF version of a piece of content
+     *
+     * Each content may have a PDF version of the document
+     * associated with it. 
+     *
+     * @param string $tmpFile file containing the actuall content
+     * @param string $orgFileName original file name
+     * @param string $fileType
+     * @param string $mimeType MimeType of the content
+     * @return contentPDF insert id or false in case of an error
+     */
+    function addPDF($tmpFile, $orgFileName, $fileType, $mimeType) { /* {{{ */
+        $db = $this->_dms->getDB();
+
+        $filesize = SeedDMS_Core_File::fileSize($tmpFile);
+        $checksum = SeedDMS_Core_File::checksum($tmpFile);
+
+        $db->startTransaction();
+        $queryStr = "INSERT INTO tblDocumentContentPDF (content, orgFileName, fileType, mimeType, fileSize, checksum) VALUES ".
+                        "(".$this->_id.", ".$db->qstr($orgFileName).", ".$db->qstr($fileType).", ".$db->qstr($mimeType).", ".$filesize.", ".$db->qstr($checksum).")";
+        if (!$db->getResult($queryStr)) {
+            $db->rollbackTransaction();
+            return false;
+        }
+
+        $pdfID = $db->getInsertID();
+
+        // copy file
+        if (!SeedDMS_Core_File::makeDir($this->_dms->contentDir . $dir)) {
+            $db->rollbackTransaction();
+            return false;
+        }
+        if($this->_dms->forceRename)
+            $err = SeedDMS_Core_File::renameFile($tmpFile, $this->_dms->contentDir . $dir . $version . $fileType);
+        else
+            $err = SeedDMS_Core_File::copyFile($tmpFile, $this->_dms->contentDir . $dir . $version . $fileType);
+        if (!$err) {
+            $db->rollbackTransaction();
+            return false;
+        }
+
+        $db->commitTransaction();
+        return $pdfID;
+    } /* }}} */
+
 	/**
 	 * Recalculate the status of a document
 	 * The methods checks the review and approval status and sets the

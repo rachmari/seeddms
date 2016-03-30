@@ -244,263 +244,296 @@ if($settings->_dropFolderDir) {
 	}
 }
 
-/* Check files for Errors first */
-for ($file_num=0;$file_num<count($_FILES["userfile"]["tmp_name"]);$file_num++){
-	if ($_FILES["userfile"]["size"][$file_num]==0) {
-		UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_zerosize"));
-	}
-	if (is_uploaded_file($_FILES["userfile"]["tmp_name"][$file_num]) && $_FILES['userfile']['error'][$file_num]!=0){
-		UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
+
+if ($_FILES["userfile"]["size"]==0) {
+	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_zerosize"));
+}
+if (is_uploaded_file($_FILES["userfile"]["tmp_name"]) && $_FILES['userfile']['error']!=0){
+	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
+}
+
+$userfiletmp = $_FILES["userfile"]["tmp_name"];
+$userfiletype = $_FILES["userfile"]["type"];
+$userfilename = $_FILES["userfile"]["name"];
+
+$fileType = ".".pathinfo($userfilename, PATHINFO_EXTENSION);
+
+if($settings->_overrideMimeType) {
+	$finfo = finfo_open(FILEINFO_MIME_TYPE);
+	$userfiletype = finfo_file($finfo, $userfiletmp);
+}
+
+if ((count($_FILES["userfile"]["tmp_name"])==1)&&($_POST["name"]!=""))
+	$name = $_POST["name"];
+else $name = basename($userfilename);
+
+/* Check if name already exists in the folder */
+if(!$settings->_enableDuplicateDocNames) {
+	if($folder->hasDocumentByName($name)) {
+		UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("document_duplicate_name"));
 	}
 }
 
-for ($file_num=0;$file_num<count($_FILES["userfile"]["tmp_name"]);$file_num++){
-	$userfiletmp = $_FILES["userfile"]["tmp_name"][$file_num];
-	$userfiletype = $_FILES["userfile"]["type"][$file_num];
-	$userfilename = $_FILES["userfile"]["name"][$file_num];
-	
-	$fileType = ".".pathinfo($userfilename, PATHINFO_EXTENSION);
-
-	if($settings->_overrideMimeType) {
-		$finfo = finfo_open(FILEINFO_MIME_TYPE);
-		$userfiletype = finfo_file($finfo, $userfiletmp);
+$cats = array();
+if($categories) {
+	foreach($categories as $catid) {
+		$cats[] = $dms->getDocumentCategory($catid);
 	}
+}
 
-	if ((count($_FILES["userfile"]["tmp_name"])==1)&&($_POST["name"]!=""))
-		$name = $_POST["name"];
-	else $name = basename($userfilename);
+if(isset($GLOBALS['SEEDDMS_HOOKS']['addDocument'])) {
+	foreach($GLOBALS['SEEDDMS_HOOKS']['addDocument'] as $hookObj) {
+		if (method_exists($hookObj, 'pretAddDocument')) {
+			$hookObj->preAddDocument(array('name'=>&$name, 'comment'=>&$comment));
+		}
+	}
+}
 
-	/* Check if name already exists in the folder */
-	if(!$settings->_enableDuplicateDocNames) {
-		if($folder->hasDocumentByName($name)) {
-			UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("document_duplicate_name"));
+$res = $folder->addDocument($name, $comment, $expires, $user, $keywords,
+							$cats, $userfiletmp, basename($userfilename),
+                            $fileType, $userfiletype, $sequence,
+                            $reviewers, $approvers, $reqversion,
+                            $version_comment, $attributes, $attributes_version, $workflow);
+
+if (is_bool($res) && !$res) {
+	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("error_occured"));
+} else {
+	$document = $res[0];
+	$document_id = $document->getID();
+	// Add pdf content files if they exist
+	$content = $document->getLatestContent();
+	if (is_uploaded_file($_FILES["userfilePDF"]["tmp_name"])){
+		// Check for a size of 0
+	    if ($_FILES["userfilePDF"]["size"] == 0) {
+	        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_zerosize"));
+	    }
+	    // Check for any logged errors
+	    if ($_FILES["userfilePDF"]["error"] != 0){
+	        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
+	    }
+	    // Check for any logged errors
+	    if ($_FILES["userfilePDF"]["type"] != "application/pdf"){
+	        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("pdf_filetype_error"));
+	    }
+	    /*
+	    	If checks pass add the pdf file
+	    	Location of file in tmp directory
+	 	*/
+		$pdffiletmp = $_FILES["userfilePDF"]["tmp_name"];
+		// MIME type of file
+		$pdffiletype = $_FILES["userfilePDF"]["type"];
+		// Original file name
+		$pdffilename = $_FILES["userfilePDF"]["name"];
+
+		$fileType = ".".pathinfo($pdffilename, PATHINFO_EXTENSION);
+
+		if($settings->_overrideMimeType) {
+			$finfo = finfo_open(FILEINFO_MIME_TYPE);
+			$pdffiletype = finfo_file($finfo, $pdffiletmp);
+		}
+
+		$res = $content->addPDF($pdffiletmp, basename($pdffilename), $fileType, $pdffiletype);
+
+		if(!$res) {
+			UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),"PDF file not uploaded");
+		}
+	}
+	// Add attachment files
+	/* Todo: Currently there is no name or comment for attachments,
+	   so instantiate with an empty string. Name will be added
+	   in the future. */
+	$name = "";
+	$comment = "";
+
+	for ($file_num=0; $file_num<count($_FILES["attachfile"]["tmp_name"]); $file_num++){
+		/*
+			Perform some checks before proceeding with storage
+			Ensure files were uploaded to the server via HTTP POST
+		*/
+		if (is_uploaded_file($_FILES["attachfile"]["tmp_name"][$file_num])){
+			// Check for a size of 0
+		    if ($_FILES["attachfile"]["size"][$file_num] == 0) {
+		        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_zerosize"));
+		    }
+		    // Check for any logged errors
+		    if ($_FILES['attachfile']['error'][$file_num] != 0){
+		        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
+		    }
+
+		    /*
+		    	If checks pass add the attachment file(s)
+		    	Location of file in tmp directory
+		 	*/
+			$attachfiletmp = $_FILES["attachfile"]["tmp_name"][$file_num];
+			// MIME type of file
+			$attachfiletype = $_FILES["attachfile"]["type"][$file_num];
+			// Original file name
+			$attachfilename = $_FILES["attachfile"]["name"][$file_num];
+
+			$fileType = ".".pathinfo($attachfilename, PATHINFO_EXTENSION);
+
+			if($settings->_overrideMimeType) {
+				$finfo = finfo_open(FILEINFO_MIME_TYPE);
+				$attachfiletype = finfo_file($finfo, $attachfiletmp);
+			}
+
+			// Add the document file to the database
+			$res = $document->addDocumentFile($name, $comment, $user, $attachfiletmp,
+			                                  basename($attachfilename),$fileType, $attachfiletype );
+
+			if(!$res) {
+				UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),"Attachment files not uploaded");
+			}
 		}
 	}
 
-	$cats = array();
-	if($categories) {
-		foreach($categories as $catid) {
-			$cats[] = $dms->getDocumentCategory($catid);
+	// Add document links
+	if(isset($_POST["linkInputs"])) {
+		$linkInputs = $_POST["linkInputs"];
+		foreach ($linkInputs as $linkInput) {
+			//Extract the document number only <number title>
+			$docNumber = explode(" ", $linkInput);
+			$docNumber = $docNumber[0];
+			$linkID = $dms->getDocumentIDByNumber($docNumber);
+			if (!$document->addDocumentLink($linkID, $user->getID(), true)){
+				UI::exitError(getMLText("document_title", array("documentname" => $document->getID())),$linkID);
+			}
 		}
 	}
 
 	if(isset($GLOBALS['SEEDDMS_HOOKS']['addDocument'])) {
 		foreach($GLOBALS['SEEDDMS_HOOKS']['addDocument'] as $hookObj) {
-			if (method_exists($hookObj, 'pretAddDocument')) {
-				$hookObj->preAddDocument(array('name'=>&$name, 'comment'=>&$comment));
+			if (method_exists($hookObj, 'postAddDocument')) {
+				$hookObj->postAddDocument($document);
+			}
+		}
+	}
+	if($settings->_enableFullSearch) {
+		$index = $indexconf['Indexer']::open($settings->_luceneDir);
+		if($index) {
+			$indexconf['Indexer']::init($settings->_stopWordsFile);
+			$index->addDocument(new $indexconf['IndexedDocument']($dms, $document, isset($settings->_converters['fulltext']) ? $settings->_converters['fulltext'] : null, true));
+		}
+	}
+
+	/* Add a default notification for the owner of the document */
+	if($settings->_enableOwnerNotification) {
+		$res = $document->addNotify($user->getID(), true);
+	}
+	/* Check if additional notification shall be added */
+	if(!empty($_POST['notification_users'])) {
+		foreach($_POST['notification_users'] as $notuserid) {
+			$notuser = $dms->getUser($notuserid);
+			if($notuser) {
+				if($document->getAccessMode($user) >= M_READ)
+					$res = $document->addNotify($notuserid, true);
+			}
+		}
+	}
+	if(!empty($_POST['notification_groups'])) {
+		foreach($_POST['notification_groups'] as $notgroupid) {
+			$notgroup = $dms->getGroup($notgroupid);
+			if($notgroup) {
+				if($document->getGroupAccessMode($notgroup) >= M_READ)
+					$res = $document->addNotify($notgroupid, false);
 			}
 		}
 	}
 
-	$res = $folder->addDocument($name, $comment, $expires, $user, $keywords,
-								$cats, $userfiletmp, basename($userfilename),
-	                            $fileType, $userfiletype, $sequence,
-	                            $reviewers, $approvers, $reqversion,
-	                            $version_comment, $attributes, $attributes_version, $workflow);
+	// Send notification to subscribers of folder.
+	if($notifier) {
+		$notifyList = $folder->getNotifyList();
 
-	if (is_bool($res) && !$res) {
-		UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("error_occured"));
-	} else {
-		// Add attachment files
-		$document = $res[0];
-		$document_id = $document->getID();
-
-		/* Todo: Currently there is no name or comment for attachments,
-		   so instantiate with an empty string. Name will be added
-		   in the future. */
-		$name = "";
-		$comment = "";
-
-
-		for ($file_num=0; $file_num<count($_FILES["attachfile"]["tmp_name"]); $file_num++){
-			/*
-				Perform some checks before proceeding with storage
-				Ensure files were uploaded to the server via HTTP POST
-			*/
-			if (is_uploaded_file($_FILES["attachfile"]["tmp_name"][$file_num])){
-				// Check for a size of 0
-			    if ($_FILES["attachfile"]["size"][$file_num] == 0) {
-			        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_zerosize"));
-			    }
-			    // Check for any logged errors
-			    if ($_FILES['attachfile']['error'][$file_num] != 0){
-			        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
-			    }
-
-			    /*
-			    	If checks pass add the attachment file(s)
-			    	Location of file in tmp directory
-			 	*/
-				$attachfiletmp = $_FILES["attachfile"]["tmp_name"][$file_num];
-				// MIME type of file
-				$attachfiletype = $_FILES["attachfile"]["type"][$file_num];
-				// Original file name
-				$attachfilename = $_FILES["attachfile"]["name"][$file_num];
-
-				$fileType = ".".pathinfo($attachfilename, PATHINFO_EXTENSION);
-
-				if($settings->_overrideMimeType) {
-					$finfo = finfo_open(FILEINFO_MIME_TYPE);
-					$attachfiletype = finfo_file($finfo, $attachfiletmp);
-				}
-
-				// Add the document file to the database
-				$res = $document->addDocumentFile($name, $comment, $user, $attachfiletmp,
-				                                  basename($attachfilename),$fileType, $attachfiletype );
-
-				if(!$res) {
-					UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),"Attachment files not uploaded");
-				}
-			}
+		$subject = "new_document_email_subject";
+		$message = "new_document_email_body";
+		$params = array();
+		$params['name'] = $name;
+		$params['folder_name'] = $folder->getName();
+		$params['folder_path'] = $folder->getFolderPathPlain();
+		$params['username'] = $user->getFullName();
+		$params['comment'] = $comment;
+		$params['version_comment'] = $version_comment;
+		$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?documentid=".$document->getID();
+		$params['sitename'] = $settings->_siteName;
+		$params['http_root'] = $settings->_httpRoot;
+		$notifier->toList($user, $notifyList["users"], $subject, $message, $params);
+		foreach ($notifyList["groups"] as $grp) {
+			$notifier->toGroup($user, $grp, $subject, $message, $params);
 		}
 
-		// Add document links
-		if(isset($_POST["linkInputs"])) {
-			$linkInputs = $_POST["linkInputs"];
-			foreach ($linkInputs as $linkInput) {
-				//Extract the document number only <number title>
-				$docNumber = explode(" ", $linkInput);
-				$docNumber = $docNumber[0];
-				$linkID = $dms->getDocumentIDByNumber($docNumber);
-				if (!$document->addDocumentLink($linkID, $user->getID(), true)){
-					UI::exitError(getMLText("document_title", array("documentname" => $document->getID())),$linkID);
-				}
-			}
-		}
-
-		if(isset($GLOBALS['SEEDDMS_HOOKS']['addDocument'])) {
-			foreach($GLOBALS['SEEDDMS_HOOKS']['addDocument'] as $hookObj) {
-				if (method_exists($hookObj, 'postAddDocument')) {
-					$hookObj->postAddDocument($document);
-				}
-			}
-		}
-		if($settings->_enableFullSearch) {
-			$index = $indexconf['Indexer']::open($settings->_luceneDir);
-			if($index) {
-				$indexconf['Indexer']::init($settings->_stopWordsFile);
-				$index->addDocument(new $indexconf['IndexedDocument']($dms, $document, isset($settings->_converters['fulltext']) ? $settings->_converters['fulltext'] : null, true));
-			}
-		}
-
-		/* Add a default notification for the owner of the document */
-		if($settings->_enableOwnerNotification) {
-			$res = $document->addNotify($user->getID(), true);
-		}
-		/* Check if additional notification shall be added */
-		if(!empty($_POST['notification_users'])) {
-			foreach($_POST['notification_users'] as $notuserid) {
-				$notuser = $dms->getUser($notuserid);
-				if($notuser) {
-					if($document->getAccessMode($user) >= M_READ)
-						$res = $document->addNotify($notuserid, true);
-				}
-			}
-		}
-		if(!empty($_POST['notification_groups'])) {
-			foreach($_POST['notification_groups'] as $notgroupid) {
-				$notgroup = $dms->getGroup($notgroupid);
-				if($notgroup) {
-					if($document->getGroupAccessMode($notgroup) >= M_READ)
-						$res = $document->addNotify($notgroupid, false);
-				}
-			}
-		}
-
-		// Send notification to subscribers of folder.
-		if($notifier) {
-			$notifyList = $folder->getNotifyList();
-
-			$subject = "new_document_email_subject";
-			$message = "new_document_email_body";
+		if($workflow && $settings->_enableNotificationWorkflow) {
+			$subject = "request_workflow_action_email_subject";
+			$message = "request_workflow_action_email_body";
 			$params = array();
-			$params['name'] = $name;
-			$params['folder_name'] = $folder->getName();
+			$params['name'] = $document->getName();
+			$params['version'] = $reqversion;
+			$params['workflow'] = $workflow->getName();
 			$params['folder_path'] = $folder->getFolderPathPlain();
+			$params['current_state'] = $workflow->getInitState()->getName();
 			$params['username'] = $user->getFullName();
-			$params['comment'] = $comment;
-			$params['version_comment'] = $version_comment;
-			$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?documentid=".$document->getID();
 			$params['sitename'] = $settings->_siteName;
 			$params['http_root'] = $settings->_httpRoot;
-			$notifier->toList($user, $notifyList["users"], $subject, $message, $params);
-			foreach ($notifyList["groups"] as $grp) {
-				$notifier->toGroup($user, $grp, $subject, $message, $params);
-			}
+			$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?documentid=".$document->getID();
 
-			if($workflow && $settings->_enableNotificationWorkflow) {
-				$subject = "request_workflow_action_email_subject";
-				$message = "request_workflow_action_email_body";
+			foreach($workflow->getNextTransitions($workflow->getInitState()) as $ntransition) {
+				foreach($ntransition->getUsers() as $tuser) {
+					$notifier->toIndividual($user, $tuser->getUser(), $subject, $message, $params);
+				}
+				foreach($ntransition->getGroups() as $tuser) {
+					$notifier->toGroup($user, $tuser->getGroup(), $subject, $message, $params);
+				}
+			}
+		}
+
+		if($settings->_enableNotificationAppRev) {
+			/* Reviewers and approvers will be informed about the new document */
+			if($reviewers['i'] || $reviewers['g']) {
+				$subject = "review_request_email_subject";
+				$message = "review_request_email_body";
 				$params = array();
 				$params['name'] = $document->getName();
-				$params['version'] = $reqversion;
-				$params['workflow'] = $workflow->getName();
 				$params['folder_path'] = $folder->getFolderPathPlain();
-				$params['current_state'] = $workflow->getInitState()->getName();
+				$params['version'] = $reqversion;
+				$params['comment'] = $comment;
 				$params['username'] = $user->getFullName();
+				$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?documentid=".$document->getID();
 				$params['sitename'] = $settings->_siteName;
 				$params['http_root'] = $settings->_httpRoot;
-				$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?documentid=".$document->getID();
 
-				foreach($workflow->getNextTransitions($workflow->getInitState()) as $ntransition) {
-					foreach($ntransition->getUsers() as $tuser) {
-						$notifier->toIndividual($user, $tuser->getUser(), $subject, $message, $params);
-					}
-					foreach($ntransition->getGroups() as $tuser) {
-						$notifier->toGroup($user, $tuser->getGroup(), $subject, $message, $params);
-					}
+				foreach($reviewers['i'] as $reviewerid) {
+					$notifier->toIndividual($user, $dms->getUser($reviewerid), $subject, $message, $params);
+				}
+				foreach($reviewers['g'] as $reviewergrpid) {
+					$notifier->toGroup($user, $dms->getGroup($reviewergrpid), $subject, $message, $params);
 				}
 			}
 
-			if($settings->_enableNotificationAppRev) {
-				/* Reviewers and approvers will be informed about the new document */
-				if($reviewers['i'] || $reviewers['g']) {
-					$subject = "review_request_email_subject";
-					$message = "review_request_email_body";
-					$params = array();
-					$params['name'] = $document->getName();
-					$params['folder_path'] = $folder->getFolderPathPlain();
-					$params['version'] = $reqversion;
-					$params['comment'] = $comment;
-					$params['username'] = $user->getFullName();
-					$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?documentid=".$document->getID();
-					$params['sitename'] = $settings->_siteName;
-					$params['http_root'] = $settings->_httpRoot;
+			if($approvers['i'] || $approvers['g']) {
+				$subject = "approval_request_email_subject";
+				$message = "approval_request_email_body";
+				$params = array();
+				$params['name'] = $document->getName();
+				$params['folder_path'] = $folder->getFolderPathPlain();
+				$params['version'] = $reqversion;
+				$params['comment'] = $comment;
+				$params['username'] = $user->getFullName();
+				$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?documentid=".$document->getID();
+				$params['sitename'] = $settings->_siteName;
+				$params['http_root'] = $settings->_httpRoot;
 
-					foreach($reviewers['i'] as $reviewerid) {
-						$notifier->toIndividual($user, $dms->getUser($reviewerid), $subject, $message, $params);
-					}
-					foreach($reviewers['g'] as $reviewergrpid) {
-						$notifier->toGroup($user, $dms->getGroup($reviewergrpid), $subject, $message, $params);
-					}
+				foreach($approvers['i'] as $approverid) {
+					$notifier->toIndividual($user, $dms->getUser($approverid), $subject, $message, $params);
 				}
-
-				if($approvers['i'] || $approvers['g']) {
-					$subject = "approval_request_email_subject";
-					$message = "approval_request_email_body";
-					$params = array();
-					$params['name'] = $document->getName();
-					$params['folder_path'] = $folder->getFolderPathPlain();
-					$params['version'] = $reqversion;
-					$params['comment'] = $comment;
-					$params['username'] = $user->getFullName();
-					$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?documentid=".$document->getID();
-					$params['sitename'] = $settings->_siteName;
-					$params['http_root'] = $settings->_httpRoot;
-
-					foreach($approvers['i'] as $approverid) {
-						$notifier->toIndividual($user, $dms->getUser($approverid), $subject, $message, $params);
-					}
-					foreach($approvers['g'] as $approvergrpid) {
-						$notifier->toGroup($user, $dms->getGroup($approvergrpid), $subject, $message, $params);
-					}
+				foreach($approvers['g'] as $approvergrpid) {
+					$notifier->toGroup($user, $dms->getGroup($approvergrpid), $subject, $message, $params);
 				}
 			}
 		}
 	}
-	
-	add_log_line("?name=".$name."&folderid=".$folderid);
 }
+
+add_log_line("?name=".$name."&folderid=".$folderid);
+
 
 header("Location:../out/out.ViewFolder.php?folderid=".$folderid."&showtree=".$_POST["showtree"]);
 

@@ -263,12 +263,19 @@ $(document).ready(function() {
 			</ol>
 -->
 <?php
-	$this->printFileChooser('userfile[]', false);
+	$this->printFileChooser('userfile', false);
 ?>
 			<a class="" id="new-file"><?php printMLtext("add_multiple_files") ?></a>
 			</td>
 		</tr>
-
+      <tr>
+            <td><?php printMLText("pdf_local_file");?>:</td>
+            <td>
+<?php
+    $this->printFileChooser('userfilePDF', true);
+?>
+            </td>
+        </tr>
         <tr>
             <td><?php printMLText("attach_file");?>:</td>
             <td>

@@ -227,6 +227,14 @@ $(document).ready( function() {
 			</td>
 		</tr>
 		<tr>
+            <td><?php printMLText("pdf_local_file");?>:</td>
+            <td>
+<?php
+    $this->printFileChooser('userfilePDF', true);
+?>
+            </td>
+        </tr>
+		<tr>
             <td><?php printMLText("attach_file");?>:</td>
             <td>
 <?php

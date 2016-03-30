@@ -260,6 +260,24 @@ CREATE TABLE `tblDocumentContent` (
 -- --------------------------------------------------------
 
 -- 
+-- Table structure for table `tblDocumentContentPDF`
+-- 
+
+CREATE TABLE `tblDocumentContentPDF` (
+  `id` int(11) NOT NULL auto_increment,
+  `content` int(11) NOT NULL default '0',
+  `orgFileName` varchar(150) NOT NULL default '',
+  `fileType` varchar(10) NOT NULL default '',
+  `mimeType` varchar(100) NOT NULL default '',
+  `fileSize` BIGINT,
+  `checksum` char(32),
+  PRIMARY KEY  (`id`),
+  UNIQUE (`content`),
+  CONSTRAINT `tblDocumentContentPDF_content` FOREIGN KEY (`content`) REFERENCES `tblDocumentContent` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+-- 
 -- Table structure for table `tblDocumentContentAttributes`
 -- 
 

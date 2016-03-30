@@ -232,6 +232,7 @@ if ($_FILES['userfile']['error'] == 0) {
 		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
 	}
 	else {
+		$content = $document->getLatestContent();
 		// Add attachment files
 		/* Todo: Currently there is no name or comment for attachments,
 		   so instantiate with an empty string. Name will be added
@@ -239,6 +240,44 @@ if ($_FILES['userfile']['error'] == 0) {
 		$name = "";
 		$comment = "";
 
+		// Add pdf content files if they exist
+		$content = $document->getLatestContent();
+		if (is_uploaded_file($_FILES["userfilePDF"]["tmp_name"])){
+			// Check for a size of 0
+		    if ($_FILES["userfilePDF"]["size"] == 0) {
+		        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_zerosize"));
+		    }
+		    // Check for any logged errors
+		    if ($_FILES["userfilePDF"]["error"] != 0){
+		        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
+		    }
+		    // Check for any logged errors
+		    if ($_FILES["userfilePDF"]["type"] != "application/pdf"){
+		        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("pdf_filetype_error"));
+		    }
+		    /*
+		    	If checks pass add the pdf file
+		    	Location of file in tmp directory
+		 	*/
+			$pdffiletmp = $_FILES["userfilePDF"]["tmp_name"];
+			// MIME type of file
+			$pdffiletype = $_FILES["userfilePDF"]["type"];
+			// Original file name
+			$pdffilename = $_FILES["userfilePDF"]["name"];
+
+			$fileType = ".".pathinfo($pdffilename, PATHINFO_EXTENSION);
+
+			if($settings->_overrideMimeType) {
+				$finfo = finfo_open(FILEINFO_MIME_TYPE);
+				$pdffiletype = finfo_file($finfo, $pdffiletmp);
+			}
+
+			$res = $content->addPDF($pdffiletmp, basename($pdffilename), $fileType, $pdffiletype);
+
+			if(!$res) {
+				UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),"PDF file not uploaded");
+			}
+		}
 
 		for ($file_num=0; $file_num<count($_FILES["attachfile"]["tmp_name"]); $file_num++){
 			/*

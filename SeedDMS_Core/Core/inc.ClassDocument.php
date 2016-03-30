@@ -197,7 +197,12 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 	} /* }}} */
 
 	/*
-	 * Return the unique document number if category is a spec or memo
+	 * Return the unique document number. Doc numbers only exist
+	 * if category is a spec or memo.
+	 *
+	 * A memo is numbered using the format <username>-<memo_number>.
+	 *
+	 * A spec is numbered using the format PS-<number>
 	 *
 	 * @return string document number or false if query failed
 	 */
@@ -1745,6 +1750,15 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 		if (!is_numeric($linkID)) return false;
 
 		$queryStr = "DELETE FROM tblDocumentLinks WHERE document = " . $this->_id ." AND id = " . (int) $linkID;
+		if (!$db->getResult($queryStr)) return false;
+		unset ($this->_documentLinks);
+		return true;
+	} /* }}} */
+
+	function removeAllDocumentLinks() { /* {{{ */
+		$db = $this->_dms->getDB();
+
+		$queryStr = "DELETE FROM tblDocumentLinks WHERE document = " . $this->_id;
 		if (!$db->getResult($queryStr)) return false;
 		unset ($this->_documentLinks);
 		return true;

@@ -354,6 +354,20 @@ for ($file_num=0;$file_num<count($_FILES["userfile"]["tmp_name"]);$file_num++){
 			}
 		}
 
+		// Add document links
+		if(isset($_POST["linkInputs"])) {
+			$linkInputs = $_POST["linkInputs"];
+			foreach ($linkInputs as $linkInput) {
+				//Extract the document number only <number title>
+				$docNumber = explode(" ", $linkInput);
+				$docNumber = $docNumber[0];
+				$linkID = $dms->getDocumentIDByNumber($docNumber);
+				if (!$document->addDocumentLink($linkID, $user->getID(), true)){
+					UI::exitError(getMLText("document_title", array("documentname" => $document->getID())),$linkID);
+				}
+			}
+		}
+
 		if(isset($GLOBALS['SEEDDMS_HOOKS']['addDocument'])) {
 			foreach($GLOBALS['SEEDDMS_HOOKS']['addDocument'] as $hookObj) {
 				if (method_exists($hookObj, 'postAddDocument')) {

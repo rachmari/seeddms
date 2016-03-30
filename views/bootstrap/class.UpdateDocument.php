@@ -92,6 +92,61 @@ $(document).ready( function() {
 		if(checkForm()) return;
 		event.preventDefault();
 	});
+		/**
+	 * When a new link is added, the database is checked using AJAX
+	 * to ensure that the link exists. Any duplicate or non-existing
+	 * links are returned in a message to the user. All existing links
+	 * are added as a new readonly input with the document title.
+	 */
+	$('#add_link').click(function(event) {
+		var msg = new Array();
+		event.preventDefault();
+		var link = $('#link_input').val();
+		if(link === "") {return};
+		
+		/* To allow a comma separated list of links
+		 * remove spaces and split around commas */
+		link = link.replace(/ /g, "");
+		link_array = link.split(',');
+		
+		$.get('../op/op.Ajax.php', { command: 'searchnumber', query: link_array}, 
+			function(data) {
+				var missingDocs = data.missing;
+				var existsDocs = data.exists;
+				missingDocs.forEach(function pushMissing(doc, i) {
+					msg.push("Couldn't locate document " + doc);
+				});
+				existsDocs.forEach(function inputExists(doc, i) {
+					var docNum = doc["number"];
+					// Remove the period character from doc number for jQuery compatibility
+					var docNumId = docNum.replace(/\./g, '-');
+					// If the document id already exists, don't add
+					if($('#' + docNumId).length > 0) {
+						msg.push("You entered a duplicate document " + docNum);
+					} else {
+						var htmlStr = "<tr class='link_row'><td></td><td><div id='remove_" + docNumId + "'><i class='icon-remove'></i></div></td><td><input type='text' value='" + docNum + " - " + doc["title"] + "' id='" + docNumId + "' name='linkInputs[]'' readonly></td></tr>";
+						$('#list-group').after(htmlStr);
+					}
+					
+				});
+				if (msg != ""){
+		  				noty({
+				  		text: msg.join('<br />'),
+				  		type: 'error',
+				      	dismissQueue: true,
+				  		layout: 'topRight',
+				  		theme: 'defaultTheme',
+							_timeout: 1500,
+				  	});
+				}
+
+			});
+		$('#link_input').val("");
+	});
+	// Remove a link when a link row is clicked
+	$('body').on('click', '.icon-remove', (function(event) {
+		$(this).parents('.link_row').remove();
+	}));
 });
 <?php
 	} /* }}} */
@@ -211,6 +266,29 @@ $(document).ready( function() {
         </label>
 			</td>
 		</tr>
+		<tr id='list-group'>
+			<td><?php printMLText('add_document_link');?>:</td>
+			<td>
+				<input type='text' name='links' autocomplete='off' id='link_input'>
+				<a href='#' role='btn' class='btn' id='add_link' name='add_link'>
+					<?php printMLText("add");?>
+				</a>
+			</td>
+		</tr>
+		<?php 
+			/* Retrieve linked documents and put each
+			 * into it's own read-only input 
+			 */
+			$links = $document->getDocumentLinks();
+			foreach($links as $link) {
+				$targetDoc = $link->getTarget();
+				$targetName = $targetDoc->getName();
+				$targetNumber = $targetDoc->getDocNum();
+				$targetNumId = str_replace('/\./g', '-', $docNumber);
+				echo "<tr class='link_row'><td></td><td><div id='remove_".$targetNumId."'><i class='icon-remove'></i></div></td><td><input type='text' value='".$targetNumber." - ".$targetName."' id='".$targetNumId."' name='linkInputs[]' readonly></td></tr>";
+			}
+		?>
+
 <?php
 	$attrdefs = $dms->getAllAttributeDefinitions(array(SeedDMS_Core_AttributeDefinition::objtype_documentcontent, SeedDMS_Core_AttributeDefinition::objtype_all));
 	if($attrdefs) {

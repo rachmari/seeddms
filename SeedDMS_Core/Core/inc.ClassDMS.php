@@ -519,6 +519,26 @@ class SeedDMS_Core_DMS {
 	} /* }}} */
 
 	/**
+	 * Return a document ID by its unique document number
+	 *
+	 * This function retrieves the id of a document
+	 * from the database by its document number.
+	 *
+	 * @param string $number document number
+	 * @return integer id of document or false
+	 */
+	function getDocumentIDByNumber($number) { /* {{{ */
+		if(!$number) return false;
+
+		$queryStr = "SELECT `document` AS `myDoc` FROM `tblMemoNumbers` WHERE `number`='".$number."' UNION SELECT `document` AS `myDoc` FROM `tblSpecNumbers` WHERE `number`='".$number."'";
+		$resArr = $this->db->getResultArray($queryStr);
+
+		if (is_bool($resArr) && !$resArr)
+			return false;
+		return  $resArr[0]['myDoc'];
+	} /* }}} */
+
+	/**
 	 * Returns all documents of a given user
 	 *
 	 * @param object $user

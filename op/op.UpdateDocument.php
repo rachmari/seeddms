@@ -278,6 +278,28 @@ if ($_FILES['userfile']['error'] == 0) {
 				}
 			}
 		}
+
+		// Remove old links and add new ones
+		if(isset($_POST["linkInputs"])) {
+
+			// Temporary fix to update doc links using remove all. 
+			// Next version will update database to version document links.
+			if(!$document->removeAllDocumentLinks()){
+				UI::exitError(getMLText("document_title", array("documentname" => $document->getID())),$linkID);
+			}
+			$linkInputs = $_POST["linkInputs"];
+			foreach ($linkInputs as $linkInput) {
+				//Extract the document number only <number title>
+				$docNumber = explode(" ", $linkInput);
+				$docNumber = $docNumber[0];
+				$linkID = $dms->getDocumentIDByNumber($docNumber);
+
+				if (!$document->addDocumentLink($linkID, $user->getID(), true)){
+					UI::exitError(getMLText("document_title", array("documentname" => $document->getID())),$linkID);
+				}
+			}
+		}
+
 		// Send notification to subscribers.
 		if ($notifier){
 			$notifyList = $document->getNotifyList();

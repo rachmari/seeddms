@@ -85,7 +85,6 @@ $(document).ready( function() {
 		$this->htmlStartPage(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))));
 		$this->globalNavigation($folder);
 		$this->contentStart();
-		$this->pageNavigation($this->getFolderPathHTML($folder, true, $document), "view_document", $document);
 
 		$this->contentHeading(getMLText("edit_document_props"));
 		$this->contentContainerStart();
@@ -106,7 +105,7 @@ $(document).ready( function() {
 			<td valign="top" class="inputDescription"><?php printMLText("comment");?>:</td>
 			<td><textarea name="comment" id="comment" rows="4" cols="80"><?php print htmlspecialchars($document->getComment());?></textarea></td>
 		</tr>
-		<tr>
+		<tr hidden>
 			<td valign="top" class="inputDescription"><?php printMLText("keywords");?>:</td>
 			<td class="standardText">
 <?php
@@ -114,7 +113,7 @@ $(document).ready( function() {
 ?>
 			</td>
 		</tr>
-		<tr>
+		<tr hidden>
 			<td><?php printMLText("categories")?>:</td>
 			<td>
         <select class="chzn-select" name="categories[]" multiple="multiple" data-placeholder="<?php printMLText('select_category'); ?>" data-no_results_text="<?php printMLText('unknown_document_category'); ?>">
@@ -130,7 +129,7 @@ $(document).ready( function() {
 				</select>
       </td>
 		</tr>
-		<tr>
+		<tr hidden>
 			<td><?php printMLText("expires");?>:</td>
 			<td>
         <span class="input-append date span12" id="expirationdate" data-date="<?php echo $expdate; ?>" data-date-format="yyyy-mm-dd" data-date-language="<?php echo str_replace('_', '-', $this->params['session']->getLanguage()); ?>">
@@ -144,7 +143,7 @@ $(document).ready( function() {
 		</tr>
 <?php
 		if ($folder->getAccessMode($user) > M_READ) {
-			print "<tr>";
+			print "<tr hidden>";
 			print "<td class=\"inputDescription\">" . getMLText("sequence") . ":</td>";
 			print "<td>";
 			$this->printSequenceChooser($folder->getDocuments('s'), $document->getID());

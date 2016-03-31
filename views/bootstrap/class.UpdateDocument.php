@@ -169,8 +169,7 @@ $(document).ready( function() {
 		$this->htmlStartPage(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))));
 		$this->globalNavigation($folder);
 		$this->contentStart();
-		$this->pageNavigation($this->getFolderPathHTML($folder, true, $document), "view_document", $document);
-		$this->contentHeading(getMLText("update_document"));
+		$this->contentHeading(getMLText("Revising ".$document->getDocNum().": ".$document->getName()));
 
 		if ($document->isLocked()) {
 
@@ -210,7 +209,6 @@ $(document).ready( function() {
 		if($enablelargefileupload) {
 			$msg .= "<p>".sprintf(getMLText('link_alt_updatedocument'), "out.AddMultiDocument.php?folderid=".$folder->getID()."&showtree=".showtree())."</p>";
 		}
-		$this->warningMsg($msg);
 		$this->contentContainerStart();
 ?>
 
@@ -262,7 +260,7 @@ $(document).ready( function() {
 				$expts = time();
 			}
 ?>
-		<tr>
+		<tr hidden>
 			<td><?php printMLText("expires");?>:</td>
 			<td class="standardText">
         <span class="input-append date span12" id="expirationdate" data-date="<?php echo date('Y-m-d', $expts); ?>" data-date-format="yyyy-mm-dd" data-date-language="<?php echo str_replace('_', '-', $this->params['session']->getLanguage()); ?>">
@@ -324,12 +322,12 @@ $(document).ready( function() {
 		$docAccess = $folder->getReadAccessList($enableadminrevapp, $enableownerrevapp);
 		if($workflowmode != 'traditional_only_approval') {
 ?>
-		<tr>
+		<tr hidden>
 			<td colspan="2">
 				<?php $this->contentSubHeading(getMLText("assign_reviewers")); ?>
       </td>
     </tr>
-    <tr>
+    <tr hidden>
       <td>
 				<div class="cbSelectTitle"><?php printMLText("individuals");?>:</div>
       </td>
@@ -399,7 +397,7 @@ $(document).ready( function() {
 ?>
       </td>
     </tr>
-    <tr>
+    <tr hidden>
       <td>
 				<div class="cbSelectTitle"><?php printMLText("groups");?>:</div>
       </td>
@@ -470,12 +468,12 @@ $(document).ready( function() {
       </td>
 		</tr>
 <?php } ?>
-    <tr>
+    <tr hidden>
 			<td colspan=2>
 				<?php $this->contentSubHeading(getMLText("assign_approvers")); ?>	
       </td>
     </tr>
-    <tr>
+    <tr hidden>
       <td>
 				<div class="cbSelectTitle"><?php printMLText("individuals");?>:</div>
       </td>
@@ -547,6 +545,7 @@ $(document).ready( function() {
 ?>
       </td>
     </tr>
+    <tr hidden>
       <td>
 				<div class="cbSelectTitle"><?php printMLText("groups");?>:</div>
       </td>
@@ -617,7 +616,7 @@ $(document).ready( function() {
 ?>
 			</td>
 			</tr>
-		<tr>
+		<tr hidden>
 			<td colspan="2"><div class="alert"><?php printMLText("add_doc_reviewer_approver_warning")?></div></td>
 		</tr>
 <?php

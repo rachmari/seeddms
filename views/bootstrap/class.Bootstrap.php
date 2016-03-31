@@ -116,7 +116,7 @@ background-image: linear-gradient(to bottom, #882222, #111111);;
 		$this->extraheader[$type] .= $head;
 	} /* }}} */
 
-	function htmlEndPage($nofooter=false) { /* {{{ */
+	function htmlEndPage($nofooter=true) { /* {{{ */
 		if(!$nofooter) {
 			$this->footNote();
 			if($this->params['showmissingtranslations']) {
@@ -248,15 +248,19 @@ $(document).ready(function () {
 		echo "     <span class=\"icon-bar\"></span>\n";
 		echo "     <span class=\"icon-bar\"></span>\n";
 		echo "   </a>\n";
-		echo "   <a class=\"brand\" href=\"../out/out.ViewFolder.php?folderid=".$this->params['rootfolderid']."\">".(strlen($this->params['sitename'])>0 ? $this->params['sitename'] : "SeedDMS")."</a>\n";
+		echo "   <a class=\"brand\" href='../out/out.MyDocuments.php'>".(strlen($this->params['sitename'])>0 ? $this->params['sitename'] : "SeedDMS")."</a>\n";
 		if(isset($this->params['user']) && $this->params['user']) {
 			echo "   <div class=\"nav-collapse nav-col1\">\n";
 			echo "   <ul id=\"main-menu-admin\" class=\"nav pull-right\">\n";
+			if($this->params['enablehelp']) {
+			$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+			echo "    <li><a href=\"../out/out.Help.php?context=".$tmp[1]."\"><i class=\"icon-question-sign\"></i></a></li>\n";
+			}
 			echo "    <li class=\"dropdown\">\n";
 			echo "     <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">".($this->params['session']->getSu() ? getMLText("switched_to") : getMLText("signed_in_as"))." '".htmlspecialchars($this->params['user']->getFullName())."' <i class=\"icon-caret-down\"></i></a>\n";
 			echo "     <ul class=\"dropdown-menu\" role=\"menu\">\n";
 			if (!$this->params['user']->isGuest()) {
-				echo "    <li><a href=\"../out/out.MyDocuments.php?inProcess=1\">".getMLText("my_documents")."</a></li>\n";
+				//echo "    <li><a href=\"../out/out.MyDocuments.php?inProcess=1\">".getMLText("my_documents")."</a></li>\n";
 				echo "    <li><a href=\"../out/out.MyAccount.php\">".getMLText("my_account")."</a></li>\n";
 				echo "    <li class=\"divider\"></li>\n";
 			}
@@ -298,16 +302,11 @@ $(document).ready(function () {
 				echo $this->menuClipboard($this->params['session']->getClipboard());
 				echo "   </div>";
 			}
-
 			echo "   <ul class=\"nav\">\n";
-	//		echo "    <li id=\"first\"><a href=\"../out/out.ViewFolder.php?folderid=".$this->params['rootfolderid']."\">".getMLText("content")."</a></li>\n";
-	//		echo "    <li><a href=\"../out/out.SearchForm.php?folderid=".$this->params['rootfolderid']."\">".getMLText("search")."</a></li>\n";
-			if ($this->params['enablecalendar']) echo "    <li><a href=\"../out/out.Calendar.php?mode=".$this->params['calendardefaultview']."\">".getMLText("calendar")."</a></li>\n";
+			echo "	<li><a href='../out/out.AddDocument.php?folderid=1&showtree=0'><i class='icon-plus-sign'></i>&nbsp;Add Memo</a></li>";
+			echo "    <li><a href=\"../out/out.MyDocuments.php\"><i class='icon-copy'></i>&nbsp;".getMLText("my_documents")."</a></li>\n";
+			if ($this->params['enablecalendar']) echo "    <li><a href=\"../out/out.Calendar.php?mode=".$this->params['calendardefaultview']."\"><i class='icon-calendar'></i>&nbsp;".getMLText("calendar")."</a></li>\n";
 			if ($this->params['user']->isAdmin()) echo "    <li><a href=\"../out/out.AdminTools.php\">".getMLText("admin_tools")."</a></li>\n";
-			if($this->params['enablehelp']) {
-			$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-			echo "    <li><a href=\"../out/out.Help.php?context=".$tmp[1]."\">".getMLText("help")."</a></li>\n";
-			}
 			echo "   </ul>\n";
 			echo "     <form action=\"../out/out.Search.php\" class=\"form-inline navbar-search pull-left\" autocomplete=\"off\">";
 			if ($folder!=null && is_object($folder) && !strcasecmp(get_class($folder), $dms->getClassname('folder'))) {
@@ -321,10 +320,6 @@ $(document).ready(function () {
 			echo "      <input name=\"query\" class=\"search-query\" id=\"searchfield\" data-provide=\"typeahead\" type=\"text\" style=\"width: 150px;\" placeholder=\"".getMLText("search")."\"/>";
 			if($this->params['defaultsearchmethod'] == 'fulltext')
 				echo "      <input type=\"hidden\" name=\"fullsearch\" value=\"1\" />";
-//			if($this->params['enablefullsearch']) {
-//				echo "      <label class=\"checkbox\" style=\"color: #999999;\"><input type=\"checkbox\" name=\"fullsearch\" value=\"1\" title=\"".getMLText('fullsearch_hint')."\"/> ".getMLText('fullsearch')."</label>";
-//			}
-	//		echo "      <input type=\"submit\" value=\"".getMLText("search")."\" id=\"searchButton\" class=\"btn\"/>";
 			echo "</form>\n";
 			echo "    </div>\n";
 		}

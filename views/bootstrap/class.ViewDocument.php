@@ -198,7 +198,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 			}
 		}
 
-		/* Retrieve attacheѕ files */
+		/* Retrieve attached files */
 		$files = $document->getDocumentFiles();
 
 		/* Retrieve linked documents */
@@ -232,9 +232,11 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 ?>
 
 <div class="row-fluid">
-<div class="span3">
 <?php
-		$this->contentHeading(getMLText("document_infos"));
+		echo "<div class='span8'><h3>".$document->getName()."</h3><h4>".$document->getDocNum()."</h4>";
+		echo "<p>".$document->getComment()."</p></div>";
+		echo "<div class='span4'>";
+		//$this->contentHeading(.": ".));
 		$this->contentContainerStart();
 		$txt = $this->callHook('preDocumentInfos', $document);
 		if(is_string($txt))
@@ -253,7 +255,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 			echo "</tr>";
 		}
 ?>
-		<tr>
+		<tr hidden>
 		<td><?php printMLText("name");?>:</td>
 		<td><?php print htmlspecialchars($document->getName());?></td>
 		</tr>
@@ -269,38 +271,19 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 <?php
 		if($document->getComment()) {
 ?>
-		<tr>
+		<tr hidden>
 		<td><?php printMLText("comment");?>:</td>
 		<td><?php print htmlspecialchars($document->getComment());?></td>
 		</tr>
 <?php
 		}
-		if($user->isAdmin()) {
-			if($document->inheritsAccess()) {
-				echo "<tr>";
-				echo "<td>".getMLText("access_mode").":</td>\n";
-				echo "<td>";
-				echo getMLText("inherited");
-				echo "</tr>";
-			} else {
-				echo "<tr>";
-				echo "<td>".getMLText('default_access').":</td>";
-				echo "<td>".$this->getAccessModeText($document->getDefaultAccess())."</td>";
-				echo "</tr>";
-				echo "<tr>";
-				echo "<td>".getMLText('access_mode').":</td>";
-				echo "<td>";
-				$this->printAccessList($document);
-				echo "</td>";
-				echo "</tr>";
-			}
-		}
+		
 ?>
-		<tr>
+		<tr hidden>
 		<td><?php printMLText("used_discspace");?>:</td>
 		<td><?php print SeedDMS_Core_File::format_filesize($document->getUsedDiskSpace());?></td>
 		</tr>
-		<tr>
+		<tr hidden>
 		<td><?php printMLText("creation_date");?>:</td>
 		<td><?php print getLongReadableDate($document->getDate()); ?></td>
 		</tr>
@@ -333,7 +316,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 			echo implode(', ', $ct);
 		?>
 		</td>
-		</tr>
+		</tr></div>
 <?php
 		}
 ?>
@@ -363,7 +346,8 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 		$this->contentContainerEnd();
 ?>
 </div>
-<div class="span9">
+<div class="row-fluid">
+<div class="span12">
     <ul class="nav nav-tabs" id="docinfotab">
 		  <li class="<?php if(!$currenttab || $currenttab == 'docinfo') echo 'active'; ?>"><a data-target="#docinfo" data-toggle="tab"><?php printMLText('current_version'); ?></a></li>
 			<?php if (count($versions)>1) { ?>
@@ -404,7 +388,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 		$this->contentContainerStart();
 		print "<table class=\"table\">";
 		print "<thead>\n<tr>\n";
-		print "<th width='*'>".getMLText("doc_number")."</th>\n";
+		print "<th width='*'>".getMLText("version")."</th>\n";
 		print "<th width='*'>".getMLText("file")."</th>\n";
 		print "<th width='25%'>".getMLText("comment")."</th>\n";
 		print "<th width='15%'>".getMLText("status")."</th>\n";
@@ -422,7 +406,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 				print "<a href=\"../op/op.Download.php?documentid=".$documentid."&version=".$latestContent->getVersion()."\">";
 			}
 		}
-		print $document->getDocNum();
+		print $latestContent->getVersion();
 		if ($file_exists) {
 			print "</a>";
 		}
@@ -430,7 +414,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 
 		print "<td><ul class=\"actions unstyled\">\n";
 		print "<li class=\"wordbreak\">".$latestContent->getOriginalFileName() ."</li>\n";
-		print "<li>".getMLText('version').": ".$latestContent->getVersion()."</li>\n";
 
 		if ($file_exists)
 			print "<li>". SeedDMS_Core_File::format_filesize($latestContent->getFileSize()) .", ".htmlspecialchars($latestContent->getMimeType())."</li>";
@@ -969,7 +952,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 				$this->contentContainerStart();
 				print "<table class=\"table\">";
 				print "<thead>\n<tr>\n";
-				print "<th width='10%'>".getMLText("doc_number")."</th>\n";
+				print "<th width='10%'>".getMLText("version")."</th>\n";
 				print "<th width='30%'>".getMLText("file")."</th>\n";
 				print "<th width='25%'>".getMLText("comment")."</th>\n";
 				print "<th width='15%'>".getMLText("status")."</th>\n";
@@ -994,14 +977,13 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 					}
 				}
 				$previewer->createPreview($version);
-				print $document->getDocNum();
+				print $version->getVersion();
 				if($file_exists) {
 					print "</a>\n";
 				}
 				print "</td>\n";
 				print "<td><ul class=\"unstyled\">\n";
 				print "<li>".$version->getOriginalFileName()."</li>\n";
-				print "<li>".getMLText('version').": ".$version->getVersion()."</li>\n";
 				if ($file_exists) print "<li>". SeedDMS_Core_File::format_filesize($version->getFileSize()) .", ".htmlspecialchars($version->getMimeType())."</li>";
 				else print "<li><span class=\"warning\">".getMLText("document_deleted")."</span></li>";
 				$updatingUser = $version->getUser();
@@ -1188,9 +1170,9 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 		  </div>
 		  <div class="tab-pane <?php if($currenttab == 'links') echo 'active'; ?>" id="links">
 <?php
+		$this->contentHeading(getMLText("linked_documents"));
 		$this->contentContainerStart();
 		if (count($links) > 0) {
-
 			print "<table class=\"table table-condensed\">";
 			print "<thead>\n<tr>\n";
 			print "<th>".getMLText("doc_number")."</th>\n";
@@ -1212,13 +1194,8 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 				print "</td>";
 				print "<td><a href=\"out.ViewDocument.php?documentid=".$targetDoc->getID()."\" class=\"linklist\">".htmlspecialchars($targetDoc->getName())."</a></td>";
 				print "<td>".htmlspecialchars($targetDoc->getComment())."</td>";
-				print "<td>".getMLText("document_link_by")." ".htmlspecialchars($responsibleUser->getFullName());
-				if (($user->getID() == $responsibleUser->getID()) || ($document->getAccessMode($user) == M_ALL ))
-					print "<br />".getMLText("document_link_public").": ".(($link->isPublic()) ? getMLText("yes") : getMLText("no"));
 				print "</td>";
 				print "<td><span class=\"actions\">";
-				if (($user->getID() == $responsibleUser->getID()) || ($document->getAccessMode($user) == M_ALL ))
-					print "<form action=\"../op/op.RemoveDocumentLink.php\" method=\"post\">".createHiddenFieldWithKey('removedocumentlink')."<input type=\"hidden\" name=\"documentid\" value=\"".$documentid."\" /><input type=\"hidden\" name=\"linkid\" value=\"".$link->getID()."\" /><button type=\"submit\" class=\"btn btn-mini\"><i class=\"icon-remove\"></i> ".getMLText("delete")."</button></form>";
 				print "</span></td>";
 				print "</tr>";
 			}
@@ -1226,32 +1203,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 		}
 		else printMLText("no_linked_files");
 
-		if (!$user->isGuest()){
-?>
-			<br>
-			<form action="../op/op.AddDocumentLink.php" name="form1">
-			<input type="hidden" name="documentid" value="<?php print $documentid;?>">
-			<table class="table-condensed">
-			<tr>
-			<td><?php printMLText("add_document_link");?>:</td>
-			<td><?php $this->printDocumentChooserHtml("form1");?></td>
-			</tr>
-			<?php
-			if ($document->getAccessMode($user) >= M_READWRITE) {
-				print "<tr><td>".getMLText("document_link_public")."</td>";
-				print "<td>";
-				print "<input type=\"checkbox\" name=\"public\" value=\"true\" checked />";
-				print "</td></tr>";
-			}
-?>
-			<tr>
-			<td></td>
-			<td><button type="submit" class="btn"><i class="icon-save"></i> <?php printMLText("save")?></button></td>
-			</tr>
-			</table>
-			</form>
-<?php
-		}
 		$this->contentContainerEnd();
 
 		if (count($reverselinks) > 0) {
@@ -1279,13 +1230,8 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 				print "</td>";
 				print "<td><a href=\"out.ViewDocument.php?documentid=".$sourceDoc->getID()."\" class=\"linklist\">".htmlspecialchars($sourceDoc->getName())."</a></td>";
 				print "<td>".htmlspecialchars($sourceDoc->getComment())."</td>";
-				print "<td>".getMLText("document_link_by")." ".htmlspecialchars($responsibleUser->getFullName());
-				if (($user->getID() == $responsibleUser->getID()) || ($document->getAccessMode($user) == M_ALL ))
-					print "<br />".getMLText("document_link_public").": ".(($link->isPublic()) ? getMLText("yes") : getMLText("no"));
 				print "</td>";
 				print "<td><span class=\"actions\">";
-				if (($user->getID() == $responsibleUser->getID()) || ($document->getAccessMode($user) == M_ALL ))
-					print "<form action=\"../op/op.RemoveDocumentLink.php\" method=\"post\">".createHiddenFieldWithKey('removedocumentlink')."<input type=\"hidden\" name=\"documentid\" value=\"".$documentid."\" /><input type=\"hidden\" name=\"linkid\" value=\"".$link->getID()."\" /><button type=\"submit\" class=\"btn btn-mini\"><i class=\"icon-remove\"></i> ".getMLText("delete")."</button></form>";
 				print "</span></td>";
 				print "</tr>";
 			}

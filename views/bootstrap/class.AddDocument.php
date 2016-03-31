@@ -46,7 +46,6 @@ class SeedDMS_View_AddDocument extends SeedDMS_Bootstrap_Style {
 		$this->htmlStartPage(getMLText("folder_title", array("foldername" => htmlspecialchars($folder->getName()))));
 		$this->globalNavigation($folder);
 		$this->contentStart();
-		$this->pageNavigation($this->getFolderPathHTML($folder, true), "view_folder", $folder);
 		
 ?>
 <script language="JavaScript">
@@ -146,7 +145,6 @@ $(document).ready(function() {
 		if($enablelargefileupload) {
 			$msg .= "<p>".sprintf(getMLText('link_alt_updatedocument'), "out.AddMultiDocument.php?folderid=".$folderid."&showtree=".showtree())."</p>";
 		}
-		$this->warningMsg($msg);
 		$this->contentHeading(getMLText("add_document"));
 		$this->contentContainerStart();
 		
@@ -172,14 +170,14 @@ $(document).ready(function() {
 			<td><?php printMLText("comment");?>:</td>
 			<td><textarea name="comment" rows="3" cols="80"></textarea></td>
 		</tr>
-		<tr>
+		<tr hidden>
 			<td><?php printMLText("keywords");?>:</td>
 			<td><?php $this->printKeywordChooser("form1");?></td>
 		</tr>
 		<tr>
 			<td><?php printMLText("categories")?>:</td>
 			<td>
-        <select class="chzn-select" name="categories[]" multiple="multiple" data-placeholder="<?php printMLText('select_category'); ?>" data-no_results_text="<?php printMLText('unknown_document_category'); ?>">
+        <select name="categories[]" data-placeholder="<?php printMLText('select_category'); ?>" data-no_results_text="<?php printMLText('unknown_document_category'); ?>">
 <?php
 			$categories = $dms->getDocumentCategories();
 			foreach($categories as $category) {
@@ -190,7 +188,7 @@ $(document).ready(function() {
 				</select>
       </td>
 		</tr>
-		<tr>
+		<tr hidden>
 			<td><?php printMLText("sequence");?>:</td>
 			<td><?php $this->printSequenceChooser($folder->getDocuments('s')); if($orderby != 's') echo "<br />".getMLText('order_by_sequence_off'); ?></td>
 		</tr>
@@ -221,7 +219,7 @@ $(document).ready(function() {
 				$expts = time();
 			}
 ?>
-		<tr>
+		<tr hidden>
 			<td><?php printMLText("expires");?>:</td>
 			<td>
         <span class="input-append date span12" id="expirationdate" data-date="<?php echo date('Y-m-d', $expts); ?>" data-date-format="yyyy-mm-dd" data-date-language="<?php echo str_replace('_', '-', $this->params['session']->getLanguage()); ?>">
@@ -249,7 +247,7 @@ $(document).ready(function() {
 		<?php $this->contentSubHeading(getMLText("version_info")); ?>
 			</td>
 		</tr>
-		<tr>
+		<tr hidden>
 			<td><?php printMLText("version");?>:</td>
 			<td><input type="text" name="reqversion" value="1"></td>
 		</tr>
@@ -265,7 +263,6 @@ $(document).ready(function() {
 <?php
 	$this->printFileChooser('userfile', false);
 ?>
-			<a class="" id="new-file"><?php printMLtext("add_multiple_files") ?></a>
 			</td>
 		</tr>
       <tr>
@@ -292,8 +289,7 @@ $(document).ready(function() {
 <?php } ?>
 		<tr>
 			<td><?php printMLText("comment_for_current_version");?>:</td>
-			<td><textarea name="version_comment" rows="3" cols="80"></textarea><br />
-			<label class="checkbox inline"><input type="checkbox" name="use_comment" value="1" /> <?php printMLText("use_comment_of_document"); ?></label></td>
+			<td><textarea name="version_comment" rows="3" cols="80"></textarea><br /></td>
 		</tr>
 <?php
 			$attrdefs = $dms->getAllAttributeDefinitions(array(SeedDMS_Core_AttributeDefinition::objtype_documentcontent, SeedDMS_Core_AttributeDefinition::objtype_all));
@@ -368,12 +364,12 @@ $(document).ready(function() {
 		} else {
 			if($workflowmode == 'traditional') {
 ?>
-		<tr>
+		<tr hidden>
       <td>
 		<?php $this->contentSubHeading(getMLText("assign_reviewers")); ?>
       </td>
 		</tr>	
-		<tr>	
+		<tr hidden>	
       <td>
 			<div class="cbSelectTitle"><?php printMLText("individuals");?>:</div>
       </td>
@@ -425,7 +421,7 @@ $(document).ready(function() {
 ?>
       </td>
       </tr>
-      <tr>
+      <tr hidden>
         <td>
 			<div class="cbSelectTitle"><?php printMLText("groups");?>:</div>
         </td>
@@ -475,13 +471,13 @@ $(document).ready(function() {
 			</td>
 			</tr>
 <?php } ?>
-		  <tr>	
+		  <tr hidden>	
         <td>
 		<?php $this->contentSubHeading(getMLText("assign_approvers")); ?>
         </td>
 		  </tr>	
 		
-		  <tr>	
+		  <tr hidden>	
         <td>
 			<div class="cbSelectTitle"><?php printMLText("individuals");?>:</div>
         </td>
@@ -532,7 +528,7 @@ $(document).ready(function() {
 ?>
 				</td>
 		  </tr>	
-		  <tr>	
+		  <tr hidden>	
         <td>
 			<div class="cbSelectTitle"><?php printMLText("groups");?>:</div>
         </td>
@@ -581,7 +577,7 @@ $(document).ready(function() {
 ?>
 				</td>
 		  </tr>	
-		  <tr>	
+		  <tr hidden>	
         <td colspan="2">
 			<div class="alert"><?php printMLText("add_doc_reviewer_approver_warning")?></div>
         </td>
@@ -611,7 +607,7 @@ $(document).ready(function() {
 				</select>
 				</td>
 			</tr>
-		  <tr>	
+		  <tr hidden>	
         <td>
 			<div class="cbSelectTitle"><?php printMLText("groups");?>:</div>
         </td>

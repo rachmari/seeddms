@@ -47,7 +47,6 @@ class SeedDMS_View_MyDocuments extends SeedDMS_Bootstrap_Style {
 		$this->htmlStartPage(getMLText("my_documents"));
 		$this->globalNavigation();
 		$this->contentStart();
-		$this->pageNavigation(getMLText("my_documents"), "my_documents");
 
 		if ($showInProcess){
 

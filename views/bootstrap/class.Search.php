@@ -133,10 +133,10 @@ class SeedDMS_View_Search extends SeedDMS_Bootstrap_Style {
 <tr>
 <td><?php printMLText("search_in");?>:</td>
 <td>
-<label class="checkbox" for="keywords"><input type="checkbox" id="keywords" name="searchin[]" value="1" <?php if(in_array('1', $searchin)) echo " checked"; ?>><?php printMLText("keywords");?> (<?php printMLText('documents_only'); ?>)</label>
+<!--<label class="checkbox" for="keywords"><input type="checkbox" id="keywords" name="searchin[]" value="1" <?php if(in_array('1', $searchin)) echo " checked"; ?>><?php printMLText("keywords");?> (<?php printMLText('documents_only'); ?>)</label>-->
 <label class="checkbox" for="searchName"><input type="checkbox" name="searchin[]" id="searchName" value="2" <?php if(in_array('2', $searchin)) echo " checked"; ?>><?php printMLText("name");?></label>
 <label class="checkbox" for="comment"><input type="checkbox" name="searchin[]" id="comment" value="3" <?php if(in_array('3', $searchin)) echo " checked"; ?>><?php printMLText("comment");?></label>
-<label class="checkbox" for="attributes"><input type="checkbox" name="searchin[]" id="attributes" value="4" <?php if(in_array('4', $searchin)) echo " checked"; ?>><?php printMLText("attributes");?></label>
+<!--<label class="checkbox" for="attributes"><input type="checkbox" name="searchin[]" id="attributes" value="4" <?php if(in_array('4', $searchin)) echo " checked"; ?>><?php printMLText("attributes");?></label>-->
 </td>
 </tr>
 <tr>
@@ -154,7 +154,7 @@ class SeedDMS_View_Search extends SeedDMS_Bootstrap_Style {
 </select>
 </td>
 </tr>
-<tr>
+<tr hidden>
 <td><?php printMLText("search_resultmode");?>:</td>
 <td>
 <select name="resultmode">
@@ -164,7 +164,7 @@ class SeedDMS_View_Search extends SeedDMS_Bootstrap_Style {
 </select>
 </td>
 </tr>
-<tr>
+<tr hidden>
 <td><?php printMLText("under_folder")?>:</td>
 <td><?php $this->printFolderChooserHtml("form1", M_READ, -1, $startfolder);?></td>
 </tr>
@@ -232,7 +232,7 @@ class SeedDMS_View_Search extends SeedDMS_Bootstrap_Style {
 		if($expirationdate)
 			$openfilterdlg = true;
 ?>
-<div class="accordion" id="accordion2">
+<div hidden class="accordion" id="accordion2">
   <div class="accordion-group">
     <div class="accordion-heading">
       <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseOne">
@@ -330,7 +330,7 @@ class SeedDMS_View_Search extends SeedDMS_Bootstrap_Style {
 			}
 		}
 ?>
-<div class="accordion" id="accordion3">
+<div hidden class="accordion" id="accordion3">
   <div class="accordion-group">
     <div class="accordion-heading">
       <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion3" href="#collapseFolder">
@@ -450,9 +450,8 @@ class SeedDMS_View_Search extends SeedDMS_Bootstrap_Style {
 			print "<thead>\n<tr>\n";
 			print "<th>".getMLText("doc_number")."</th>\n";
 			print "<th>".getMLText("name")."</th>\n";
-			print "<th>".getMLText("attributes")."</th>\n";
+            print "<th>".getMLText("owner")."</th>\n";
 			print "<th>".getMLText("status")."</th>\n";
-			print "<th>".getMLText("action")."</th>\n";
 			print "</tr>\n</thead>\n<tbody>\n";
 
 			$previewer = new SeedDMS_Preview_Previewer($cachedir, $previewwidth, $timeout);
@@ -483,7 +482,7 @@ class SeedDMS_View_Search extends SeedDMS_Bootstrap_Style {
 						}
 						print "<td><a class=\"standardText\" href=\"../out/out.ViewDocument.php?documentid=".$document->getID()."\">".$docNumber;
 						print "</a></td>";
-						print "<td><a class=\"standardText\" href=\"../out/out.ViewDocument.php?documentid=".$document->getID()."\">/";
+						print "<td><a class=\"standardText\" href=\"../out/out.ViewDocument.php?documentid=".$document->getID()."\">";
 						$folder = $document->getFolder();
 						$path = $folder->getPath();
 						for ($i = 1; $i  < count($path); $i++) {
@@ -491,60 +490,16 @@ class SeedDMS_View_Search extends SeedDMS_Bootstrap_Style {
 						}
 						print $docName;
 						print "</a>";
-					print "<br /><span style=\"font-size: 85%; font-style: italic; color: #666; \">".getMLText('owner').": <b>".htmlspecialchars($owner->getFullName())."</b>, ".getMLText('creation_date').": <b>".date('Y-m-d', $document->getDate())."</b>, ".getMLText('version')." <b>".$version."</b> - <b>".date('Y-m-d', $lc->getDate())."</b></span>";
+					//print "<br /><span style=\"font-size: 85%; font-style: italic; color: #666; \">".getMLText('owner').": <b>".htmlspecialchars($owner->getFullName())."</b>, ".getMLText('creation_date').": <b>".date('Y-m-d', $document->getDate())."</b>, ".getMLText('version')." <b>".$version."</b> - <b>".date('Y-m-d', $lc->getDate())."</b></span>";
 						if($comment) {
 							print "<br /><span style=\"font-size: 85%;\">".htmlspecialchars($comment)."</span>";
 						}
 						print "</td>";
-
-						print "<td>";
-						print "<ul class=\"unstyled\">\n";
-						$lcattributes = $lc->getAttributes();
-						if($lcattributes) {
-							foreach($lcattributes as $lcattribute) {
-								$attrdef = $lcattribute->getAttributeDefinition();
-								print "<li>".htmlspecialchars($attrdef->getName()).": ".htmlspecialchars(implode(', ', $lcattribute->getValueAsArray()))."</li>\n";
-							}
-						}
-						print "</ul>\n";
-						print "<ul class=\"unstyled\">\n";
-						$docttributes = $document->getAttributes();
-						if($docttributes) {
-							foreach($docttributes as $docttribute) {
-								$attrdef = $docttribute->getAttributeDefinition();
-								print "<li>".htmlspecialchars($attrdef->getName()).": ".htmlspecialchars(implode(', ', $docttribute->getValueAsArray()))."</li>\n";
-							}
-						}
-						print "</ul>\n";
-						print "</td>";
-
+                        print "<td>";
+                        print htmlspecialchars($owner->getFullName());
 						$display_status=$lc->getStatus();
+                        print "</td>";
 						print "<td>".getOverallStatusText($display_status["status"]). "</td>";
-						print "<td>";
-						print "<div class=\"list-action\">";
-						if($document->getAccessMode($user) >= M_ALL) {
-							$this->printDeleteDocumentButton($document, 'splash_rm_document');
-						} else {
-	?>
-			 <span style="padding: 2px; color: #CCC;"><i class="icon-remove"></i></span>
-	<?php
-						}
-						if($document->getAccessMode($user) >= M_READWRITE) {
-	?>
-			 <a href="../out/out.EditDocument.php?documentid=<?php echo $document->getID(); ?>"><i class="icon-edit"></i></a>
-	<?php
-						} else {
-	?>
-			 <span style="padding: 2px; color: #CCC;"><i class="icon-edit"></i></span>
-	<?php
-						}
-						if($enableclipboard) {
-	?>
-			 <a class="addtoclipboard" rel="<?php echo "D".$document->getID(); ?>" msg="<?php printMLText('splash_added_to_clipboard'); ?>" _href="../op/op.AddToClipboard.php?documentid=<?php echo $document->getID(); ?>&type=document&id=<?php echo $document->getID(); ?>&refferer=<?php echo urlencode($this->params['refferer']); ?>" title="<?php printMLText("add_to_clipboard");?>"><i class="icon-copy"></i></a>
-<?php
-						}
-						print "</div>";
-						print "</td>";
 						print "</tr>\n";
 					}
 				} elseif(get_class($entry) == $dms->getClassname('folder')) {

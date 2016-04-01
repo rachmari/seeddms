@@ -182,7 +182,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 		$this->htmlStartPage(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))));
 		$this->globalNavigation($folder);
 		$this->contentStart();
-		$this->pageNavigation($this->getFolderPathHTML($folder, true, $document), "view_document", $document);
 
 		if ($document->isLocked()) {
 			$lockingUser = $document->getLockingUser();
@@ -233,11 +232,10 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 
 <div class="row-fluid">
 <?php
-		echo "<div class='span8'><h3>".$document->getName()."</h3><h4>".$document->getDocNum()."</h4>";
-		echo "<p>".$document->getComment()."</p></div>";
-		echo "<div class='span4'>";
+		echo "<div class='span9'><h3>".$document->getName()."</h3><h4>".$document->getDocNum()."</h4>";
+		echo "<p>" . $document->getComment() . "</p></div>";
+		echo "<div class='span3'>";
 		//$this->contentHeading(.": ".));
-		$this->contentContainerStart();
 		$txt = $this->callHook('preDocumentInfos', $document);
 		if(is_string($txt))
 			echo $txt;
@@ -254,12 +252,17 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 			echo "<td>".htmlspecialchars($document->getID())."</td>\n";
 			echo "</tr>";
 		}
+
+		echo "<tr>";
+		echo "<td><a href='../out/out.UpdateDocument.php?documentid=" . htmlspecialchars($document->getID()) . "'><i class='icon-edit'></i>&nbsp;Revise Document</a></td><tr>";
+		echo "<td><a href='../out/out.EditDocument.php?documentid=" . htmlspecialchars($document->getID()) . "'><i class='icon-edit'></i>&nbsp;Edit Document Info</a></td>";
+		echo "</tr>";
 ?>
 		<tr hidden>
 		<td><?php printMLText("name");?>:</td>
 		<td><?php print htmlspecialchars($document->getName());?></td>
 		</tr>
-		<tr>
+		<tr hidden>
 		<td><?php printMLText("owner");?>:</td>
 		<td>
 <?php
@@ -267,7 +270,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 		print "<a class=\"infos\" href=\"mailto:".$owner->getEmail()."\">".htmlspecialchars($owner->getFullName())."</a>";
 ?>
 		</td>
-		</tr>
+
 <?php
 		if($document->getComment()) {
 ?>
@@ -306,7 +309,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 		}
 		if($cats = $document->getCategories()) {
 ?>
-		<tr>
+		<tr hidden>
 		<td><?php printMLText("categories");?>:</td>
 		<td>
 		<?php

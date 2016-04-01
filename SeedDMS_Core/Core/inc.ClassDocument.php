@@ -1764,6 +1764,15 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 		return true;
 	} /* }}} */
 
+	function removeAllDocumentNotifications() { /* {{{ */
+		$db = $this->_dms->getDB();
+
+		$queryStr = "DELETE FROM tblNotify WHERE target = " . $this->_id;
+		if (!$db->getResult($queryStr)) return false;
+		unset ($this->_notifyList);
+		return true;
+	} /* }}} */
+
 	function getDocumentFile($ID) { /* {{{ */
 		$db = $this->_dms->getDB();
 		$latest_content = $this->getLatestContent();

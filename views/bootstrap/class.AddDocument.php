@@ -164,7 +164,7 @@ $(document).ready(function() {
 					if($('#' + empId).length > 0) {
 						msg.push("You added the same person more than once " + emp);
 					} else {
-						var htmlStr = "<tr class='add_row'><td></td><td><div id='remove_" + empId + "'><i class='icon-remove'></i></div></td><td><input type='text' value='" + emp + "' id='" + empId + "' name='notifyInputsUsers[]'' readonly></td></tr>";
+						var htmlStr = "<tr class='add_row'><td><div id='remove_" + empId + "'><i class='icon-remove'></i></div></td><td><input type='text' value='" + emp + "' id='" + empId + "' name='notifyInputsUsers[]'' readonly></td><td><i class=\"icon-user\"></i></td></tr>";
 						$('#notify-group').after(htmlStr);
 					}
 				});

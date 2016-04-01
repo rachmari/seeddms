@@ -223,7 +223,7 @@ $(document).ready(function() {
 			<td><?php printMLText("keywords");?>:</td>
 			<td><?php $this->printKeywordChooser("form1");?></td>
 		</tr>
-		<tr>
+		<tr hidden>
 			<td><?php printMLText("categories")?>:</td>
 			<td>
         <select name="categories[]" data-placeholder="<?php printMLText('select_category'); ?>" data-no_results_text="<?php printMLText('unknown_document_category'); ?>">

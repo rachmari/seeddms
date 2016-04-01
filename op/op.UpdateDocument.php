@@ -318,14 +318,13 @@ if ($_FILES['userfile']['error'] == 0) {
 			}
 		}
 
+		// Temporary fix to update doc links using remove all. 
+		// Next version will update database to version document links.
+		if(!$document->removeAllDocumentLinks()){
+			UI::exitError(getMLText("document_title", array("documentname" => $document->getID())),$linkID);
+		}
 		// Remove old links and add new ones
 		if(isset($_POST["linkInputs"])) {
-
-			// Temporary fix to update doc links using remove all. 
-			// Next version will update database to version document links.
-			if(!$document->removeAllDocumentLinks()){
-				UI::exitError(getMLText("document_title", array("documentname" => $document->getID())),$linkID);
-			}
 			$linkInputs = $_POST["linkInputs"];
 			foreach ($linkInputs as $linkInput) {
 				//Extract the document number only <number title>
@@ -335,6 +334,28 @@ if ($_FILES['userfile']['error'] == 0) {
 
 				if (!$document->addDocumentLink($linkID, $user->getID(), true)){
 					UI::exitError(getMLText("document_title", array("documentname" => $document->getID())),$linkID);
+				}
+			}
+		}
+
+		// Temporary fix to update doc links using remove all. 
+		// Next version will update database to version document links.
+		if(!$document->removeAllDocumentNotifications()){
+			UI::exitError(getMLText("document_title", array("documentname" => $document->getID())),$linkID);
+		}
+		/* Check if additional notification shall be added */
+		if(isset($_POST['notifyInputsUsers'])) {
+			/* Add a default notification for the owner of the document */
+			if($settings->_enableOwnerNotification) {
+				$res = $document->addNotify($user->getID(), true);
+			}
+			foreach($_POST['notifyInputsUsers'] as $login) {
+				// Remove the period character from doc number for jQuery compatibility
+				str_replace('-', '.', $login);
+				$empID = $dms->getUserByLogin($login)->getID();
+				if($empID) {
+					if($document->getAccessMode($user) >= M_READ)
+						$res = $document->addNotify($empID, true);
 				}
 			}
 		}

@@ -459,17 +459,15 @@ if (is_bool($res) && !$res) {
 			}
 		}
 	}
-
 	// Send notification to subscribers of folder.
 	if($notifier) {
-		$notifyList = $folder->getNotifyList();
-
+		$notifyList = $document->getNotifyList();
 		$subject = "new_document_email_subject";
 		$message = "new_document_email_body";
 		$params = array();
 		$params['name'] = $name;
-		$params['folder_name'] = $folder->getName();
-		$params['folder_path'] = $folder->getFolderPathPlain();
+		//$params['folder_name'] = $folder->getName();
+		//$params['folder_path'] = $folder->getFolderPathPlain();
 		$params['username'] = $user->getFullName();
 		$params['comment'] = $comment;
 		$params['version_comment'] = $version_comment;
@@ -478,6 +476,7 @@ if (is_bool($res) && !$res) {
 		$params['http_root'] = $settings->_httpRoot;
 		$notifier->toList($user, $notifyList["users"], $subject, $message, $params);
 		foreach ($notifyList["groups"] as $grp) {
+
 			$notifier->toGroup($user, $grp, $subject, $message, $params);
 		}
 
@@ -555,6 +554,6 @@ if (is_bool($res) && !$res) {
 add_log_line("?name=".$name."&folderid=".$folderid);
 
 
-header("Location:../out/out.ViewFolder.php?folderid=".$folderid."&showtree=".$_POST["showtree"]);
+header("Location:../out/out.MyDocuments.php");
 
 ?>

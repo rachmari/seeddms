@@ -115,7 +115,7 @@ $(document).ready(function() {
 					if($('#' + docNumId).length > 0) {
 						msg.push("You entered a duplicate document " + docNum);
 					} else {
-						var htmlStr = "<tr class='link_row'><td></td><td><div id='remove_" + docNumId + "'><i class='icon-remove'></i></div></td><td><input type='text' value='" + docNum + " - " + doc["title"] + "' id='" + docNumId + "' name='linkInputs[]'' readonly></td></tr>";
+						var htmlStr = "<tr class='add_row'><td></td><td><div id='remove_" + docNumId + "'><i class='icon-remove'></i></div></td><td><input type='text' value='" + docNum + " - " + doc["title"] + "' id='" + docNumId + "' name='linkInputs[]'' readonly></td></tr>";
 						$('#list-group').after(htmlStr);
 					}
 				});
@@ -133,9 +133,58 @@ $(document).ready(function() {
 			});
 		$('#link_input').val("");
 	});
-	// Remove a link when a link row is clicked
+		/**
+	 * When a new link is added, the database is checked using AJAX
+	 * to ensure that the link exists. Any duplicate or non-existing
+	 * links are returned in a message to the user. All existing links
+	 * are added as a new readonly input with the document title.
+	 */
+	$('#add_notify').click(function(event) {
+		var msg = new Array();
+		event.preventDefault();
+		var cc = $('#notify_input').val();
+		if(cc === "") {return};
+
+		/* To allow a comma separated list of links
+		 * remove spaces and split around commas */
+		cc = cc.replace(/ /g, "");
+		cc_array = cc.split(',');
+
+		$.get('../op/op.Ajax.php', { command: 'searchpeople', query: cc_array}, 
+			function(data) {
+				var missingPeeps = data.missing;
+				var existsPeeps = data.exists;
+				missingPeeps.forEach(function pushMissing(emp, i) {
+					msg.push("Couldn't locate document " + emp);
+				});
+				existsPeeps.forEach(function inputExists(emp, i) {
+					// Remove the period character from doc number for jQuery compatibility
+					var empId = emp.replace(/\./g, '-');
+					// If the employee id already exists, don't add
+					if($('#' + empId).length > 0) {
+						msg.push("You added the same person more than once " + emp);
+					} else {
+						var htmlStr = "<tr class='add_row'><td></td><td><div id='remove_" + empId + "'><i class='icon-remove'></i></div></td><td><input type='text' value='" + emp + "' id='" + empId + "' name='notifyInputsUsers[]'' readonly></td></tr>";
+						$('#notify-group').after(htmlStr);
+					}
+				});
+				if (msg != ""){
+		  				noty({
+				  		text: msg.join('<br />'),
+				  		type: 'error',
+				      	dismissQueue: true,
+				  		layout: 'topRight',
+				  		theme: 'defaultTheme',
+							_timeout: 1500,
+				  	});
+				}
+
+			});
+		$('#notify_input').val("");
+	});
+	// Remove an added row when x icon is clicked
 	$('body').on('click', '.icon-remove', (function(event) {
-		$(this).parents('.link_row').remove();
+		$(this).parents('.add_row').remove();
 	}));
 });
 </script>
@@ -591,20 +640,15 @@ $(document).ready(function() {
         </td>
 			</tr>	
 
-		  <tr>	
+		  <tr id='notify-group'>	
         <td>
 			<div class="cbSelectTitle"><?php printMLText("individuals");?>:</div>
         </td>
         <td>
-				<select class="chzn-select span9" name="notification_users[]" multiple="multiple" data-placeholder="<?php printMLText('select_ind_notification'); ?>">
-<?php
-						$allUsers = $dms->getAllUsers($sortusersinlist);
-						foreach ($allUsers as $userObj) {
-							if (!$userObj->isGuest() && $folder->getAccessMode($userObj) >= M_READ)
-								print "<option value=\"".$userObj->getID()."\">" . htmlspecialchars($userObj->getLogin() . " - " . $userObj->getFullName()) . "\n";
-						}
-?>
-				</select>
+				<input type='text' name="notification_users" autocomplete='off' id='notify_input'>
+				<a href='#' role='btn' class='btn' id='add_notify' name='add_notify'>
+					<?php printMLText("add");?>
+				</a>
 				</td>
 			</tr>
 		  <tr hidden>	

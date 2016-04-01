@@ -410,6 +410,7 @@ if (is_bool($res) && !$res) {
 			//Extract the document number only <number title>
 			$docNumber = explode(" ", $linkInput);
 			$docNumber = $docNumber[0];
+			str_replace('-', '.', $docNumber);
 			$linkID = $dms->getDocumentIDByNumber($docNumber);
 			if (!$document->addDocumentLink($linkID, $user->getID(), true)){
 				UI::exitError(getMLText("document_title", array("documentname" => $document->getID())),$linkID);
@@ -437,17 +438,20 @@ if (is_bool($res) && !$res) {
 		$res = $document->addNotify($user->getID(), true);
 	}
 	/* Check if additional notification shall be added */
-	if(!empty($_POST['notification_users'])) {
-		foreach($_POST['notification_users'] as $notuserid) {
-			$notuser = $dms->getUser($notuserid);
-			if($notuser) {
+	if(isset($_POST['notifyInputsUsers'])) {
+		foreach($_POST['notifyInputsUsers'] as $login) {
+			// Remove the period character from doc number for jQuery compatibility
+			str_replace('-', '.', $login);
+			$empID = $dms->getUserByLogin($login)->getID();
+			if($empID) {
 				if($document->getAccessMode($user) >= M_READ)
-					$res = $document->addNotify($notuserid, true);
+					$res = $document->addNotify($empID, true);
 			}
 		}
 	}
-	if(!empty($_POST['notification_groups'])) {
-		foreach($_POST['notification_groups'] as $notgroupid) {
+
+	if(!empty($_POST['notification_users'])) {
+		foreach($_POST['notifyInputsUsers'] as $notgroupid) {
 			$notgroup = $dms->getGroup($notgroupid);
 			if($notgroup) {
 				if($document->getGroupAccessMode($notgroup) >= M_READ)

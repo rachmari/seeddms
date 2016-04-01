@@ -93,6 +93,24 @@ switch($command) {
 		}	
 		break; /* }}} */
 
+	case 'searchpeople': /* {{{ */
+		$people = $_GET['query'];
+		$db = $dms->getDB();
+		$exists = array();
+		$missing = array();
+		foreach($people as $person) {
+			$empID = $dms->getUserByLogin($person);
+			if($empID != false) {
+				array_push($exists, $person);
+			} else {
+				array_push($missing, $person);
+			}
+		}
+		$results = array("exists"=>$exists, "missing"=>$missing);
+		header('Content-Type: application/json');
+		echo json_encode($results);
+		break; /* }}} */
+
 	case 'searchnumber': /* {{{ */
 		$numbers = $_GET['query'];
 		$db = $dms->getDB();

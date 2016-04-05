@@ -348,7 +348,7 @@ if (is_bool($res) && !$res) {
 			$pdffiletype = finfo_file($finfo, $pdffiletmp);
 		}
 
-		$res = $content->addPDF($pdffiletmp, basename($pdffilename), $fileType, $pdffiletype);
+		$res = $document->addContentPDF($version_comment, $user, $pdffiletmp, basename($pdffilename), $fileType, $pdffiletype, $reqversion);
 
 		if(!$res) {
 			UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),"PDF file not uploaded");

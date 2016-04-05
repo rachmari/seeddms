@@ -59,14 +59,34 @@ if (isset($_GET["version"])) {
 	}
 	$version = $_GET["version"];
 	$content = $document->getContentByVersion($version);
+	if(isset($_GET["pdf"]) && intval($_GET["pdf"])==1) {
+		$pdfContent = $document->getPDFByContent($content);
+		if (!is_object($pdfContent)) {
+			UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
+		}
 
-	if (!is_object($content)) {
-		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
+		header("Content-Type: application/force-download; name=\"" . $pdfContent->getOriginalFileName() . "\"");
+		header("Content-Transfer-Encoding: binary");
+		header("Content-Length: " . filesize($dms->contentDir . $pdfContent->getDir() . "p" . $pdfContent->getVersion() . $pdfContent->getFileType));
+		$efilename = rawurlencode($pdfContent->getOriginalFileName());
+		header("Content-Disposition: attachment; filename=\"" . $efilename . "\"; filename*=UTF-8''".$efilename);
+		//header("Expires: 0");
+		header("Content-Type: " . $pdfContent->getMimeType());
+		//header("Cache-Control: no-cache, must-revalidate");
+		header("Cache-Control: must-revalidate");
+		//header("Pragma: no-cache");
+
+		ob_clean();
+		readfile($dms->contentDir . $pdfContent->getDir() . "p" . $pdfContent->getVersion() . $pdfContent->getFileType);
+	} else {
+		if (!is_object($content)) {
+			UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
+		}
+
+		$controller->setParam('content', $content);
+		$controller->setParam('type', 'version');
+		$controller->run();
 	}
-
-	$controller->setParam('content', $content);
-	$controller->setParam('type', 'version');
-	$controller->run();
 
 } elseif (isset($_GET["file"])) {
 

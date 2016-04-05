@@ -1625,6 +1625,77 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 	} /* }}} */
 
 	/**
+     * Add a PDF version of a piece of content
+     *
+     * Each content may have a PDF version of the document
+     * associated with it.
+     *
+     * @param string $comment usused for now
+     * @param object $user the user that created the content
+     * @param string $tmpFile file containing the actual content
+     * @param string $orgFileName original file name
+     * @param string $fileType
+     * @param string $mimeType MimeType of the content
+     * @return contentPDF insert id or false in case of an error
+     */
+    function addContentPDF($comment, $user, $tmpFile, $orgFileName, $fileType, $mimeType, $version=0) { /* {{{ */
+        $db = $this->_dms->getDB();
+        $content = $this->getLatestContent();
+        $filesize = SeedDMS_Core_File::fileSize($tmpFile);
+        $checksum = SeedDMS_Core_File::checksum($tmpFile);
+
+        $db->startTransaction();
+        $queryStr = "INSERT INTO tblDocumentContentPDF (content, version, comment, date, createdBy, dir, orgFileName, fileType, mimeType, fileSize, checksum) VALUES ".
+                        "(" . $content->getID() . ", " . $content->getVersion() . ", '" . $comment . "', " . $content->getDate() . ", " . $content->getUser()->getID() . ", '" . $content->getDir() . "', " . $db->qstr($orgFileName) . ", " . $db->qstr($fileType) . ", " . $db->qstr($mimeType) . ", " . $filesize . ", " . $db->qstr($checksum) .")";
+        if (!$db->getResult($queryStr)) {
+            $db->rollbackTransaction();
+            return false;
+        }
+
+        $pdfID = $db->getInsertID();
+
+        // copy file
+        if (!SeedDMS_Core_File::makeDir($this->_dms->contentDir . $content->getDir())) {
+            $db->rollbackTransaction();
+            return false;
+        }
+
+        if($this->_dms->forceRename) {
+			$err = SeedDMS_Core_File::renameFile($tmpFile, $this->_dms->contentDir . $content->getDir() . $version . "p" . $fileType);
+		}
+		else {
+			$err = SeedDMS_Core_File::copyFile($tmpFile, $this->_dms->contentDir . $content->getDir() . "p" . $version . $fileType);
+		}
+        if (!$err) {
+            $db->rollbackTransaction();
+            return false;
+        }
+
+        $db->commitTransaction();
+        return $pdfID;
+    } /* }}} */
+
+	/**
+	 * Return the content element of a document with a given version number
+	 *
+	 * @param integer $version version number of content element
+	 * @return object object of class SeedDMS_Core_DocumentContent
+	 */
+	function getPDFByContent($content) { /* {{{ */
+		$db = $this->_dms->getDB();
+		$queryStr = "SELECT * FROM tblDocumentContentPDF WHERE content = ".$content->getID();
+		$resArr = $db->getResultArray($queryStr);
+		if (is_bool($resArr) && !$res)
+			return false;
+		if (count($resArr) != 1)
+			return false;
+
+		$resArr = $resArr[0];
+
+		return new SeedDMS_Core_DocumentContent($resArr["id"], $content, $resArr["version"], $resArr["comment"], $resArr["date"], $resArr["createdBy"], $resArr["dir"], $resArr["orgFileName"], $resArr["fileType"], $resArr["mimeType"], $resArr['fileSize'], $resArr['checksum']);
+	} /* }}} */
+
+	/**
 	 * Return a certain document link
 	 *
 	 * @param integer $linkID id of link
@@ -1819,7 +1890,7 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 		return $documentFilesByVer;
 	}
 
-	function addDocumentFile($name, $comment, $user, $tmpFile, $orgFileName,$fileType, $mimeType) { /* {{{ */
+	function addDocumentFile($name, $comment, $user, $tmpFile, $orgFileName, $fileType, $mimeType) { /* {{{ */
 		$db = $this->_dms->getDB();
 		$dir = $this->getDir();
 		$latest_content = $this->getLatestContent();
@@ -2273,52 +2344,6 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
  * @version    Release: @package_version@
  */
 class SeedDMS_Core_DocumentContent extends SeedDMS_Core_Object { /* {{{ */
-
-    /**
-     * Add a PDF version of a piece of content
-     *
-     * Each content may have a PDF version of the document
-     * associated with it. 
-     *
-     * @param string $tmpFile file containing the actuall content
-     * @param string $orgFileName original file name
-     * @param string $fileType
-     * @param string $mimeType MimeType of the content
-     * @return contentPDF insert id or false in case of an error
-     */
-    function addPDF($tmpFile, $orgFileName, $fileType, $mimeType) { /* {{{ */
-        $db = $this->_dms->getDB();
-
-        $filesize = SeedDMS_Core_File::fileSize($tmpFile);
-        $checksum = SeedDMS_Core_File::checksum($tmpFile);
-
-        $db->startTransaction();
-        $queryStr = "INSERT INTO tblDocumentContentPDF (content, orgFileName, fileType, mimeType, fileSize, checksum) VALUES ".
-                        "(".$this->_id.", ".$db->qstr($orgFileName).", ".$db->qstr($fileType).", ".$db->qstr($mimeType).", ".$filesize.", ".$db->qstr($checksum).")";
-        if (!$db->getResult($queryStr)) {
-            $db->rollbackTransaction();
-            return false;
-        }
-
-        $pdfID = $db->getInsertID();
-
-        // copy file
-        if (!SeedDMS_Core_File::makeDir($this->_dms->contentDir . $dir)) {
-            $db->rollbackTransaction();
-            return false;
-        }
-        if($this->_dms->forceRename)
-            $err = SeedDMS_Core_File::renameFile($tmpFile, $this->_dms->contentDir . $dir . $version . $fileType);
-        else
-            $err = SeedDMS_Core_File::copyFile($tmpFile, $this->_dms->contentDir . $dir . $version . $fileType);
-        if (!$err) {
-            $db->rollbackTransaction();
-            return false;
-        }
-
-        $db->commitTransaction();
-        return $pdfID;
-    } /* }}} */
 
 	/**
 	 * Recalculate the status of a document

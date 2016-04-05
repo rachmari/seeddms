@@ -181,7 +181,9 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 
 		$this->htmlStartPage(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))));
 		$this->globalNavigation($folder);
+		$this->pageNavigation("View Document");
 		$this->contentStart();
+
 
 		if ($document->isLocked()) {
 			$lockingUser = $document->getLockingUser();
@@ -210,6 +212,10 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 
 		/* Retrieve latest content */
 		$latestContent = $document->getLatestContent();
+
+		/* Retrieve latest pdf */
+		$latestPDFContent = $document->getPDFByContent($latestContent);
+
 		$needwkflaction = false;
 		if($workflowmode == 'traditional' || $workflowmode == 'traditional_only_approval') {
 		} else {
@@ -391,11 +397,12 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 		$this->contentContainerStart();
 		print "<table class=\"table\">";
 		print "<thead>\n<tr>\n";
-		print "<th width='*'>".getMLText("version")."</th>\n";
+		print "<th width='10%'>".getMLText("version")."</th>\n";
 		print "<th width='*'>".getMLText("file")."</th>\n";
-		print "<th width='25%'>".getMLText("comment")."</th>\n";
-		print "<th width='15%'>".getMLText("status")."</th>\n";
-		print "<th width='20%'></th>\n";
+		print "<th width='20%'>".getMLText("comment")."</th>\n";
+		print "<th width='10%'>".getMLText("status")."</th>\n";
+		print "<th width='15%'>".getMLText("source")."</th>\n";
+		print "<th width='15%'>".getMLText('pdf')."</th>\n";
 		print "</tr></thead><tbody>\n";
 		print "<tr>\n";
 		print "<td>";
@@ -455,11 +462,10 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 
 		print "<ul class=\"unstyled actions\">";
 		if ($file_exists){
-			print "<li><a href=\"../op/op.Download.php?documentid=".$documentid."&version=".$latestContent->getVersion()."\"><i class=\"icon-download\"></i>".getMLText("download")."</a></li>";
+			print "<li><a href=\"../op/op.Download.php?documentid=".$documentid."&version=".$latestContent->getVersion()."\"><i class=\"icon-download\"></i>".getMLText("download_source")."</a></li>";
 			if ($viewonlinefiletypes && in_array(strtolower($latestContent->getFileType()), $viewonlinefiletypes))
 				print "<li><a target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&version=". $latestContent->getVersion()."\"><i class=\"icon-star\"></i>" . getMLText("view_online") . "</a></li>";
 		}
-		print "</ul>";
 		print "<ul class=\"unstyled actions\">";
 		/* Only admin has the right to remove version in any case or a regular
 		 * user if enableVersionDeletion is on
@@ -490,7 +496,17 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 		}
 
 		print "</ul>";
-		echo "</td>";
+		print "</td>";
+		print "<td>";
+		print "<ul class=\"unstyled actions\">";
+
+		if ($latestPDFContent) {
+			print "<li><a href=\"../op/op.Download.php?documentid=".$documentid."&pdf=1&version=".$latestPDFContent->getVersion()."\"><i class=\"icon-download\"></i>".getMLText("download_pdf")."</a></li>";
+			if ($viewonlinefiletypes && in_array(strtolower($latestPDFContent->getFileType()), $viewonlinefiletypes))
+				print "<li><a target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&pdf=1&version=". $latestPDFContent->getVersion()."\"><i class=\"icon-star\"></i>" . getMLText("view_pdf") . "</a></li>";
+		}
+		print "</ul>";
+		print "</td>";
 
 		if (count($files) > 0) {
 			// Attachment Listing Begin
@@ -533,8 +549,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 						print "<li><a target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&file=". $file->getID()."\"><i class=\"icon-star\"></i>" . getMLText("view_online") . "</a></li>";
 				} else print "<li><img class=\"mimeicon\" src=\"images/icons/".$this->getMimeIcon($file->getFileType())."\" title=\"".htmlspecialchars($file->getMimeType())."\">";
 				echo "</ul><ul class=\"unstyled actions\">";
-				if (($document->getAccessMode($user) == M_ALL)||($file->getUserID()==$user->getID()))
-					print "<li><a href=\"out.RemoveDocumentFile.php?documentid=".$documentid."&fileid=".$file->getID()."\"><i class=\"icon-remove\"></i>".getMLText("delete")."</a></li>";
 				print "</ul></td>";
 				print "</tr>";
 			}

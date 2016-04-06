@@ -68,15 +68,16 @@ if(isset($_GET["version"])) {
 			UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
 		}
 
+		$filepath = $dms->contentDir . $pdfContent->getDir() . "p" . $pdfContent->getVersion() . $pdfContent->getFileType;
 		header("Content-Type: " . $pdfContent->getMimeType());
 		header("Content-Disposition: filename=\"" . $pdfContent->getOriginalFileName() . "\"");
-		header("Content-Length: " . filesize($dms->contentDir . $pdfContent->getDir() . "p" . $pdfContent->getVersion() . $pdfContent->getFileType));
+		header("Content-Length: " . filesize($filepath));
 		header("Expires: 0");
 		header("Cache-Control: no-cache, must-revalidate");
 		header("Pragma: no-cache");
 
 		ob_clean();
-		readfile($dms->contentDir . $pdfContent->getDir() . "p" . $pdfContent->getVersion() . $pdfContent->getFileType);
+		readfile($filepath);
 	} else {
 
 		$controller->setParam('content', $content);
@@ -100,14 +101,15 @@ if(isset($_GET["version"])) {
 	if (isset($settings->_viewOnlineFileTypes) && is_array($settings->_viewOnlineFileTypes) && in_array(strtolower($file->getFileType()), $settings->_viewOnlineFileTypes)) {
 		header("Content-Type: " . $file->getMimeType());
 	}
+	$filepath = $dms->contentDir . $file->getPath();
 	header("Content-Disposition: filename=\"" . $file->getOriginalFileName() . "\"");
-	header("Content-Length: " . filesize($dms->contentDir . $file->getPath() ));
+	header("Content-Length: " . filesize($filepath));
 	header("Expires: 0");
 	header("Cache-Control: no-cache, must-revalidate");
 	header("Pragma: no-cache");
 
 	ob_clean();
-	readfile($dms->contentDir . $file->getPath());
+	readfile($filepath);
 }
 
 add_log_line();

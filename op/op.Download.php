@@ -64,20 +64,15 @@ if (isset($_GET["version"])) {
 		if (!is_object($pdfContent)) {
 			UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
 		}
-
-		header("Content-Type: application/force-download; name=\"" . $pdfContent->getOriginalFileName() . "\"");
-		header("Content-Transfer-Encoding: binary");
-		header("Content-Length: " . filesize($dms->contentDir . $pdfContent->getDir() . "p" . $pdfContent->getVersion() . $pdfContent->getFileType));
+		$filepath = $dms->contentDir . $pdfContent->getDir() . "p" . $pdfContent->getVersion() . $pdfContent->getFileType;
+		header("Content-Type: " . $pdfContent->getMimeType());
 		$efilename = rawurlencode($pdfContent->getOriginalFileName());
 		header("Content-Disposition: attachment; filename=\"" . $efilename . "\"; filename*=UTF-8''".$efilename);
-		//header("Expires: 0");
-		header("Content-Type: " . $pdfContent->getMimeType());
-		//header("Cache-Control: no-cache, must-revalidate");
-		header("Cache-Control: must-revalidate");
-		//header("Pragma: no-cache");
-
-		ob_clean();
-		readfile($dms->contentDir . $pdfContent->getDir() . "p" . $pdfContent->getVersion() . $pdfContent->getFileType);
+		header("Expires: 0");
+		header("Pragma: public");
+		header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+		header("Content-Length: " . filesize($filepath));
+		readfile($filepath);
 	} else {
 		if (!is_object($content)) {
 			UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
@@ -124,19 +119,15 @@ if (isset($_GET["version"])) {
 		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("missing_file"));
 	}
 
-	header("Content-Type: application/force-download; name=\"" . $file->getOriginalFileName() . "\"");
-	header("Content-Transfer-Encoding: binary");
-	header("Content-Length: " . filesize($dms->contentDir . $file->getPath() ));
+	$filepath = $dms->contentDir . $file->getPath();
+	header("Content-Type: " . $file->getMimeType());
 	$efilename = rawurlencode($file->getOriginalFileName());
 	header("Content-Disposition: attachment; filename=\"" . $efilename . "\"; filename*=UTF-8''".$efilename);
-	//header("Expires: 0");
-	header("Content-Type: " . $file->getMimeType());
-	//header("Cache-Control: no-cache, must-revalidate");
-	header("Cache-Control: must-revalidate");
-	//header("Pragma: no-cache");
-
-	ob_clean();
-	readfile($dms->contentDir . $file->getPath());
+	header("Expires: 0");
+	header("Pragma: public");
+	header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+	header("Content-Length: " . filesize($filepath));
+	readfile($filepath);
 
 } elseif (isset($_GET["arkname"])) {
 	$filename = basename($_GET["arkname"]);
@@ -155,20 +146,11 @@ if (isset($_GET["version"])) {
 		UI::exitError(getMLText("admin_tools"),getMLText("missing_file"));
 	}
 
-	header('Content-Description: File Transfer');
-	//header("Content-Type: application/force-download; name=\"" . $filename . "\"");
-	//header("Content-Type: application/octet-stream");
 	header("Content-Type: application/zip");
-	header("Content-Transfer-Encoding: binary");
 	header("Content-Length: " . filesize($settings->_contentDir . $filename ));
 	$efilename = rawurlencode($filename);
 	header("Content-Disposition: attachment; filename=\"" .$efilename . "\"; filename*=UTF-8''".$efilename);
-//	header("Expires: 0");
-	//header("Content-Type: " . $content->getMimeType());
-	//header("Cache-Control: no-cache, must-revalidate");
-//	header("Cache-Control: must-revalidate");
 	header("Cache-Control: public");
-	//header("Pragma: no-cache");	
 	
 	ob_clean();
 	readfile($settings->_contentDir .$filename );
@@ -214,18 +196,12 @@ if (isset($_GET["version"])) {
 	
 	// update infos
 	createVersionigFile($document);
-	
 	header("Content-Type: text/plain; name=\"" . $settings->_versioningFileName . "\"");
-	//header("Content-Type: application/force-download; name=\"" . $settings->_versioningFileName . "\"");
 	header("Content-Transfer-Encoding: binary");
 	header("Content-Length: " . filesize($dms->contentDir.$document->getDir().$settings->_versioningFileName )."\"");
 	$efilename = rawurlencode($settings->_versioningFileName);
 	header("Content-Disposition: attachment; filename=\"". $efilename . "\"");
-	//header("Expires: 0");
-	//header("Content-Type: " . $content->getMimeType());
-	//header("Cache-Control: no-cache, must-revalidate");
 	header("Cache-Control: must-revalidate");
-	//header("Pragma: no-cache");	
 	
 	ob_clean();
 	readfile($dms->contentDir . $document->getDir() .$settings->_versioningFileName);

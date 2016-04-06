@@ -50,15 +50,6 @@ if (isset($_GET["navBar"])) {
 	} else {
 		$folderid = $_GET["folderid"];
 	}
-	/*
-	if(strlen($_GET["query"])==0) {
-		header("Location: ../out/out.SearchForm.php?folderid=".$folderid);
-	} else {
-		if(isset($_GET["fullsearch"]) && $_GET["fullsearch"]) {
-			header("Location: ../op/op.SearchFulltext.php?folderid=".$folderid."&query=".$_GET["query"]);
-		}
-	}
-	*/
 }
 
 if(isset($_GET["fullsearch"]) && $_GET["fullsearch"] && $settings->_enableFullSearch) {
@@ -181,6 +172,8 @@ if(isset($_GET["fullsearch"]) && $_GET["fullsearch"] && $settings->_enableFullSe
 	if (isset($_GET["resultmode"]) && is_numeric($_GET["resultmode"])) {
 			$resultmode = $_GET['resultmode'];
 	}
+	// Force result mode to documents only since we don't use folders
+	$resultmode = 0x01;
 
 	$mode = "AND";
 	if (isset($_GET["mode"]) && is_numeric($_GET["mode"]) && $_GET["mode"]==0) {

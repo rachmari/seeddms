@@ -846,6 +846,8 @@ class SeedDMS_Core_DMS {
 			}
 			if (in_array(2, $searchin)) {
 				$searchFields[] = "`tblDocuments`.`name`";
+				$searchFields[] = "`tblMemoNumbers`.`number`";
+				$searchFields[] = "`tblSpecNumbers`.`number`";
 			}
 			if (in_array(3, $searchin)) {
 				$searchFields[] = "`tblDocuments`.`comment`";
@@ -854,7 +856,6 @@ class SeedDMS_Core_DMS {
 				$searchFields[] = "`tblDocumentAttributes`.`value`";
 				$searchFields[] = "`tblDocumentContentAttributes`.`value`";
 			}
-
 
 			if (count($searchFields)>0) {
 				foreach ($tkeys as $key) {
@@ -988,6 +989,8 @@ class SeedDMS_Core_DMS {
 
 			$searchQuery = "FROM `tblDocumentContent` ".
 				"LEFT JOIN `tblDocuments` ON `tblDocuments`.`id` = `tblDocumentContent`.`document` ".
+				"LEFT JOIN `tblMemoNumbers` ON `tblDocuments`.`id` = `tblMemoNumbers`.`document` ".
+				"LEFT JOIN `tblSpecNumbers` ON `tblDocuments`.`id` = `tblSpecNumbers`.`document` ".
 				"LEFT JOIN `tblDocumentAttributes` ON `tblDocuments`.`id` = `tblDocumentAttributes`.`document` ".
 				"LEFT JOIN `tblDocumentContentAttributes` ON `tblDocumentContent`.`id` = `tblDocumentContentAttributes`.`content` ".
 				"LEFT JOIN `tblDocumentStatus` ON `tblDocumentStatus`.`documentID` = `tblDocumentContent`.`document` ".
@@ -1040,6 +1043,7 @@ class SeedDMS_Core_DMS {
 
 				// Prepare the complete search query, including the LIMIT clause.
 				$searchQuery = "SELECT DISTINCT `tblDocuments`.*, ".
+					"`tblMemoNumbers`.`number`, `tblSpecNumbers`.`number`,".
 					"`tblDocumentContent`.`version`, ".
 					"`tblDocumentStatusLog`.`status`, `tblDocumentLocks`.`userID` as `lockUser` ".$searchQuery;
 

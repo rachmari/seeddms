@@ -27,7 +27,7 @@ require_once("class.Bootstrap.php");
  * @copyright  Copyright (C) 2002-2005 Markus Westphal,
  *             2006-2008 Malcolm Cowe, 2010 Matteo Lucarelli,
  *             2010-2012 Uwe Steinmann
- * @version    Release: @package_version@
+ * @version    Release:f @package_version@
  */
 class SeedDMS_View_Search extends SeedDMS_Bootstrap_Style {
 
@@ -95,8 +95,8 @@ class SeedDMS_View_Search extends SeedDMS_Bootstrap_Style {
 
 		$this->htmlStartPage(getMLText("search_results"));
 		$this->globalNavigation();
+        $this->contentHeading(getMLText("search_results"));
 		$this->contentStart();
-		$this->pageNavigation(getMLText("search_results"), "");
 
 		echo "<div class=\"row-fluid\">\n";
 		echo "<div class=\"span4\">\n";
@@ -442,7 +442,7 @@ class SeedDMS_View_Search extends SeedDMS_Bootstrap_Style {
 				}
 			}
 			 */
-			print "<div class=\"alert\">".getMLText("search_report", array("doccount" => $totaldocs, "foldercount" => $totalfolders, 'searchtime'=>$searchTime))."</div>";
+			print "<div class=\"alert search-results\">".getMLText("search_report", array("doccount" => $totaldocs, "foldercount" => $totalfolders, 'searchtime'=>$searchTime))."</div>";
 			$this->pageList($pageNumber, $totalpages, "../out/out.Search.php", $urlparams);
 //			$this->contentContainerStart();
 

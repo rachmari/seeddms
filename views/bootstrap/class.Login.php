@@ -42,8 +42,9 @@ class SeedDMS_View_Login extends SeedDMS_Bootstrap_Style {
 
 		$this->htmlStartPage(getMLText("sign_in"), "login");
 		$this->globalBanner();
+		$this->contentHeading(getMLText("sign_in"));
 		$this->contentStart();
-		$this->pageNavigation(getMLText("sign_in"));
+
 ?>
 <script language="JavaScript">
 function checkForm()
@@ -83,6 +84,7 @@ function guestLogin()
 
 </script>
 <?php $this->contentContainerStart(); ?>
+<div class='span6 offset3'>
 <form class="form-horizontal" action="../op/op.Login.php" method="post" name="form1" onsubmit="return checkForm();">
 <?php
 		if ($refer) {
@@ -143,6 +145,7 @@ function guestLogin()
 	</div>
 		
 </form>
+</div>
 <?php
 		$this->contentContainerEnd();
 		$tmpfoot = array();

@@ -181,7 +181,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 
 		$this->htmlStartPage(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))));
 		$this->globalNavigation($folder);
-		$this->pageNavigation("View Document");
+		$this->contentHeading($document->getDocNum());
 		$this->contentStart();
 
 
@@ -238,7 +238,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 
 <div class="row-fluid">
 <?php
-		echo "<div class='span9'><h3>".$document->getName()."</h3><h4>".$document->getDocNum()."</h4>";
+		echo "<div class='span9'><h4>".$document->getName()."</h4>";
 		echo "<p>" . $document->getComment() . "</p></div>";
 		echo "<div class='span3'>";
 		//$this->contentHeading(.": ".));
@@ -250,18 +250,18 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 			echo $txt;
 		else {
 ?>
-		<table class="table-condensed">
+		<table class="table-condensed revise-edit-container">
 <?php
 		if($user->isAdmin()) {
 			echo "<tr>";
-			echo "<td>".getMLText("id").":</td>\n";
-			echo "<td>".htmlspecialchars($document->getID())."</td>\n";
+			echo "<td>".getMLText("id").":\n";
+			echo htmlspecialchars($document->getID())."</td>\n";
 			echo "</tr>";
 		}
 
 		echo "<tr>";
-		echo "<td><a href='../out/out.UpdateDocument.php?documentid=" . htmlspecialchars($document->getID()) . "'><i class='icon-edit'></i>&nbsp;Revise Document</a></td><tr>";
-		echo "<td><a href='../out/out.EditDocument.php?documentid=" . htmlspecialchars($document->getID()) . "'><i class='icon-edit'></i>&nbsp;Edit Document Info</a></td>";
+		echo "<td><a class='revise-edit-links' href='../out/out.UpdateDocument.php?documentid=" . htmlspecialchars($document->getID()) . "'><i class='icon-copy'></i>&nbsp;" . getMLText("update_document_version") . "</a></td><tr>";
+		echo "<td><a class='revise-edit-links' href='../out/out.EditDocument.php?documentid=" . htmlspecialchars($document->getID()) . "'><i class='icon-edit'></i>&nbsp;" . getMLText("edit_document_info") . "</a></td>";
 		echo "</tr>";
 ?>
 		<tr hidden>
@@ -965,15 +965,26 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 ?>
 		  <div class="tab-pane <?php if($currenttab == 'previous') echo 'active'; ?>" id="previous">
 <?php
+			$first_loop = 1;
 			for ($i = count($versions)-2; $i >= 0; $i--) {
 				$this->contentContainerStart();
 				print "<table class=\"table\">";
 				print "<thead>\n<tr>\n";
-				print "<th width='10%'>".getMLText("version")."</th>\n";
-				print "<th width='30%'>".getMLText("file")."</th>\n";
-				print "<th width='25%'>".getMLText("comment")."</th>\n";
-				print "<th width='15%'>".getMLText("status")."</th>\n";
-				print "<th width='20%'></th>\n";
+				if($first_loop) {
+					print "<th width='10%'>".getMLText("version")."</th>\n";
+					print "<th width='30%'>".getMLText("file")."</th>\n";
+					print "<th width='25%'>".getMLText("comment")."</th>\n";
+					print "<th width='15%'>".getMLText("status")."</th>\n";
+					print "<th width='20%'></th>\n";
+					$first_loop = 0;
+				} else {
+					print "<th width='10%'></th>\n";
+					print "<th width='30%'></th>\n";
+					print "<th width='25%'></th>\n";
+					print "<th width='15%'></th>\n";
+					print "<th width='20%'></th>\n";
+				}
+				
 				print "</tr>\n</thead>\n<tbody>\n";
 
 				$version = $versions[$i];

@@ -84,9 +84,10 @@ $(document).ready( function() {
 
 		$this->htmlStartPage(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))));
 		$this->globalNavigation($folder);
+		$this->contentHeading(getMLText("edit_document_props"));
 		$this->contentStart();
 
-		$this->contentHeading(getMLText("edit_document_props"));
+		
 		$this->contentContainerStart();
 
 		if($document->expires())
@@ -96,14 +97,14 @@ $(document).ready( function() {
 ?>
 <form action="../op/op.EditDocument.php" name="form1" id="form1" method="post">
 	<input type="hidden" name="documentid" value="<?php echo $document->getID() ?>">
-	<table cellpadding="3">
+	<table class='table-condensed doc-table' cellpadding="3">
 		<tr>
 			<td class="inputDescription"><?php printMLText("name");?>:</td>
-			<td><input type="text" name="name" id="name" value="<?php print htmlspecialchars($document->getName());?>" size="60"></td>
+			<td><input class='input-block-level' type="text" name="name" id="name" value="<?php print htmlspecialchars($document->getName());?>" size="60"></td>
 		</tr>
 		<tr>
 			<td valign="top" class="inputDescription"><?php printMLText("comment");?>:</td>
-			<td><textarea name="comment" id="comment" rows="4" cols="80"><?php print htmlspecialchars($document->getComment());?></textarea></td>
+			<td><textarea class='input-block-level' name="comment" id="comment" rows="4" cols="80"><?php print htmlspecialchars($document->getComment());?></textarea></td>
 		</tr>
 		<tr hidden>
 			<td valign="top" class="inputDescription"><?php printMLText("keywords");?>:</td>
@@ -171,7 +172,7 @@ $(document).ready( function() {
 ?>
 		<tr>
 			<td></td>
-			<td><button type="submit" class="btn"><i class="icon-save"></i> <?php printMLText("save")?></button></td>
+			<td><p class='submit-button-container'><button class='submit-button' type="submit" class="btn"><i class="icon-save"></i> <?php printMLText("save")?></button></p></td>
 		</tr>
 	</table>
 </form>

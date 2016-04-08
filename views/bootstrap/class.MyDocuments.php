@@ -46,7 +46,6 @@ class SeedDMS_View_MyDocuments extends SeedDMS_Bootstrap_Style {
 
 		$this->htmlStartPage(getMLText("my_documents"));
 		$this->globalNavigation();
-		$this->contentStart();
 
 		if ($showInProcess){
 
@@ -114,6 +113,7 @@ class SeedDMS_View_MyDocuments extends SeedDMS_Bootstrap_Style {
 					$resArr = $db->getResultArray($queryStr);
 					if (is_bool($resArr) && !$resArr) {
 						$this->contentHeading(getMLText("warning"));
+						$this->contentStart();
 						$this->contentContainer(getMLText("internal_error_exit"));
 						$this->htmlEndPage();
 						exit;
@@ -139,6 +139,7 @@ class SeedDMS_View_MyDocuments extends SeedDMS_Bootstrap_Style {
 					// List the documents where a review has been requested.
 					if($workflowmode == 'traditional') {
 						$this->contentHeading(getMLText("documents_to_review"));
+						$this->contentStart();
 						$this->contentContainerStart();
 						$printheader=true;
 						$iRev = array();
@@ -229,6 +230,7 @@ class SeedDMS_View_MyDocuments extends SeedDMS_Bootstrap_Style {
 
 					// List the documents where an approval has been requested.
 					$this->contentHeading(getMLText("documents_to_approve"));
+					$this->contentStart();
 					$this->contentContainerStart();
 					$printheader=true;
 					
@@ -314,11 +316,13 @@ class SeedDMS_View_MyDocuments extends SeedDMS_Bootstrap_Style {
 				else {
 					if($workflowmode == 'traditional') {	
 						$this->contentHeading(getMLText("documents_to_review"));
+						$this->contentStart();
 						$this->contentContainerStart();
 						printMLText("no_review_needed");
 						$this->contentContainerEnd();
 					}
 					$this->contentHeading(getMLText("documents_to_approve"));
+					$this->contentStart();
 					$this->contentContainerStart();
 					printMLText("no_approval_needed");
 					$this->contentContainerEnd();
@@ -349,11 +353,13 @@ class SeedDMS_View_MyDocuments extends SeedDMS_Bootstrap_Style {
 				if (is_bool($resArr) && !$resArr) {
 					$this->contentHeading(getMLText("warning"));
 					$this->contentContainer("Internal error. Unable to complete request. Exiting.");
+					$this->contentStart();
 					$this->htmlEndPage();
 					exit;
 				}
 
 				$this->contentHeading(getMLText("documents_user_requiring_attention"));
+				$this->contentStart();
 				$this->contentContainerStart();
 				if (count($resArr)>0) {
 
@@ -447,6 +453,7 @@ class SeedDMS_View_MyDocuments extends SeedDMS_Bootstrap_Style {
 					$resArr = $db->getResultArray($queryStr);
 					if (is_bool($resArr) && !$resArr) {
 						$this->contentHeading(getMLText("warning"));
+						$this->contentStart();
 						$this->contentContainer(getMLText("internal_error_exit"));
 						$this->htmlEndPage();
 						exit;
@@ -471,6 +478,7 @@ class SeedDMS_View_MyDocuments extends SeedDMS_Bootstrap_Style {
 
 					// List the documents where a review has been requested.
 					$this->contentHeading(getMLText("documents_to_process"));
+					$this->contentStart();
 					$this->contentContainerStart();
 					$printheader=true;
 					$iRev = array();
@@ -583,12 +591,14 @@ class SeedDMS_View_MyDocuments extends SeedDMS_Bootstrap_Style {
 				$resArr = $db->getResultArray($queryStr);
 				if (is_bool($resArr) && !$resArr) {
 					$this->contentHeading(getMLText("warning"));
+					$this->contentStart();
 					$this->contentContainer("Internal error. Unable to complete request. Exiting.");
 					$this->htmlEndPage();
 					exit;
 				}
 
 				$this->contentHeading(getMLText("documents_user_requiring_attention"));
+				$this->contentStart();
 				$this->contentContainerStart();
 				if (count($resArr)>0) {
 
@@ -660,12 +670,14 @@ class SeedDMS_View_MyDocuments extends SeedDMS_Bootstrap_Style {
 			$resArr = $db->getResultArray($queryStr);
 			if (is_bool($resArr) && !$resArr) {
 				$this->contentHeading(getMLText("warning"));
+				$this->contentStart();
 				$this->contentContainer("Internal error. Unable to complete request. Exiting.");
 				$this->htmlEndPage();
 				exit;
 			}
 
 			$this->contentHeading(getMLText("documents_locked_by_you"));
+			$this->contentStart();
 			$this->contentContainerStart();
 			if (count($resArr)>0) {
 
@@ -720,6 +732,7 @@ class SeedDMS_View_MyDocuments extends SeedDMS_Bootstrap_Style {
 			// Get list of documents owned by current user
 			if (!$db->createTemporaryTable("ttstatid")) {
 				$this->contentHeading(getMLText("warning"));
+				$this->contentStart();
 				$this->contentContainer(getMLText("internal_error_exit"));
 				$this->htmlEndPage();
 				exit;
@@ -727,6 +740,7 @@ class SeedDMS_View_MyDocuments extends SeedDMS_Bootstrap_Style {
 
 			if (!$db->createTemporaryTable("ttcontentid")) {
 				$this->contentHeading(getMLText("warning"));
+				$this->contentStart();
 				$this->contentContainer(getMLText("internal_error_exit"));
 				$this->htmlEndPage();
 				exit;
@@ -756,24 +770,26 @@ class SeedDMS_View_MyDocuments extends SeedDMS_Bootstrap_Style {
 			$resArr = $db->getResultArray($queryStr);
 			if (is_bool($resArr) && !$resArr) {
 				$this->contentHeading(getMLText("warning"));
+				$this->contentStart();
 				$this->contentContainer(getMLText("internal_error_exit"));
 				$this->htmlEndPage();
 				exit;
 			}
 			
 			$this->contentHeading(getMLText("all_documents"));
+			$this->contentStart();
 			$this->contentContainerStart();
 
 			if (count($resArr)>0) {
 
 				print "<table class=\"table table-condensed\">";
 				print "<thead>\n<tr>\n";
-				print "<th></th>";
-				print "<th><a href=\"../out/out.MyDocuments.php?orderby=n\">".getMLText("name")."</a></th>\n";
-				print "<th><a href=\"../out/out.MyDocuments.php?orderby=s\">".getMLText("status")."</a></th>\n";
-				print "<th>".getMLText("version")."</th>\n";
-				print "<th><a href=\"../out/out.MyDocuments.php?orderby=u\">".getMLText("last_update")."</a></th>\n";
-				print "<th><a href=\"../out/out.MyDocuments.php?orderby=e\">".getMLText("expires")."</a></th>\n";
+				print "<th width='15%'>".getMLText("doc_number")."</th>\n";
+				print "<th width='*'><a href=\"../out/out.MyDocuments.php?orderby=n\">".getMLText("name")."</a></th>\n";
+				//print "<th><a href=\"../out/out.MyDocuments.php?orderby=s\">".getMLText("status")."</a></th>\n";
+				print "<th width='10%'>".getMLText("version")."</th>\n";
+				print "<th width='20%'><a href=\"../out/out.MyDocuments.php?orderby=u\">".getMLText("last_update")."</a></th>\n";
+				//print "<th><a href=\"../out/out.MyDocuments.php?orderby=e\">".getMLText("expires")."</a></th>\n";
 				print "</tr>\n</thead>\n<tbody>\n";
 
 				$previewer = new SeedDMS_Preview_Previewer($cachedir, $previewwidth, $timeout);
@@ -790,25 +806,24 @@ class SeedDMS_View_MyDocuments extends SeedDMS_Bootstrap_Style {
 				
 					print "<tr>\n";
 					$latestContent = $document->getLatestContent();
-					$previewer->createPreview($latestContent);
-					print "<td><a href=\"../op/op.Download.php?documentid=".$res["documentID"]."&version=".$res["version"]."\">";
-					if($previewer->hasPreview($latestContent)) {
-						print "<img class=\"mimeicon\" width=\"".$previewwidth."\"src=\"../op/op.Preview.php?documentid=".$document->getID()."&version=".$latestContent->getVersion()."&width=".$previewwidth."\" title=\"".htmlspecialchars($latestContent->getMimeType())."\">";
-					} else {
-						print "<img class=\"mimeicon\" src=\"".$this->getMimeIcon($latestContent->getFileType())."\" title=\"".htmlspecialchars($latestContent->getMimeType())."\">";
-					}
+					$docNumber = $document->getDocNum();
+					print "<td><a class=\"standardText\" href=\"../out/out.ViewDocument.php?documentid=".$document->getID()."\">".$docNumber;
 					print "</a></td>";
 					print "<td><a href=\"out.ViewDocument.php?documentid=".$res["documentID"]."\">" . htmlspecialchars($res["name"]) . "</a></td>\n";
-					print "<td>".getOverallStatusText($res["status"])."</td>";
+					//print "<td>".getOverallStatusText($res["status"])."</td>";
 					print "<td>".$res["version"]."</td>";
-					print "<td>".$res["statusDate"]." ". htmlspecialchars($res["statusName"])."</td>";
+					print "<td>".$res["statusDate"]." <br>". htmlspecialchars($res["statusName"])."</td>";
 					//print "<td>".(!$res["expires"] ? getMLText("does_not_expire"):getReadableDate($res["expires"]))."</td>";				
-					print "<td>".(!$res["expires"] ? "-":getReadableDate($res["expires"]))."</td>";				
+					//print "<td>".(!$res["expires"] ? "-":getReadableDate($res["expires"]))."</td>";				
 					print "</tr>\n";
 				}
 				print "</tbody></table>";
 			}
-			else printMLText("empty_notify_list");
+			else {
+				echo "<p style='text-align:center'>";
+				printMLText("empty_my_docs");
+				echo "</p>";
+			}
 			
 			$this->contentContainerEnd();
 		}

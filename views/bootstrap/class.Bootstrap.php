@@ -181,7 +181,7 @@ $(document).ready(function () {
 	} /* }}} */
 
 	function contentStart() { /* {{{ */
-		echo "<div class=\"container-fluid\">\n";
+		echo "<div class=\"container\">\n";
 		echo " <div class=\"row-fluid\">\n";
 	} /* }}} */
 
@@ -242,13 +242,13 @@ $(document).ready(function () {
 		$dms = $this->params['dms'];
 		echo "<div class=\"navbar navbar-inverse navbar-fixed-top\">\n";
 		echo " <div class=\"navbar-inner\">\n";
-		echo "  <div class=\"container-fluid\">\n";
+		echo "  <div class=\"container\">\n";
 		echo "   <a class=\"btn btn-navbar\" data-toggle=\"collapse\" data-target=\".nav-col1\">\n";
 		echo "     <span class=\"icon-bar\"></span>\n";
 		echo "     <span class=\"icon-bar\"></span>\n";
 		echo "     <span class=\"icon-bar\"></span>\n";
 		echo "   </a>\n";
-		echo "   <a class=\"brand\" href='../out/out.MyDocuments.php'>".(strlen($this->params['sitename'])>0 ? $this->params['sitename'] : "SeedDMS")."</a>\n";
+		echo "   <a class=\"brand\" href='../out/out.MyDocuments.php'><img id='logo-img' src='../styles/bootstrap/bootstrap/img/ShapeOnly_parade.png'>".(strlen($this->params['sitename'])>0 ? $this->params['sitename'] : "SeedDMS")."</a>\n";
 		if(isset($this->params['user']) && $this->params['user']) {
 			echo "   <div class=\"nav-collapse nav-col1\">\n";
 			echo "   <ul id=\"main-menu-admin\" class=\"nav pull-right\">\n";
@@ -257,7 +257,7 @@ $(document).ready(function () {
 			echo "    <li><a href=\"../out/out.Help.php?context=".$tmp[1]."\"><i class=\"icon-question-sign\"></i></a></li>\n";
 			}
 			echo "    <li class=\"dropdown\">\n";
-			echo "     <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">".($this->params['session']->getSu() ? getMLText("switched_to") : getMLText("signed_in_as"))." '".htmlspecialchars($this->params['user']->getFullName())."' <i class=\"icon-caret-down\"></i></a>\n";
+			echo "     <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">".($this->params['session']->getSu() ? getMLText("switched_to") : "")." ".htmlspecialchars($this->params['user']->getFullName())." <i class=\"icon-caret-down\"></i></a>\n";
 			echo "     <ul class=\"dropdown-menu\" role=\"menu\">\n";
 			if (!$this->params['user']->isGuest()) {
 				//echo "    <li><a href=\"../out/out.MyDocuments.php?inProcess=1\">".getMLText("my_documents")."</a></li>\n";
@@ -320,9 +320,9 @@ $(document).ready(function () {
 			echo "      <input name=\"query\" class=\"search-query\" id=\"searchfield\" data-provide=\"typeahead\" type=\"text\" style=\"width: 150px;\" placeholder=\"".getMLText("search")."\"/>";
 			if($this->params['defaultsearchmethod'] == 'fulltext')
 				echo "      <input type=\"hidden\" name=\"fullsearch\" value=\"1\" />";
-			if($this->params['enablefullsearch']) {
+			/*if($this->params['enablefullsearch']) {
 				echo "      <label class=\"checkbox\" style=\"color: #999999;\"><input type=\"checkbox\" name=\"fullsearch\" value=\"1\" title=\"".getMLText('fullsearch_hint')."\"/> ".getMLText('fullsearch')."</label>";
-			}
+			}*/
 			echo "</form>\n";
 			echo "    </div>\n";
 		}
@@ -352,7 +352,7 @@ $(document).ready(function () {
 
 		return '<ul class="breadcrumb">'.$txtpath.'</ul>';
 	} /* }}} */
-	
+
 	function pageNavigation($pageTitle, $pageType=null, $extra=null) { /* {{{ */
 
 		if ($pageType!=null && strcasecmp($pageType, "noNav")) {
@@ -390,7 +390,7 @@ $(document).ready(function () {
 			if($pageType == "view_folder" || $pageType == "view_document")
 				echo $pageTitle."\n";
 		} else {
-			echo "<legend>".$pageTitle."</legend>\n";
+			echo "<div>".$pageTitle."</div>\n";
 		}
 
 		return;
@@ -725,7 +725,7 @@ $(document).ready(function () {
 	} /* }}} */
 
 	function contentContainerStart($class='') { /* {{{ */
-		echo "<div class=\"well".($class ? " ".$class : "")."\">\n";
+		echo "<div class=\"".($class ? " ".$class : "")."\">\n";
 		return;
 	} /* }}} */
 
@@ -738,16 +738,16 @@ $(document).ready(function () {
 	function contentHeading($heading, $noescape=false) { /* {{{ */
 
 		if($noescape)
-			echo "<legend>".$heading."</legend>\n";
+			echo "<legend class='content-heading'>".$heading."</legend>\n";
 		else
-			echo "<legend>".htmlspecialchars($heading)."</legend>\n";
+			echo "<legend class='content-heading'>".htmlspecialchars($heading)."</legend>\n";
 		return;
 	} /* }}} */
 
 	function contentSubHeading($heading, $first=false) { /* {{{ */
 
 //		echo "<div class=\"contentSubHeading\"".($first ? " id=\"first\"" : "").">".htmlspecialchars($heading)."</div>\n";
-		echo "<h5>".$heading."</h5>";
+		echo "<h5 class='content-subheading'>".$heading."</h5>";
 		return;
 	} /* }}} */
 
@@ -835,8 +835,8 @@ $(document).ready(function () {
 	function printFileChooser($varname='userfile', $multiple=false, $accept='') { /* {{{ */
 ?>
 	<div class="upload-files">
-		<div class="input-append">
-			<input type="text" class="form-control" readonly>
+		<div class="input-append input-block-level">
+			<input type="text" class='input-with-button' readonly>
 			<span class="btn btn-default btn-file">
 				<?php printMLText("browse");?>&hellip; <input id="<?php echo $varname; ?>" type="file" name="<?php echo $varname; ?>"<?php if($multiple) echo " multiple"; ?><?php if($accept) echo " accept=\"".$accept."\""; ?>>
 			</span>

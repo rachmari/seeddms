@@ -124,7 +124,7 @@ $(document).ready( function() {
 					if($('#' + docNumId).length > 0) {
 						msg.push("You entered a duplicate document " + docNum);
 					} else {
-						var htmlStr = "<tr class='link_row'><td></td><td><div id='remove_" + docNumId + "'><i class='icon-remove'></i></div></td><td><input type='text' value='" + docNum + " - " + doc["title"] + "' id='" + docNumId + "' name='linkInputs[]'' readonly></td></tr>";
+						var htmlStr = "<tr class='add_row'><td></td><td><span id='remove_" + docNumId + "'></span><span class='btn no-button-effects no-pointer btn-margin-correction'><i class=\"icon-link\"></i></span><input class='row-list' type='text' value='" + docNum + " - " + doc["title"] + "' id='" + docNumId + "' name='linkInputs[]'' readonly><span class='btn btn-margin-correction no-button-effects'><i class='icon-remove delete-row'></i></span></td></tr>";
 						$('#list-group').after(htmlStr);
 					}
 					
@@ -174,7 +174,7 @@ $(document).ready( function() {
 					if($('#' + empId).length > 0) {
 						msg.push("You added the same person more than once " + emp);
 					} else {
-						var htmlStr = "<tr class='add_row'><td><div id='remove_" + empId + "'><i class='icon-remove'></i></div></td><td><input type='text' value='" + emp + "' id='" + empId + "' name='notifyInputsUsers[]'' readonly></td><td><i class=\"icon-user\"></i></td></tr>";
+						var htmlStr = "<tr class='add_row'></td><td><td><span id='remove_" + empId + "'></span><span class='btn no-button-effects no-pointer btn-margin-correction'><i class=\"icon-user\"></i></span><input class='row-list' type='text' value='" + emp + "' id='" + empId + "' name='notifyInputsUsers[]'' readonly><span class='btn btn-margin-correction no-button-effects'><i class='icon-remove delete-row'></i></span></td></tr>";
 						$('#notify-group').after(htmlStr);
 					}
 				});
@@ -219,8 +219,9 @@ $(document).ready( function() {
 
 		$this->htmlStartPage(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))));
 		$this->globalNavigation($folder);
+		$this->contentHeading(getMLText("revising").$document->getDocNum());
 		$this->contentStart();
-		$this->contentHeading(getMLText("Revising ".$document->getDocNum().": ".$document->getName()));
+
 
 		if ($document->isLocked()) {
 
@@ -265,7 +266,7 @@ $(document).ready( function() {
 
 <form action="../op/op.UpdateDocument.php" enctype="multipart/form-data" method="post" name="form1" id="form1">
 	<input type="hidden" name="documentid" value="<?php print $document->getID(); ?>">
-	<table class="table-condensed">
+	<table class="table-condensed doc-table">
 	
 		<tr>
 			<td><?php printMLText("local_file");?>:</td>
@@ -300,7 +301,7 @@ $(document).ready( function() {
 		<tr>
 			<td><?php printMLText("comment");?>:</td>
 			<td class="standardText">
-				<textarea name="comment" rows="4" cols="80"></textarea>
+				<textarea class='input-block-level' name="comment" rows="4" cols="80"></textarea>
 			</td>
 		</tr>
 <?php
@@ -326,8 +327,8 @@ $(document).ready( function() {
 		<tr id='list-group'>
 			<td><?php printMLText('add_document_link');?>:</td>
 			<td>
-				<input type='text' name='links' autocomplete='off' id='link_input'>
-				<a href='#' role='btn' class='btn' id='add_link' name='add_link'>
+				<input class='input-with-button' type='text' name='links' autocomplete='off' id='link_input'>
+				<a href='#' role='btn' class='btn btn-margin-correction' id='add_link' name='add_link'>
 					<?php printMLText("add");?>
 				</a>
 			</td>
@@ -342,7 +343,7 @@ $(document).ready( function() {
 				$targetName = $targetDoc->getName();
 				$targetNumber = $targetDoc->getDocNum();
 				$targetNumId = str_replace('/\./g', '-', $docNumber);
-				echo "<tr class='link_row'><td></td><td><div id='remove_".$targetNumId."'><i class='icon-remove'></i></div></td><td><input type='text' value='".$targetNumber." - ".$targetName."' id='".$targetNumId."' name='linkInputs[]' readonly></td></tr>";
+				echo "<tr class='add_row'><td></td><td><span id='remove_".$targetNumId."'></span><span class='btn no-button-effects no-pointer btn-margin-correction'><i class=\"icon-link\"></i></span><input class='row-list' type='text' value='".$targetNumber." - ".$targetName."' id='".$targetNumId."' name='linkInputs[]'' readonly><span class='btn btn-margin-correction no-button-effects'><i class='icon-remove delete-row'></i></span></td></tr>";
 			}
 		?>
 
@@ -739,8 +740,8 @@ $(document).ready( function() {
 				<div class="cbSelectTitle"><?php printMLText("individuals");?>:</div>
 			</td>
 				<td>
-				<input type='text' name="notification_users" autocomplete='off' id='notify_input'>
-				<a href='#' role='btn' class='btn' id='add_notify' name='add_notify'>
+				<input class='input-with-button' type='text' name="notification_users" autocomplete='off' id='notify_input'>
+				<a href='#' role='btn' class='btn btn-margin-correction' id='add_notify' name='add_notify'>
 						<?php printMLText("add");?>
 				</a>
 			</td>
@@ -760,13 +761,13 @@ $(document).ready( function() {
 			$loginID = str_replace('/\./g', '-', $login);
 			$fullName = $userNotify->getFullName();
 			$userID = $userNotify->getID();
-			print "<tr class='add_row'><td><div id='remove_" . $loginID . "'><i class='icon-remove'></i></div></td><td><input type='text' value='" . $login . "' id='" . $loginID . "' name='notifyInputsUsers[]'' readonly></td><td><i class=\"icon-user\"></i></td></tr>";
+			print "<tr class='add_row'><td></td><td><span id='remove_" . $loginID . "'></span><span class='btn no-button-effects no-pointer btn-margin-correction'><i class=\"icon-user\"></span></i><input class='row-list' type='text' value='" . $login . "' id='" . $loginID . "' name='notifyInputsUsers[]'' readonly><span class='btn btn-margin-correction no-button-effects'><i class='icon-remove delete-row'></i></span></td></tr>";
 			$userNotifyIDs[] = $userNotify->getID();
 		}
 ?>
 		<tr>
-			<td></td>
-			<td><input type="submit" class="btn" value="<?php printMLText("update_document")?>"></td>
+		<td></td>
+		<td><p class='submit-button-container'><input class='submit-button' type="submit" value="<?php printMLText("add_document");?>"></p></td>
 		</tr>
 	</table>
 </form>

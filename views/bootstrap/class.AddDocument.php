@@ -45,6 +45,7 @@ class SeedDMS_View_AddDocument extends SeedDMS_Bootstrap_Style {
 		$folderid = $folder->getId();
 		$this->htmlStartPage(getMLText("folder_title", array("foldername" => htmlspecialchars($folder->getName()))));
 		$this->globalNavigation($folder);
+		$this->contentHeading(getMLText("add_document"));
 		$this->contentStart();
 		
 ?>
@@ -115,7 +116,7 @@ $(document).ready(function() {
 					if($('#' + docNumId).length > 0) {
 						msg.push("You entered a duplicate document " + docNum);
 					} else {
-						var htmlStr = "<tr class='add_row'><td></td><td><div id='remove_" + docNumId + "'><i class='icon-remove'></i></div></td><td><input type='text' value='" + docNum + " - " + doc["title"] + "' id='" + docNumId + "' name='linkInputs[]'' readonly></td></tr>";
+						var htmlStr = "<tr class='add_row'><td></td><td><span id='remove_" + docNumId + "'></span><span class='btn no-button-effects no-pointer btn-margin-correction'><i class=\"icon-link\"></i></span><input class='row-list' type='text' value='" + docNum + " - " + doc["title"] + "' id='" + docNumId + "' name='linkInputs[]'' readonly><span class='btn no-button-effects no-pointer btn-margin-correction'><i class='icon-remove delete-row'></i></div></td></tr>";
 						$('#list-group').after(htmlStr);
 					}
 				});
@@ -129,11 +130,11 @@ $(document).ready(function() {
 							_timeout: 1500,
 				  	});
 				}
-
 			});
 		$('#link_input').val("");
 	});
-		/**
+
+	/**
 	 * When a new link is added, the database is checked using AJAX
 	 * to ensure that the link exists. Any duplicate or non-existing
 	 * links are returned in a message to the user. All existing links
@@ -144,12 +145,10 @@ $(document).ready(function() {
 		event.preventDefault();
 		var cc = $('#notify_input').val();
 		if(cc === "") {return};
-
 		/* To allow a comma separated list of links
 		 * remove spaces and split around commas */
 		cc = cc.replace(/ /g, "");
 		cc_array = cc.split(',');
-
 		$.get('../op/op.Ajax.php', { command: 'searchpeople', query: cc_array}, 
 			function(data) {
 				var missingPeeps = data.missing;
@@ -164,7 +163,8 @@ $(document).ready(function() {
 					if($('#' + empId).length > 0) {
 						msg.push("You added the same person more than once " + emp);
 					} else {
-						var htmlStr = "<tr class='add_row'><td><div id='remove_" + empId + "'><i class='icon-remove'></i></div></td><td><input type='text' value='" + emp + "' id='" + empId + "' name='notifyInputsUsers[]'' readonly></td><td><i class=\"icon-user\"></i></td></tr>";
+
+						var htmlStr = "<tr class='add_row'></td><td><td><span id='remove_" + empId + "'></span><span class='btn no-button-effects no-pointer btn-margin-correction'><i class=\"icon-user\"></i></span><input class='row-list' type='text' value='" + emp + "' id='" + empId + "' name='notifyInputsUsers[]'' readonly><span class='btn btn-margin-correction no-button-effects'><i class='icon-remove delete-row'></i></span></td></tr>";
 						$('#notify-group').after(htmlStr);
 					}
 				});
@@ -178,7 +178,6 @@ $(document).ready(function() {
 							_timeout: 1500,
 				  	});
 				}
-
 			});
 		$('#notify_input').val("");
 	});
@@ -194,7 +193,6 @@ $(document).ready(function() {
 		if($enablelargefileupload) {
 			$msg .= "<p>".sprintf(getMLText('link_alt_updatedocument'), "out.AddMultiDocument.php?folderid=".$folderid."&showtree=".showtree())."</p>";
 		}
-		$this->contentHeading(getMLText("add_document"));
 		$this->contentContainerStart();
 		
 		// Retrieve a list of all users and groups that have review / approve
@@ -205,7 +203,7 @@ $(document).ready(function() {
 		<?php echo createHiddenFieldWithKey('adddocument'); ?>
 		<input type="hidden" name="folderid" value="<?php print $folderid; ?>">
 		<input type="hidden" name="showtree" value="<?php echo showtree();?>">
-		<table class="table-condensed">
+		<table class="table-condensed doc-table">
 		<tr>
 			<td>
 		<?php $this->contentSubHeading(getMLText("document_infos")); ?>
@@ -213,11 +211,11 @@ $(document).ready(function() {
 		</tr>
 		<tr>
 			<td><?php printMLText("name");?>:</td>
-			<td><input type="text" name="name" size="60"></td>
+			<td><input class='input-block-level' type="text" name="name"></td>
 		</tr>
 		<tr>
 			<td><?php printMLText("comment");?>:</td>
-			<td><textarea name="comment" rows="3" cols="80"></textarea></td>
+			<td><textarea class='input-block-level' name="comment" rows="5" placeholder="<?php printMLText('comment_placeholder');?>"></textarea></td>
 		</tr>
 		<tr hidden>
 			<td><?php printMLText("keywords");?>:</td>
@@ -281,11 +279,11 @@ $(document).ready(function() {
 			</td>
 		</tr>
 
-		<tr id='list-group'>
+		<tr id='list-group' data-toggle="tooltip" title='<?php printMLText('add_document_link_tooltip');?>'>
 			<td><?php printMLText('add_document_link');?>:</td>
 			<td>
-				<input type='text' name='links' autocomplete='off' id='link_input'>
-				<a href='#' role='btn' class='btn' id='add_link' name='add_link'>
+				<input class='input-with-button' type='text' name='links' autocomplete='off' id='link_input' placeholder="ex: jane.doe-2, john.doe-5">
+				<a href='#' role='btn' class='btn btn-margin-correction' id='add_link' name='add_link'>
 					<?php printMLText("add");?>
 				</a>
 			</td>
@@ -338,7 +336,7 @@ $(document).ready(function() {
 <?php } ?>
 		<tr>
 			<td><?php printMLText("comment_for_current_version");?>:</td>
-			<td><textarea name="version_comment" rows="3" cols="80"></textarea><br /></td>
+			<td><textarea class='input-block-level' name="version_comment" rows="3" cols='80' placeholder="<?php printMLText("version_comment_placeholder");?>"></textarea><br /></td>
 		</tr>
 <?php
 			$attrdefs = $dms->getAllAttributeDefinitions(array(SeedDMS_Core_AttributeDefinition::objtype_documentcontent, SeedDMS_Core_AttributeDefinition::objtype_all));
@@ -640,13 +638,13 @@ $(document).ready(function() {
         </td>
 			</tr>	
 
-		  <tr id='notify-group'>	
+		  <tr id='notify-group' data-toggle="tooltip" title='<?php printMLText('notify_link_tooltip');?>'>	
         <td>
-			<div class="cbSelectTitle"><?php printMLText("individuals");?>:</div>
+			<div class="cbSelectTitle"><?php printMLText("parade_un");?>:</div>
         </td>
         <td>
-				<input type='text' name="notification_users" autocomplete='off' id='notify_input'>
-				<a href='#' role='btn' class='btn' id='add_notify' name='add_notify'>
+				<input class='input-with-button' type='text' name="notification_users" autocomplete='off' id='notify_input' placeholder="ex: jane.doe, john.doe">
+				<a href='#' role='btn' class='btn btn-margin-correction' id='add_notify' name='add_notify'>
 					<?php printMLText("add");?>
 				</a>
 				</td>
@@ -667,9 +665,13 @@ $(document).ready(function() {
 				</select>
 				</td>
 			</tr>
+		<tr>
+		<td></td>
+		<td><p class='submit-button-container'><input class='submit-button' type="submit" value="<?php printMLText("add_document");?>"></p></td>
+		</tr>
 		</table>
 
-			<p><input type="submit" class="btn" value="<?php printMLText("add_document");?>"></p>
+			
 		</form>
 <?php
 		$this->contentContainerEnd();

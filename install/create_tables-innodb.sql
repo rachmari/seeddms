@@ -171,7 +171,7 @@ CREATE TABLE `tblDocuments` (
   `owner` int(11) default NULL,
   `folder` int(11) default NULL,
   `folderList` text NOT NULL,
-  `inheritAccess` tinyint(1) NOT NULL default '1',
+  `inheritAccess` tinyint(1) NOT NULL default '0',
   `defaultAccess` tinyint(4) NOT NULL default '0',
   `locked` int(11) NOT NULL default '-1',
   `keywords` text NOT NULL,

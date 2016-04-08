@@ -98,9 +98,9 @@ if ($_FILES['userfile']['error'] == 0) {
 
 /* Check if the uploaded file is identical to last version */
 	$lc = $document->getLatestContent();
-	if($lc->getChecksum() == SeedDMS_Core_File::checksum($userfiletmp)) {
+	/*if($lc->getChecksum() == SeedDMS_Core_File::checksum($userfiletmp)) {
 		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("identical_version"));
-	}
+	}*/
 
 	$fileType = ".".pathinfo($userfilename, PATHINFO_EXTENSION);
 
@@ -228,6 +228,7 @@ if ($_FILES['userfile']['error'] == 0) {
 	}
 
 	$contentResult=$document->addContent($comment, $user, $userfiletmp, basename($userfilename), $fileType, $userfiletype, $reviewers, $approvers, $version=0, $attributes, $workflow);
+
 	if (is_bool($contentResult) && !$contentResult) {
 		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
 	}
@@ -272,7 +273,7 @@ if ($_FILES['userfile']['error'] == 0) {
 				$pdffiletype = finfo_file($finfo, $pdffiletmp);
 			}
 
-			$res = $content->addPDF($pdffiletmp, basename($pdffilename), $fileType, $pdffiletype);
+			$res = $document->addContentPDF($comment, $user, $pdffiletmp, basename($pdffilename), $fileType, $pdffiletype, $version=0);
 
 			if(!$res) {
 				UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),"PDF file not uploaded");

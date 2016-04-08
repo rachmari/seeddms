@@ -213,7 +213,7 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 			$category = $categories[0];
 			$catName = $category->getName();
 			if($catName == 'spec' || $catName == 'Spec') {
-				$queryStr = "SELECT number AS num FROM tblSpecNumbers where document=".$this->_id;
+				$queryStr = "SELECT number AS num FROM tblSpecNumbers where documentID=".$this->_id;
 				$resArr = $db->getResultArray($queryStr);
 				if (is_bool($resArr) && $resArr == false)
 					return false;
@@ -222,7 +222,7 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 				return $resArr[0]['num'];
 			}
 			elseif ($catName == 'memo' || $catName == 'Memo') {
-				$queryStr = "SELECT number AS num FROM tblMemoNumbers where document=".$this->_id;
+				$queryStr = "SELECT number AS num FROM tblMemoNumbers where documentID=".$this->_id;
 				$resArr = $db->getResultArray($queryStr);
 				if (is_bool($resArr) && $resArr == false)
 					return false;

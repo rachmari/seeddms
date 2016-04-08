@@ -299,7 +299,7 @@ $(document).ready( function() {
 		</tr>
 <?php } ?>
 		<tr>
-			<td><?php printMLText("comment");?>:</td>
+			<td><?php printMLText("comment_for_current_version");?>:</td>
 			<td class="standardText">
 				<textarea class='input-block-level' name="comment" rows="4" cols="80"></textarea>
 			</td>

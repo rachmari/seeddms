@@ -835,7 +835,7 @@ class SeedDMS_Core_Folder extends SeedDMS_Core_Object {
 				if($catName == "Memo" || $catName == "memo") {
 					if($docNumber == null) {
 						// Add a new Parade document and generate new number
-						$queryStr = "INSERT INTO tblMemoNumbers (document, userID) VALUES (".$document->getID().", ".$owner->getID().")";
+						$queryStr = "INSERT INTO tblMemoNumbers (documentID, userID) VALUES (".$document->getID().", ".$owner->getID().")";
 						if (!$db->getResult($queryStr)) {
 							$db->rollbackTransaction();
 							return false;
@@ -854,7 +854,7 @@ class SeedDMS_Core_Folder extends SeedDMS_Core_Object {
 						}
 					} else {
 						// Allow adding previously created documents with existing numbers.
-						$queryStr = "INSERT INTO tblMemoNumbers (document, userID, number, parade) VALUES (".$document->getID().", ".$owner->getID().", ".$docNumber.", ".$paradeDoc.")";
+						$queryStr = "INSERT INTO tblMemoNumbers (documentID, userID, number, parade) VALUES (".$document->getID().", ".$owner->getID().", ".$docNumber.", ".$paradeDoc.")";
 						if (!$db->getResult($queryStr)) {
 							$db->rollbackTransaction();
 							return false;

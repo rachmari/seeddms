@@ -989,8 +989,8 @@ class SeedDMS_Core_DMS {
 
 			$searchQuery = "FROM `tblDocumentContent` ".
 				"LEFT JOIN `tblDocuments` ON `tblDocuments`.`id` = `tblDocumentContent`.`document` ".
-				"LEFT JOIN `tblMemoNumbers` ON `tblDocuments`.`id` = `tblMemoNumbers`.`document` ".
-				"LEFT JOIN `tblSpecNumbers` ON `tblDocuments`.`id` = `tblSpecNumbers`.`document` ".
+				"LEFT JOIN `tblMemoNumbers` ON `tblDocuments`.`id` = `tblMemoNumbers`.`documentID` ".
+				"LEFT JOIN `tblSpecNumbers` ON `tblDocuments`.`id` = `tblSpecNumbers`.`documentID` ".
 				"LEFT JOIN `tblDocumentAttributes` ON `tblDocuments`.`id` = `tblDocumentAttributes`.`document` ".
 				"LEFT JOIN `tblDocumentContentAttributes` ON `tblDocumentContent`.`id` = `tblDocumentContentAttributes`.`content` ".
 				"LEFT JOIN `tblDocumentStatus` ON `tblDocumentStatus`.`documentID` = `tblDocumentContent`.`document` ".

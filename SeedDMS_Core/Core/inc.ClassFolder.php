@@ -807,7 +807,7 @@ class SeedDMS_Core_Folder extends SeedDMS_Core_Object {
 		$db->startTransaction();
 
 		$queryStr = "INSERT INTO tblDocuments (name, comment, date, expires, owner, folder, folderList, inheritAccess, defaultAccess, locked, keywords, sequence) VALUES ".
-					"(".$db->qstr($name).", ".$db->qstr($comment).", ".$db->getCurrentTimestamp().", ".(int) $expires.", ".$owner->getID().", ".$this->_id.",".$db->qstr($pathPrefix).", 1, ".M_READ.", -1, ".$db->qstr($keywords).", " . $sequence . ")";
+					"(".$db->qstr($name).", ".$db->qstr($comment).", ".$db->getCurrentTimestamp().", ".(int) $expires.", ".$owner->getID().", ".$this->_id.",".$db->qstr($pathPrefix).", 0, ".M_READ.", -1, ".$db->qstr($keywords).", " . $sequence . ")";
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();
 			return false;

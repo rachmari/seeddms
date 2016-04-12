@@ -81,10 +81,12 @@ $(document).ready( function() {
 
 		/* Check the form for missing information */
 		msg = new Array();
-		if ($('#userfile').val() ==='') msg.push("<?php printMLText("js_no_file_attached");?>");
+		if ($('#userfile').val() ==='') msg.push("<?php printMLText("js_no_file");?>");
 		// Get file object from input to check for pdf type
-		var file = $('#userfilePDF').prop("files")[0];
-		if(file.type !== 'application/pdf') msg.push("<?php printMLText("pdf_type_error");?>");
+		if($('#userfilePDF').prop("files")[0]) {
+			var file = $('#userfilePDF').prop("files")[0];
+			if(file.type !== 'application/pdf') msg.push("<?php printMLText("pdf_type_error");?>");
+		}
 
 		/* If the form is missing data, display messages
 		 * and prevent the form from submitting
@@ -779,7 +781,7 @@ $(document).ready( function() {
 		}
 ?>
 		<tr>
-		<td colspan="2"><p class='submit-button-container'><input class='submit-button' type="submit" id='submit-btn' value="<?php printMLText("add_document");?>"></p></td>
+		<td colspan="2"><p class='submit-button-container'><input class='submit-button' type="submit" id='submit-btn' value="<?php printMLText("submit");?>"></p></td>
 		</tr>
 	</table>
 </form>

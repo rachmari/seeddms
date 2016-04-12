@@ -58,11 +58,33 @@ $(document).ready( function() {
 ?>
 
 $(document).ready( function() {
+	$('#userfilePDF').change(function(event) {
+		msg = new Array();
+		var file = this.files[0];
+		if(file.type !== 'application/pdf') {
+			msg.push("<?php printMLText("pdf_type_error");?>");
+		}
+		if (msg != ""){
+			event.preventDefault();
+			noty({
+				text: msg.join('<br />'),
+				type: 'error',
+				dismissQueue: true,
+				layout: 'topRight',
+				theme: 'defaultTheme',
+				_timeout: 1500,
+			});
+		}
+	});
+
 	$('#form1').submit(function(event) {
 
 		/* Check the form for missing information */
 		msg = new Array();
 		if ($('#userfile').val() ==='') msg.push("<?php printMLText("js_no_file_attached");?>");
+		// Get file object from input to check for pdf type
+		var file = $('#userfilePDF').prop("files")[0];
+		if(file.type !== 'application/pdf') msg.push("<?php printMLText("pdf_type_error");?>");
 
 		/* If the form is missing data, display messages
 		 * and prevent the form from submitting

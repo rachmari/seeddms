@@ -56,13 +56,35 @@ $(document).ready(function() {
 			$("#upload-file").clone().appendTo("#upload-files").removeAttr("id").children('div').children('input').val('');
 	});
 
-	$('#add-doc-form').submit(function(event) {
+	$('#userfilePDF').change(function(event) {
+		msg = new Array();
+		var file = this.files[0];
+		if(file.type !== 'application/pdf') {
+			msg.push("<?php printMLText("pdf_type_error");?>");
+		}
+		if (msg != ""){
+			event.preventDefault();
+			noty({
+				text: msg.join('<br />'),
+				type: 'error',
+				dismissQueue: true,
+				layout: 'topRight',
+				theme: 'defaultTheme',
+				_timeout: 1500,
+			});
+		}
+	});
 
+	$('#add-doc-form').submit(function(event) {
 		/* Check the form for missing information */
 		msg = new Array();
 		if ($('#title-input').val() === "") msg.push("<?php printMLText("js_no_name");?>");
 		if ($('#comment-input').val() === "") msg.push("<?php printMLText("js_no_comment");?>");
 		if ($('#userfile').val() ==='') msg.push("<?php printMLText("js_no_file_attached");?>");
+
+		// Get file object from input to check for pdf type
+		var file = $('#userfilePDF').prop("files")[0];
+		if(file.type !== 'application/pdf') msg.push("<?php printMLText("pdf_type_error");?>");
 
 		/* If the form is missing data, display messages
 		 * and prevent the form from submitting

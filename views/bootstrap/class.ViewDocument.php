@@ -393,6 +393,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 
 		// verify if file exists
 		$file_exists=file_exists($dms->contentDir . $latestContent->getPath());
+		$pdf_file_exists=file_exists($dms->contentDir . $latestPDFContent->getPDFPath());
 
 		$this->contentContainerStart();
 		print "<table class=\"table\">";
@@ -500,7 +501,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 		print "<td>";
 		print "<ul class=\"unstyled actions\">";
 
-		if ($latestPDFContent) {
+		if ($pdf_file_exists) {
 			print "<li><a href=\"../op/op.Download.php?documentid=".$documentid."&pdf=1&version=".$latestPDFContent->getVersion()."\"><i class=\"icon-download\"></i>".getMLText("download_pdf")."</a></li>";
 			if ($viewonlinefiletypes && in_array(strtolower($latestPDFContent->getFileType()), $viewonlinefiletypes))
 				print "<li><a target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&pdf=1&version=". $latestPDFContent->getVersion()."\"><i class=\"icon-star\"></i>" . getMLText("view_pdf") . "</a></li>";

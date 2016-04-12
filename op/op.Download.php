@@ -64,7 +64,7 @@ if (isset($_GET["version"])) {
 		if (!is_object($pdfContent)) {
 			UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
 		}
-		$filepath = $dms->contentDir . $pdfContent->getDir() . "p" . $pdfContent->getVersion() . $pdfContent->getFileType;
+		$filepath = $dms->contentDir . $pdfContent->getDir() . "p" . $pdfContent->getVersion() . $pdfContent->getFileType();
 		header("Content-Type: " . $pdfContent->getMimeType());
 		$efilename = rawurlencode($pdfContent->getOriginalFileName());
 		header("Content-Disposition: attachment; filename=\"" . $efilename . "\"; filename*=UTF-8''".$efilename);

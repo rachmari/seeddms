@@ -2444,6 +2444,7 @@ class SeedDMS_Core_DocumentContent extends SeedDMS_Core_Object { /* {{{ */
 	} /* }}} */
 
 	function getPath() { return $this->_document->getDir() . $this->_version . $this->_fileType; }
+	function getPDFPath() { return $this->_document->getDir() . "p" . $this->_version . $this->_fileType; }
 
 	function setDate($date = false) { /* {{{ */
 		$db = $this->_document->_dms->getDB();

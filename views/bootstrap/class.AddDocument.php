@@ -50,38 +50,38 @@ class SeedDMS_View_AddDocument extends SeedDMS_Bootstrap_Style {
 		
 ?>
 <script language="JavaScript">
-function checkForm()
-	{
-	msg = new Array();
-	//if (document.form1.userfile[].value == "") msg += "<?php printMLText("js_no_file");?>\n";
-			
-<?php
-			if ($strictformcheck) {
-?>
-	if(!document.form1.name.disabled){
-		if (document.form1.name.value == "") msg.push("<?php printMLText("js_no_name");?>");
-	}
-	if (document.form1.comment.value == "") msg.push("<?php printMLText("js_no_comment");?>");
-	if (document.form1.keywords.value == "") msg.push("<?php printMLText("js_no_keywords");?>");
-<?php
-			}
-?>
-	if (msg != ""){
-  	noty({
-  		text: msg.join('<br />'),
-  		type: 'error',
-      dismissQueue: true,
-  		layout: 'topRight',
-  		theme: 'defaultTheme',
-			_timeout: 1500,
-  	});
-		return false;
-	}
-	return true;
-}
+
 $(document).ready(function() {
 	$('#new-file').click(function(event) {
 			$("#upload-file").clone().appendTo("#upload-files").removeAttr("id").children('div').children('input').val('');
+	});
+
+	$('#add-doc-form').submit(function(event) {
+
+		/* Check the form for missing information */
+		msg = new Array();
+		if ($('#title-input').val() === "") msg.push("<?php printMLText("js_no_name");?>");
+		if ($('#comment-input').val() === "") msg.push("<?php printMLText("js_no_comment");?>");
+		if ($('#userfile').val() ==='') msg.push("<?php printMLText("js_no_file_attached");?>");
+
+		/* If the form is missing data, display messages
+		 * and prevent the form from submitting
+		 */
+		if (msg != ""){
+			event.preventDefault();
+			noty({
+				text: msg.join('<br />'),
+				type: 'error',
+				dismissQueue: true,
+				layout: 'topRight',
+				theme: 'defaultTheme',
+				_timeout: 1500,
+			});
+		} else {
+			/* Prevent form from submitting more than once. */
+			$('#submit-btn').prop('disabled', true);
+			$('#submit-btn').val('Processing ...');
+		}
 	});
 
 	/**
@@ -199,7 +199,7 @@ $(document).ready(function() {
 		// privileges.
 		$docAccess = $folder->getReadAccessList($enableadminrevapp, $enableownerrevapp);
 ?>
-		<form action="../op/op.AddDocument.php" enctype="multipart/form-data" method="post" name="form1" onsubmit="return checkForm();">
+		<form action="../op/op.AddDocument.php" enctype="multipart/form-data" method="post" id='add-doc-form' name="form1">
 		<?php echo createHiddenFieldWithKey('adddocument'); ?>
 		<input type="hidden" name="folderid" value="<?php print $folderid; ?>">
 		<input type="hidden" name="showtree" value="<?php echo showtree();?>">
@@ -217,11 +217,11 @@ $(document).ready(function() {
 		</tr>
 		<tr>
 			<td><?php printMLText("name");?>:</td>
-			<td><input class='input-block-level' type="text" name="name"></td>
+			<td><input class='input-block-level' type="text" id='title-input' name="name"></td>
 		</tr>
 		<tr>
 			<td><?php printMLText("comment");?>:</td>
-			<td><textarea class='input-block-level' name="comment" rows="5" placeholder="<?php printMLText('comment_placeholder');?>"></textarea></td>
+			<td><textarea class='input-block-level' name="comment" id='comment-input' rows="5" placeholder="<?php printMLText('comment_placeholder');?>"></textarea></td>
 		</tr>
 		<tr hidden>
 			<td><?php printMLText("keywords");?>:</td>
@@ -673,7 +673,7 @@ $(document).ready(function() {
 			</tr>
 		<tr>
 		<td></td>
-		<td><p class='submit-button-container'><input class='submit-button' type="submit" value="<?php printMLText("add_document");?>"></p></td>
+		<td><p class='submit-button-container'><input id='submit-btn' class='submit-button' type="submit" value="<?php printMLText("add_document");?>"></p></td>
 		</tr>
 		</table>
 

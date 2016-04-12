@@ -393,7 +393,11 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 
 		// verify if file exists
 		$file_exists=file_exists($dms->contentDir . $latestContent->getPath());
-		$pdf_file_exists=file_exists($dms->contentDir . $latestPDFContent->getPDFPath());
+
+		// If a PDF file exists, get the path and check for existence on server
+		if($latestPDFContent) {
+			$pdf_file_exists=file_exists($dms->contentDir . $latestPDFContent->getPDFPath());
+		}
 
 		$this->contentContainerStart();
 		print "<table class=\"table\">";

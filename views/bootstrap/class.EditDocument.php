@@ -36,38 +36,38 @@ class SeedDMS_View_EditDocument extends SeedDMS_Bootstrap_Style {
 		header('Content-Type: application/javascript');
 		$this->printKeywordChooserJs('form1');
 ?>
-function checkForm()
-{
-	msg = new Array();
-	if ($("#name").val() == "") msg.push("<?php printMLText("js_no_name");?>");
-<?php
-	if ($strictformcheck) {
-	?>
-	if ($("#comment").val() == "") msg.push("<?php printMLText("js_no_comment");?>");
-	if ($("#keywords").val() == "") msg.push("<?php printMLText("js_no_keywords");?>");
-<?php
-	}
-?>
-	if (msg != "")
-	{
-  	noty({
-  		text: msg.join('<br />'),
-  		type: 'error',
-      dismissQueue: true,
-  		layout: 'topRight',
-  		theme: 'defaultTheme',
-			_timeout: 1500,
-  	});
-		return false;
-	}
-	else
-		return true;
-}
 
 $(document).ready( function() {
-	$('body').on('submit', '#form1', function(ev){
-		if(checkForm()) return;
-		event.preventDefault();
+	var origName = $('#name').val();
+	var origComment = $('#comment').val();
+
+	$('#form1').submit(function(event) {
+		/* Check the form for missing information */
+		msg = new Array();
+		var newName = $('#name').val();
+		var newComment = $('#comment').val();
+		if (newName === "") msg.push("<?php printMLText("js_no_name");?>");
+		if (newComment === "") msg.push("<?php printMLText("js_no_comment");?>");
+		if (newName === origName && newComment === origComment) msg.push("<?php printMLText("js_same_info");?>");
+
+		/* If the form is missing data, display messages
+		 * and prevent the form from submitting
+		 */
+		if (msg != ""){
+			event.preventDefault();
+			noty({
+				text: msg.join('<br />'),
+				type: 'error',
+				dismissQueue: true,
+				layout: 'topRight',
+				theme: 'defaultTheme',
+				_timeout: 1500,
+			});
+		} else {
+			/* Prevent form from submitting more than once. */
+			$('#submit-btn').prop('disabled', true);
+			$('#submit-btn').val('Processing ...');
+		}
 	});
 });
 <?php
@@ -172,7 +172,7 @@ $(document).ready( function() {
 ?>
 		<tr>
 			<td></td>
-			<td><p class='submit-button-container'><button class='submit-button' type="submit" class="btn"><i class="icon-save"></i> <?php printMLText("save")?></button></p></td>
+			<td><p class='submit-button-container'><input class='submit-button' type="submit" id='submit-btn' class="btn" value=<?php printMLText("save")?>></p></td>
 		</tr>
 	</table>
 </form>

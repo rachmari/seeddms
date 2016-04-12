@@ -56,41 +56,32 @@ $(document).ready( function() {
 		header('Content-Type: application/javascript');
 		$this->printDropFolderChooserJs("form1");
 ?>
-function checkForm()
-{
-	msg = new Array();
-<?php if($dropfolderdir) { ?>
-	if ($("#userfile").val() == "" && $("#dropfolderfileform1").val() == "") msg.push("<?php printMLText("js_no_file");?>");
-<?php } else { ?>
-	if ($("#userfile").val() == "") msg.push("<?php printMLText("js_no_file");?>");
-<?php } ?>
-<?php
-	if ($strictformcheck) {
-	?>
-	if ($("#comment").val() == "") msg.push("<?php printMLText("js_no_comment");?>");
-<?php
-	}
-?>
-	if (msg != "")
-	{
-  	noty({
-  		text: msg.join('<br />'),
-  		type: 'error',
-      dismissQueue: true,
-  		layout: 'topRight',
-  		theme: 'defaultTheme',
-			_timeout: 1500,
-  	});
-		return false;
-	}
-	else
-		return true;
-}
 
 $(document).ready( function() {
-	$('body').on('submit', '#form1', function(ev){
-		if(checkForm()) return;
-		event.preventDefault();
+	$('#form1').submit(function(event) {
+
+		/* Check the form for missing information */
+		msg = new Array();
+		if ($('#userfile').val() ==='') msg.push("<?php printMLText("js_no_file_attached");?>");
+
+		/* If the form is missing data, display messages
+		 * and prevent the form from submitting
+		 */
+		if (msg != ""){
+			event.preventDefault();
+			noty({
+				text: msg.join('<br />'),
+				type: 'error',
+				dismissQueue: true,
+				layout: 'topRight',
+				theme: 'defaultTheme',
+				_timeout: 1500,
+			});
+		} else {
+			/* Prevent form from submitting more than once. */
+			$('#submit-btn').prop('disabled', true);
+			$('#submit-btn').val('Processing ...');
+		}
 	});
 		/**
 	 * When a new link is added, the database is checked using AJAX
@@ -767,7 +758,7 @@ $(document).ready( function() {
 ?>
 		<tr>
 		<td></td>
-		<td><p class='submit-button-container'><input class='submit-button' type="submit" value="<?php printMLText("add_document");?>"></p></td>
+		<td><p class='submit-button-container'><input class='submit-button' type="submit" id='submit-btn' value="<?php printMLText("add_document");?>"></p></td>
 		</tr>
 	</table>
 </form>

@@ -1,5 +1,12 @@
-body { /* Add top padding for full-width layout */
-	padding-top: 60px;
+@media only screen and (min-width: 978px) {
+  body { /* Add top padding for full-width layout */
+	 padding-top: 60px;
+  }
+}
+@media (max-width: 979px) {
+  .navbar-fixed-top {
+    margin-bottom: 0;
+  }
 }
 img.mimeicon {
   -moz-border-bottom-colors: none;

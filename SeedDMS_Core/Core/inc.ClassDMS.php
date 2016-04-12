@@ -530,7 +530,7 @@ class SeedDMS_Core_DMS {
 	function getDocumentIDByNumber($number) { /* {{{ */
 		if(!$number) return false;
 
-		$queryStr = "SELECT `document` AS `myDoc` FROM `tblMemoNumbers` WHERE `number`='".$number."' UNION SELECT `document` AS `myDoc` FROM `tblSpecNumbers` WHERE `number`='".$number."'";
+		$queryStr = "SELECT `documentID` AS `myDoc` FROM `tblMemoNumbers` WHERE `number`='".$number."' UNION SELECT `documentID` AS `myDoc` FROM `tblSpecNumbers` WHERE `number`='".$number."'";
 		$resArr = $this->db->getResultArray($queryStr);
 
 		if (is_bool($resArr) && !$resArr)
@@ -547,6 +547,20 @@ class SeedDMS_Core_DMS {
 	function getDocumentsByUser($user) { /* {{{ */
 		return $user->getDocuments();
 	} /* }}} */
+
+	/**
+	 * Gets the next memo number for a given user.
+	 * The return value does not include the
+	 * user login string.
+	 *
+	 * @param int $userID
+	 * @return int number of next memo
+	 */
+	function getNextMemoNum($userID) {
+		$queryStr = "SELECT MAX(indexNumber) AS num FROM tblMemoNumbers WHERE userID=".$userID;
+		$resArr = $this->db->getResultArray($queryStr);
+		return $resArr[0]["num"] + 1;
+	}
 
 	/**
 	 * Returns all documents locked by a given user

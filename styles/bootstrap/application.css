@@ -21,6 +21,10 @@ img.mimeicon {
     margin-bottom: 10px;
 }
 
+.input-margin-correction {
+  margin-bottom: 0 !important;
+}
+
 .input-with-button {
     width: 85%;
 }

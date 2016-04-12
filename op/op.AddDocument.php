@@ -62,6 +62,12 @@ $version_comment = $_POST["version_comment"];
 if($version_comment == "" && isset($_POST["use_comment"]))
 	$version_comment = $comment;
 
+if(isset($_POST['setDocNumber'])) {
+	$setDocNumber = $_POST['setDocNumber'];
+} else {
+	$setDocNumber = null;
+}
+
 $keywords = $_POST["keywords"];
 $categories = isset($_POST["categories"]) ? $_POST["categories"] : null;
 if(isset($_POST["attributes"]))
@@ -309,7 +315,7 @@ $res = $folder->addDocument($name, $comment, $expires, $user, $keywords,
 							$cats, $userfiletmp, basename($userfilename),
                             $fileType, $userfiletype, $sequence,
                             $reviewers, $approvers, $reqversion,
-                            $version_comment, $attributes, $attributes_version, $workflow);
+                            $version_comment, $attributes, $attributes_version, $workflow, $setDocNumber);
 
 if (is_bool($res) && !$res) {
 	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("error_occured"));

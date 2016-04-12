@@ -210,6 +210,12 @@ $(document).ready(function() {
 			</td>
 		</tr>
 		<tr>
+			<td><?php printMLText("number");?>:</td>
+			<td><?php echo $user->_login . "&nbsp;-&nbsp;" ?><input class='input-margin-correction' type='text' name='setDocNumber' value='<?php 
+				echo $dms->getNextMemoNum($user->getID());
+			?>'></td>
+		</tr>
+		<tr>
 			<td><?php printMLText("name");?>:</td>
 			<td><input class='input-block-level' type="text" name="name"></td>
 		</tr>

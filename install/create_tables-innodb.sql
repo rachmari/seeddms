@@ -359,6 +359,7 @@ CREATE TABLE `tblMemoNumbers` (
   `id` int(11) NOT NULL auto_increment,
   `userID` int(11) NOT NULL default '0',
   `documentID` int(11) NOT NULL default '0',
+  `indexNumber` int(11) NOT NULL default '0',
   `number` varchar(150) default NULL, 
   `parade` smallint(1) default '1',
   PRIMARY KEY  (`id`),

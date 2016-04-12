@@ -451,7 +451,6 @@ class SeedDMS_View_Search extends SeedDMS_Bootstrap_Style {
 			print "<th>".getMLText("doc_number")."</th>\n";
 			print "<th>".getMLText("name")."</th>\n";
             print "<th>".getMLText("owner")."</th>\n";
-			print "<th>".getMLText("status")."</th>\n";
 			print "</tr>\n</thead>\n<tbody>\n";
 
 			$previewer = new SeedDMS_Preview_Previewer($cachedir, $previewwidth, $timeout);
@@ -499,7 +498,6 @@ class SeedDMS_View_Search extends SeedDMS_Bootstrap_Style {
                         print htmlspecialchars($owner->getFullName());
 						$display_status=$lc->getStatus();
                         print "</td>";
-						print "<td>".getOverallStatusText($display_status["status"]). "</td>";
 						print "</tr>\n";
 					}
 				} elseif(get_class($entry) == $dms->getClassname('folder')) {

@@ -842,22 +842,28 @@ class SeedDMS_Core_Folder extends SeedDMS_Core_Object {
 						}
 						$memoID = $db->getInsertID();
 						// Get count of memos by user to generate the next doc num
-						$resArr = $db->getResultArray("SELECT COUNT(*) AS num FROM tblMemoNumbers WHERE userID=".$owner->getID()." FOR UPDATE");
-						// Document indexes will start at 0
-						$docIndex = (integer)$resArr[0]["num"]-1;
+						$resArr = $db->getResultArray("SELECT MAX(indexNumber) AS num FROM tblMemoNumbers WHERE userID=".$owner->getID()." FOR UPDATE");
+						// Document indexes will start at 1
+						$docIndex = (integer)$resArr[0]["num"] + 1;
 						// Assemble the new document number in format: <user login>-<index>
 						$docNum = $owner->_login."-".$docIndex;
-						$queryStr = "UPDATE tblMemoNumbers SET number='".$docNum."' WHERE id=".$memoID;
+						$queryStr = "UPDATE tblMemoNumbers SET indexNumber='".$docIndex."', number='".$docNum."' WHERE id=".$memoID;
 						if (!$db->getResult($queryStr)) {
 							$db->rollbackTransaction();
 							return false;
 						}
 					} else {
-						// Allow adding previously created documents with existing numbers.
-						$queryStr = "INSERT INTO tblMemoNumbers (documentID, userID, number, parade) VALUES (".$document->getID().", ".$owner->getID().", ".$docNumber.", ".$paradeDoc.")";
-						if (!$db->getResult($queryStr)) {
-							$db->rollbackTransaction();
+						// Check for collisions with already existing numbers
+						$resArr = $db->getResultArray("SELECT COUNT(*) AS num FROM tblMemoNumbers WHERE number='" . $owner->_login. " . " . $docNumber . "' FOR UPDATE");
+						if((integer)$resArr[0]["num"] != 0) {
 							return false;
+						} else {
+							// Allow adding previously created documents with existing numbers.
+							$queryStr = "INSERT INTO tblMemoNumbers (documentID, userID, indexNumber, number, parade) VALUES (".$document->getID().", ".$owner->getID().", ".$docNumber.", \"" . $owner->_login . "-" . $docNumber. "\", ".$paradeDoc.")";
+							if (!$db->getResult($queryStr)) {
+								$db->rollbackTransaction();
+								return "2";
+							}
 						}
 					}
 				}

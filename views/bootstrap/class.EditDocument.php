@@ -171,8 +171,7 @@ $(document).ready( function() {
 		}
 ?>
 		<tr>
-			<td></td>
-			<td><p class='submit-button-container'><input class='submit-button' type="submit" id='submit-btn' class="btn" value=<?php printMLText("save")?>></p></td>
+			<td colspan="2"><p class='submit-button-container'><input class='submit-button' type="submit" id='submit-btn' class="btn" value=<?php printMLText("save")?>></p></td>
 		</tr>
 	</table>
 </form>

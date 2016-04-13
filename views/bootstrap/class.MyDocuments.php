@@ -782,13 +782,13 @@ class SeedDMS_View_MyDocuments extends SeedDMS_Bootstrap_Style {
 
 			if (count($resArr)>0) {
 
-				print "<table class=\"table table-condensed\">";
+				print "<table id='tableSort' class=\"table table-condensed tablesorter\">";
 				print "<thead>\n<tr>\n";
 				print "<th width='15%'>".getMLText("doc_number")."</th>\n";
-				print "<th width='*'><a href=\"../out/out.MyDocuments.php?orderby=n\">".getMLText("name")."</a></th>\n";
+				print "<th width='*'>".getMLText("name")."</a></th>\n";
 				//print "<th><a href=\"../out/out.MyDocuments.php?orderby=s\">".getMLText("status")."</a></th>\n";
 				print "<th width='10%'>".getMLText("version")."</th>\n";
-				print "<th width='20%'><a href=\"../out/out.MyDocuments.php?orderby=u\">".getMLText("last_update")."</a></th>\n";
+				print "<th width='20%'>".getMLText("last_update")."</a></th>\n";
 				//print "<th><a href=\"../out/out.MyDocuments.php?orderby=e\">".getMLText("expires")."</a></th>\n";
 				print "</tr>\n</thead>\n<tbody>\n";
 

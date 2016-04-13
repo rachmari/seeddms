@@ -1,5 +1,9 @@
 
 $(document).ready( function() {
+
+	// Add table sorting capability
+	$('#tableSort').tablesorter();
+
 	/* close popovers when clicking somewhere except in the popover or the
 	 * remove icon
 	 */

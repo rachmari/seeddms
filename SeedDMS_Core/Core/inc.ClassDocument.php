@@ -1661,7 +1661,7 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
         }
 
         if($this->_dms->forceRename) {
-			$err = SeedDMS_Core_File::renameFile($tmpFile, $this->_dms->contentDir . $content->getDir() . $version . "p" . $fileType);
+			$err = SeedDMS_Core_File::renameFile($tmpFile, $this->_dms->contentDir . $content->getDir() . "p" . $version .  $fileType);
 		}
 		else {
 			$err = SeedDMS_Core_File::copyFile($tmpFile, $this->_dms->contentDir . $content->getDir() . "p" . $version . $fileType);

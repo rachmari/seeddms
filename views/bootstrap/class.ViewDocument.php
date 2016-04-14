@@ -549,14 +549,16 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 
                 print "<td>".htmlspecialchars($file->getComment())."</td>";
                 print "<td></td>";
-                print "<td><ul class=\"unstyled actions\">";
+                print "<td class='table-align-center'><ul class=\"unstyled actions\">";
                 if ($file_exists) {
-                    print "<li><a href=\"../op/op.Download.php?documentid=".$documentid."&file=".$file->getID()."\"><i class=\"icon-download\"></i>".getMLText('download')."</a>";
+                    print "<li><a href=\"../op/op.Download.php?documentid=".$documentid."&file=".$file->getID()."\"><i class=\"icon-download\"></i></a>";
                     if ($viewonlinefiletypes && in_array(strtolower($file->getFileType()), $viewonlinefiletypes))
-                        print "<li><a target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&file=". $file->getID()."\"><i class=\"icon-star\"></i>" . getMLText("view_online") . "</a></li>";
+                        print "<a target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&file=". $file->getID()."\"><i class=\"icon-star\"></i></a></li>";
+                    else print "</li>";
                 } else print "<li><img class=\"mimeicon\" src=\"images/icons/".$this->getMimeIcon($file->getFileType())."\" title=\"".htmlspecialchars($file->getMimeType())."\">";
                 echo "</ul><ul class=\"unstyled actions\">";
                 print "</ul></td>";
+                print "<td></td>";
                 print "</tr>";
             }
         }

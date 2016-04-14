@@ -41,6 +41,17 @@ $(document).ready( function() {
 	var origName = $('#name').val();
 	var origComment = $('#comment').val();
 
+	$('#name').keyup(function(event) {
+		var text = $(this).val();
+		var length = text.length;
+		$("#name-count").text(150 - length);
+		if(length === 150) {
+			$("#name-count-container").addClass("form-alert").removeClass('form-help');
+		} else {
+			$("#name-count-container").addClass("form-help").removeClass('form-alert');
+		}
+	});
+
 	$('#form1').submit(function(event) {
 		/* Check the form for missing information */
 		msg = new Array();
@@ -100,7 +111,12 @@ $(document).ready( function() {
 	<table class='table-condensed doc-table' cellpadding="3">
 		<tr>
 			<td class="inputDescription"><?php printMLText("name");?>:</td>
-			<td><input class='input-block-level' type="text" name="name" id="name" value="<?php print htmlspecialchars($document->getName());?>" size="60"></td>
+			<td><input class='input-block-level' type="text" name="name" id="name" value="<?php print htmlspecialchars($document->getName()); ?>" size="60" maxlength="150">
+			<label id='name-count-container' class='form-help'><span id='name-count'>
+			<?php 
+				$docName = htmlspecialchars($document->getName());
+				print 150 - intval(strlen($docName));
+			?></span><span>&nbsp;<?php printMLText('chars_left'); ?></span></label></td>
 		</tr>
 		<tr>
 			<td valign="top" class="inputDescription"><?php printMLText("comment");?>:</td>

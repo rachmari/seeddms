@@ -249,7 +249,7 @@ $(document).ready(function () {
 		echo "     <span class=\"icon-bar\"></span>\n";
 		echo "     <span class=\"icon-bar\"></span>\n";
 		echo "   </a>\n";
-		echo "   <a class=\"brand\" href='../out/out.MyDocuments.php'><img id='logo-img' src='../styles/bootstrap/bootstrap/img/parade_logo_s.png'>".(strlen($this->params['sitename'])>0 ? $this->params['sitename'] : "SeedDMS")."</a>\n";
+		echo "   <a class=\"brand\" href='../out/out.Search.php'><img id='logo-img' src='../styles/bootstrap/bootstrap/img/parade_logo_s.png'>".(strlen($this->params['sitename'])>0 ? $this->params['sitename'] : "SeedDMS")."</a>\n";
 		if(isset($this->params['user']) && $this->params['user']) {
 			echo "   <div class=\"nav-collapse nav-col1\">\n";
 			echo "   <ul id=\"main-menu-admin\" class=\"nav pull-right\">\n";
@@ -318,7 +318,7 @@ $(document).ready(function () {
 			echo "      <input type=\"hidden\" name=\"searchin[]\" value=\"2\" />";
 			echo "      <input type=\"hidden\" name=\"searchin[]\" value=\"3\" />";
 			echo "      <input type=\"hidden\" name=\"searchin[]\" value=\"4\" />";
-			echo "      <input name=\"query\" class=\"search-query\" id=\"searchfield\" data-provide=\"typeahead\" type=\"text\" style=\"width: 150px;\" placeholder=\"".getMLText("search")."\"/>";
+			echo "      <input name=\"query\" class=\"search-query\" id=\"searchfield\" data-provide=\"typeahead\" type=\"text\" placeholder=\"".getMLText("search")."\"/>";
 			if($this->params['defaultsearchmethod'] == 'fulltext')
 				echo "      <input type=\"hidden\" name=\"fullsearch\" value=\"1\" />";
 			/*if($this->params['enablefullsearch']) {

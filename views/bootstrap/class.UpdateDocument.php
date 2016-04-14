@@ -129,7 +129,7 @@ $(document).ready( function() {
 				var missingDocs = data.missing;
 				var existsDocs = data.exists;
 				missingDocs.forEach(function pushMissing(doc, i) {
-					msg.push("Couldn't locate document " + doc);
+					msg.push("<?php printMLText("no_doc"); ?>" + doc);
 				});
 				existsDocs.forEach(function inputExists(doc, i) {
 					var docNum = doc["number"];
@@ -180,7 +180,7 @@ $(document).ready( function() {
 				var missingPeeps = data.missing;
 				var existsPeeps = data.exists;
 				missingPeeps.forEach(function pushMissing(emp, i) {
-					msg.push("Couldn't locate document " + emp);
+					msg.push("<?php printMLText("no_user"); ?>" + emp);
 				});
 				existsPeeps.forEach(function inputExists(emp, i) {
 					// Remove the period character from doc number for jQuery compatibility
@@ -295,7 +295,7 @@ $(document).ready( function() {
             <td><?php printMLText("pdf_local_file");?>:</td>
             <td>
 <?php
-    $this->printFileChooser('userfilePDF', true);
+    $this->printFileChooser('userfilePDF', true, 'application/pdf, .pdf');
 ?>
             </td>
         </tr>

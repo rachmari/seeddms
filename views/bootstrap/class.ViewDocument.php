@@ -997,6 +997,10 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
                 print "</tr>\n</thead>\n<tbody>\n";
 
                 $version = $versions[$i];
+
+                /* Retrieve latest pdf */
+                $versionPDFContent = $document->getPDFByContent($version);
+
                 $vstat = $version->getStatus();
                 $workflow = $version->getWorkflow();
                 $workflowstate = $version->getWorkflowState();
@@ -1005,8 +1009,8 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
                 $file_exists=file_exists($dms->contentDir . $version->getPath());
 
                 // If a PDF file exists, get the path and check for existence on server
-                if($latestPDFContent) {
-                    $pdf_file_exists=file_exists($dms->contentDir . $latestPDFContent->getPDFPath());
+                if($versionPDFContent) {
+                    $pdf_file_exists=file_exists($dms->contentDir . $versionPDFContent->getPDFPath());
                 }
 
                 print "<tr>\n";
@@ -1063,9 +1067,9 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
                 print "<ul class=\"unstyled actions\">";
 
                 if ($pdf_file_exists) {
-                    print "<li><a href=\"../op/op.Download.php?documentid=".$documentid."&pdf=1&version=".$latestPDFContent->getVersion()."\"><i class=\"icon-download\"></i></a>";
-                    if ($viewonlinefiletypes && in_array(strtolower($latestPDFContent->getFileType()), $viewonlinefiletypes))
-                        print "<a target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&pdf=1&version=". $latestPDFContent->getVersion()."\"><i class=\"icon-star\"></i></a></li>";
+                    print "<li><a href=\"../op/op.Download.php?documentid=".$documentid."&pdf=1&version=".$versionPDFContent->getVersion()."\"><i class=\"icon-download\"></i></a>";
+                    if ($viewonlinefiletypes && in_array(strtolower($versionPDFContent->getFileType()), $viewonlinefiletypes))
+                        print "<a target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&pdf=1&version=". $versionPDFContent->getVersion()."\"><i class=\"icon-star\"></i></a></li>";
                     else print "</li>";
                     print "</ul>";
                 } 

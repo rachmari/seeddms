@@ -357,7 +357,7 @@ $(document).ready(function() {
             <td><?php printMLText("pdf_local_file");?>:</td>
             <td>
 <?php
-    $this->printFileChooser('userfilePDF', true, '.pdf');
+    $this->printFileChooser('userfilePDF', true, 'application/pdf, .pdf');
 ?>
             </td>
         </tr>

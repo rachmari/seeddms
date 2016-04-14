@@ -854,7 +854,7 @@ class SeedDMS_Core_Folder extends SeedDMS_Core_Object {
 						}
 					} else {
 						// Check for collisions with already existing numbers
-						$resArr = $db->getResultArray("SELECT COUNT(*) AS num FROM tblMemoNumbers WHERE number='" . $owner->_login. " . " . $docNumber . "' FOR UPDATE");
+						$resArr = $db->getResultArray("SELECT COUNT(*) AS num FROM tblMemoNumbers WHERE number='" . $owner->_login. "-" . $docNumber . "' FOR UPDATE");
 						if((integer)$resArr[0]["num"] != 0) {
 							return false;
 						} else {
@@ -862,7 +862,7 @@ class SeedDMS_Core_Folder extends SeedDMS_Core_Object {
 							$queryStr = "INSERT INTO tblMemoNumbers (documentID, userID, indexNumber, number, parade) VALUES (".$document->getID().", ".$owner->getID().", ".$docNumber.", \"" . $owner->_login . "-" . $docNumber. "\", ".$paradeDoc.")";
 							if (!$db->getResult($queryStr)) {
 								$db->rollbackTransaction();
-								return "2";
+								return false;
 							}
 						}
 					}

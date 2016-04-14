@@ -241,8 +241,6 @@ if ($_FILES['userfile']['error'] == 0) {
 		$name = "";
 		$comment = "";
 
-		// Add pdf content files if they exist
-		$content = $document->getLatestContent();
 		if (is_uploaded_file($_FILES["userfilePDF"]["tmp_name"])){
 			// Check for a size of 0
 		    if ($_FILES["userfilePDF"]["size"] == 0) {
@@ -273,7 +271,7 @@ if ($_FILES['userfile']['error'] == 0) {
 				$pdffiletype = finfo_file($finfo, $pdffiletmp);
 			}
 
-			$res = $document->addContentPDF($comment, $user, $pdffiletmp, basename($pdffilename), $fileType, $pdffiletype, $version=0);
+			$res = $document->addContentPDF($comment, $user, $pdffiletmp, basename($pdffilename), $fileType, $pdffiletype, $content->getVersion());
 
 			if(!$res) {
 				UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),"PDF file not uploaded");

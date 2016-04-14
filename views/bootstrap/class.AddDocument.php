@@ -75,6 +75,17 @@ $(document).ready(function() {
 		}
 	});
 
+	$('#title-input').keyup(function(event) {
+		var text = $(this).val();
+		var length = text.length;
+		$("#name-count").text(150 - length);
+		if(length === 150) {
+			$("#name-count-container").addClass("form-alert").removeClass('form-help');
+		} else {
+			$("#name-count-container").addClass("form-help").removeClass('form-alert');
+		}
+	});
+
 	$('#add-doc-form').submit(function(event) {
 		/* Check the form for missing information */
 		msg = new Array();
@@ -129,7 +140,7 @@ $(document).ready(function() {
 				var missingDocs = data.missing;
 				var existsDocs = data.exists;
 				missingDocs.forEach(function pushMissing(doc, i) {
-					msg.push("Couldn't locate document " + doc);
+					msg.push("<?php printMLText("no_doc"); ?>" + doc);
 				});
 				existsDocs.forEach(function inputExists(doc, i) {
 					var docNum = doc["number"];
@@ -139,7 +150,7 @@ $(document).ready(function() {
 					if($('#' + docNumId).length > 0) {
 						msg.push("You entered a duplicate document " + docNum);
 					} else {
-						var htmlStr = "<tr class='add_row'><td></td><td><span id='remove_" + docNumId + "'></span><span class='btn no-button-effects no-pointer btn-margin-correction'><i class=\"icon-link\"></i></span><input class='row-list' type='text' value='" + docNum + " - " + doc["title"] + "' id='" + docNumId + "' name='linkInputs[]'' readonly><span class='btn no-button-effects no-pointer btn-margin-correction'><i class='icon-remove delete-row'></i></div></td></tr>";
+						var htmlStr = "<tr class='add_row'><td></td><td><span id='remove_" + docNumId + "'></span><span class='btn no-button-effects no-pointer'><i class=\"icon-link\"></i></span><input class='row-list' type='text' value='" + docNum + " - " + doc["title"] + "' id='" + docNumId + "' name='linkInputs[]'' readonly><span class='btn no-button-effects no-pointer'><i class='icon-remove delete-row'></i></div></td></tr>";
 						$('#list-group').after(htmlStr);
 					}
 				});
@@ -177,7 +188,7 @@ $(document).ready(function() {
 				var missingPeeps = data.missing;
 				var existsPeeps = data.exists;
 				missingPeeps.forEach(function pushMissing(emp, i) {
-					msg.push("Couldn't locate document " + emp);
+					msg.push("<?php printMLText("no_user"); ?>" + emp);
 				});
 				existsPeeps.forEach(function inputExists(emp, i) {
 					// Remove the period character from doc number for jQuery compatibility
@@ -187,7 +198,7 @@ $(document).ready(function() {
 						msg.push("You added the same person more than once " + emp);
 					} else {
 
-						var htmlStr = "<tr class='add_row'></td><td><td><span id='remove_" + empId + "'></span><span class='btn no-button-effects no-pointer btn-margin-correction'><i class=\"icon-user\"></i></span><input class='row-list' type='text' value='" + emp + "' id='" + empId + "' name='notifyInputsUsers[]'' readonly><span class='btn btn-margin-correction no-button-effects'><i class='icon-remove delete-row'></i></span></td></tr>";
+						var htmlStr = "<tr class='add_row'></td><td><td><span id='remove_" + empId + "'></span><span class='btn no-button-effects no-pointer'><i class=\"icon-user\"></i></span><input class='row-list' type='text' value='" + emp + "' id='" + empId + "' name='notifyInputsUsers[]'' readonly><span class='btn no-button-effects'><i class='icon-remove delete-row'></i></span></td></tr>";
 						$('#notify-group').after(htmlStr);
 					}
 				});
@@ -234,16 +245,17 @@ $(document).ready(function() {
 		</tr>
 		<tr>
 			<td><?php printMLText("number");?>:</td>
-			<td><?php echo $user->_login . "&nbsp;-&nbsp;" ?><input class='input-margin-correction' type='text' name='setDocNumber' value='<?php 
+			<td><?php echo $user->_login . "&nbsp;-&nbsp;" ?><input type='text' name='setDocNumber' value='<?php 
 				echo $dms->getNextMemoNum($user->getID());
 			?>'></td>
 		</tr>
 		<tr>
-			<td><?php printMLText("name");?>:</td>
-			<td><input class='input-block-level' type="text" id='title-input' name="name"></td>
+			<td class='form-title-top'><?php printMLText("name");?>:</td>
+			<td><input class='input-block-level' type="text" id='title-input' name="name" maxlength="150">
+			<label id='name-count-container' class='form-help'><span id='name-count'>150</span><span>&nbsp;<?php printMLText('chars_left'); ?></span></label></td>
 		</tr>
 		<tr>
-			<td><?php printMLText("comment");?>:</td>
+			<td class='form-title-top'><?php printMLText("comment");?>:</td>
 			<td><textarea class='input-block-level' name="comment" id='comment-input' rows="5" placeholder="<?php printMLText('comment_placeholder');?>"></textarea></td>
 		</tr>
 		<tr hidden>
@@ -312,7 +324,7 @@ $(document).ready(function() {
 			<td><?php printMLText('add_document_link');?>:</td>
 			<td>
 				<input class='input-with-button' type='text' name='links' autocomplete='off' id='link_input' placeholder="ex: jane.doe-2, john.doe-5">
-				<a href='#' role='btn' class='btn btn-margin-correction' id='add_link' name='add_link'>
+				<a href='#' role='btn' class='btn' id='add_link' name='add_link'>
 					<?php printMLText("add");?>
 				</a>
 			</td>
@@ -345,7 +357,7 @@ $(document).ready(function() {
             <td><?php printMLText("pdf_local_file");?>:</td>
             <td>
 <?php
-    $this->printFileChooser('userfilePDF', true);
+    $this->printFileChooser('userfilePDF', true, '.pdf');
 ?>
             </td>
         </tr>
@@ -364,8 +376,8 @@ $(document).ready(function() {
 		</tr>
 <?php } ?>
 		<tr>
-			<td><?php printMLText("comment_for_current_version");?>:</td>
-			<td><textarea class='input-block-level' name="version_comment" rows="3" cols='80' placeholder="<?php printMLText("version_comment_placeholder");?>"></textarea><br /></td>
+			<td class='form-title-top'><?php printMLText("comment_for_current_version");?>:</td>
+			<td><textarea class='input-block-level' name="version_comment" rows="3" cols='80' placeholder="<?php printMLText("version_comment_placeholder");?>"></textarea></td>
 		</tr>
 <?php
 			$attrdefs = $dms->getAllAttributeDefinitions(array(SeedDMS_Core_AttributeDefinition::objtype_documentcontent, SeedDMS_Core_AttributeDefinition::objtype_all));
@@ -673,7 +685,7 @@ $(document).ready(function() {
         </td>
         <td>
 				<input class='input-with-button' type='text' name="notification_users" autocomplete='off' id='notify_input' placeholder="ex: jane.doe, john.doe">
-				<a href='#' role='btn' class='btn btn-margin-correction' id='add_notify' name='add_notify'>
+				<a href='#' role='btn' class='btn' id='add_notify' name='add_notify'>
 					<?php printMLText("add");?>
 				</a>
 				</td>

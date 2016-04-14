@@ -12,12 +12,10 @@
  *             2010-2012 Uwe Steinmann
  * @version    Release: @package_version@
  */
-
 /**
  * Include parent class
  */
 require_once("class.Bootstrap.php");
-
 /**
  * Class which outputs the html page for ViewDocument view
  *
@@ -30,7 +28,6 @@ require_once("class.Bootstrap.php");
  * @version    Release: @package_version@
  */
 class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
-
 	protected function getAccessModeText($defMode) { /* {{{ */
 		switch($defMode) {
 			case M_NONE:
@@ -47,12 +44,10 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 				break;
 		}
 	} /* }}} */
-
 	protected function printAccessList($obj) { /* {{{ */
 		$accessList = $obj->getAccessList();
 		if (count($accessList["users"]) == 0 && count($accessList["groups"]) == 0)
 			return;
-
 		for ($i = 0; $i < count($accessList["groups"]); $i++)
 		{
 			$group = $accessList["groups"][$i]->getGroup();
@@ -70,7 +65,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 				print "<br />";
 		}
 	} /* }}} */
-
 	/**
 	 * Output a single attribute in the document info section
 	 *
@@ -108,16 +102,13 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 		    </tr>
 <?php
 	} /* }}} */
-
 	function timelinedata() { /* {{{ */
 		$dms = $this->params['dms'];
 		$user = $this->params['user'];
 		$document = $this->params['document'];
-
 		$jsondata = array();
 		if($user->isAdmin()) {
 			$data = $document->getTimeline();
-
 			foreach($data as $i=>$item) {
 				switch($item['type']) {
 				case 'add_version':
@@ -134,7 +125,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 				}
 				$data[$i]['msg'] = $msg;
 			}
-
 			foreach($data as $item) {
 				if($item['type'] == 'status_change')
 					$classname = $item['type']."_".$item['status'];
@@ -147,15 +137,12 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 		header('Content-Type: application/json');
 		echo json_encode($jsondata);
 	} /* }}} */
-
 	function js() { /* {{{ */
 		$document = $this->params['document'];
-
 		header('Content-Type: application/javascript');
 		$this->printTimelineJs('out.ViewDocument.php?action=timelinedata&documentid='.$document->getID(), 300, '', date('Y-m-d'));
 		$this->printDocumentChooserJs("form1");
 	} /* }}} */
-
 	function show() { /* {{{ */
 		parent::show();
 		$dms = $this->params['dms'];
@@ -172,19 +159,14 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 		$documentid = $document->getId();
 		$currenttab = $this->params['currenttab'];
 		$timeout = $this->params['timeout'];
-
 		$versions = $document->getContent();
-
 		$this->htmlAddHeader('<link href="../styles/'.$this->theme.'/timeline/timeline.css" rel="stylesheet">'."\n", 'css');
 		$this->htmlAddHeader('<script type="text/javascript" src="../styles/'.$this->theme.'/timeline/timeline-min.js"></script>'."\n", 'js');
 		$this->htmlAddHeader('<script type="text/javascript" src="../styles/'.$this->theme.'/timeline/timeline-locales.js"></script>'."\n", 'js');
-
 		$this->htmlStartPage(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))));
 		$this->globalNavigation($folder);
 		$this->contentHeading($document->getDocNum());
 		$this->contentStart();
-
-
 		if ($document->isLocked()) {
 			$lockingUser = $document->getLockingUser();
 			$txt = $this->callHook('documentIsLocked', $document, $lockingUser);
@@ -198,24 +180,18 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 <?php
 			}
 		}
-
 		/* Retrieve attached files */
 		$files = $document->getDocumentFiles();
-
 		/* Retrieve linked documents */
 		$links = $document->getDocumentLinks();
 		$links = SeedDMS_Core_DMS::filterDocumentLinks($user, $links);
-
 		/* Retrieve reverse linked documents */
 		$reverselinks = $document->getReverseDocumentLinks();
 		$reverselinks = SeedDMS_Core_DMS::filterDocumentLinks($user, $reverselinks);
-
 		/* Retrieve latest content */
 		$latestContent = $document->getLatestContent();
-
 		/* Retrieve latest pdf */
 		$latestPDFContent = $document->getPDFByContent($latestContent);
-
 		$needwkflaction = false;
 		if($workflowmode == 'traditional' || $workflowmode == 'traditional_only_approval') {
 		} else {
@@ -226,11 +202,9 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 				$needwkflaction = $latestContent->needsWorkflowAction($user);
 			}
 		}
-
 		if($needwkflaction) {
 			$this->infoMsg(getMLText('needs_workflow_action'));
 		}
-
 		$status = $latestContent->getStatus();
 		$reviewStatus = $latestContent->getReviewStatus();
 		$approvalStatus = $latestContent->getApprovalStatus();
@@ -258,7 +232,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 			echo htmlspecialchars($document->getID())."</td>\n";
 			echo "</tr>";
 		}
-
 		echo "<tr>";
 		echo "<td><a class='revise-edit-links' href='../out/out.UpdateDocument.php?documentid=" . htmlspecialchars($document->getID()) . "'><i class='icon-copy'></i>&nbsp;" . getMLText("update_document_version") . "</a></td><tr>";
 		echo "<td><a class='revise-edit-links' href='../out/out.EditDocument.php?documentid=" . htmlspecialchars($document->getID()) . "'><i class='icon-edit'></i>&nbsp;" . getMLText("edit_document_info") . "</a></td>";
@@ -390,15 +363,12 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 			$this->htmlEndPage();
 			exit;
 		}
-
 		// verify if file exists
 		$file_exists=file_exists($dms->contentDir . $latestContent->getPath());
-
 		// If a PDF file exists, get the path and check for existence on server
 		if($latestPDFContent) {
 			$pdf_file_exists=file_exists($dms->contentDir . $latestPDFContent->getPDFPath());
 		}
-
 		$this->contentContainerStart();
 		print "<table class=\"table\">";
 		print "<thead>\n<tr>\n";
@@ -411,7 +381,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 		print "</tr></thead><tbody>\n";
 		print "<tr>\n";
 		print "<td>";
-
 		$previewer = new SeedDMS_Preview_Previewer($cachedir, $previewwidthdetail, $timeout);
 		$previewer->createPreview($latestContent);
 		if ($file_exists) {
@@ -421,23 +390,19 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 				print "<a href=\"../op/op.Download.php?documentid=".$documentid."&version=".$latestContent->getVersion()."\">";
 			}
 		}
-		print $latestContent->getVersion();
+		print $latestContent->getCustomVersion();
 		if ($file_exists) {
 			print "</a>";
 		}
 		print "</td>\n";
-
 		print "<td><ul class=\"actions unstyled\">\n";
 		print "<li class=\"wordbreak\">".$latestContent->getOriginalFileName() ."</li>\n";
-
 		if ($file_exists)
 			print "<li>". SeedDMS_Core_File::format_filesize($latestContent->getFileSize()) .", ".htmlspecialchars($latestContent->getMimeType())."</li>";
 		else print "<li><span class=\"warning\">".getMLText("document_deleted")."</span></li>";
-
 		$updatingUser = $latestContent->getUser();
 		print "<li>".getMLText("uploaded_by")." <a href=\"mailto:".$updatingUser->getEmail()."\">".htmlspecialchars($updatingUser->getFullName())."</a></li>";
 		print "<li>".getLongReadableDate($latestContent->getDate())."</li>";
-
 		print "</ul>\n";
 		print "<ul class=\"actions unstyled\">\n";
 		$attributes = $latestContent->getAttributes();
@@ -453,18 +418,14 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 			}
 		}
 		print "</ul>\n";
-
 		print "<td>".htmlspecialchars($latestContent->getComment())."</td>";
-
 		print "<td width='10%'>";
 		print getOverallStatusText($status["status"]);
 		if ( $status["status"]==S_DRAFT_REV || $status["status"]==S_DRAFT_APP || $status["status"]==S_IN_WORKFLOW || $status["status"]==S_EXPIRED ){
 			print "<br><span".($document->hasExpired()?" class=\"warning\" ":"").">".(!$document->getExpires() ? getMLText("does_not_expire") : getMLText("expires").": ".getReadableDate($document->getExpires()))."</span>";
 		}
 		print "</td>";
-
 		print "<td>";
-
 		print "<ul class=\"unstyled actions\">";
 		if ($file_exists){
 			print "<li><a href=\"../op/op.Download.php?documentid=".$documentid."&version=".$latestContent->getVersion()."\"><i class=\"icon-download\"></i>".getMLText("download_source")."</a></li>";
@@ -499,12 +460,10 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 		if($accessop->mayEditAttributes()) {
 			print "<li><a href=\"out.EditAttributes.php?documentid=".$documentid."&version=".$latestContent->getVersion()."\"><i class=\"icon-edit\"></i>".getMLText("edit_attributes")."</a></li>";
 		}
-
 		print "</ul>";
 		print "</td>";
 		print "<td>";
 		print "<ul class=\"unstyled actions\">";
-
 		if ($pdf_file_exists) {
 			print "<li><a href=\"../op/op.Download.php?documentid=".$documentid."&pdf=1&version=".$latestPDFContent->getVersion()."\"><i class=\"icon-download\"></i>".getMLText("download_pdf")."</a></li>";
 			if ($viewonlinefiletypes && in_array(strtolower($latestPDFContent->getFileType()), $viewonlinefiletypes))
@@ -512,16 +471,12 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 		}
 		print "</ul>";
 		print "</td>";
-
 		if (count($files) > 0) {
 			// Attachment Listing Begin
 			print "<tr><td></td><td colspan='4'><b>".getMLText("attach_file")."</b></td></tr>";
 			foreach($files as $file) {
-
 				$file_exists=file_exists($dms->contentDir . $file->getPath());
-
 				$responsibleUser = $latestContent->getUser();
-
 				print "<tr>";
 				print "<td>";
 				$previewer->createPreview($file, $previewwidthdetail);
@@ -541,10 +496,8 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 				if ($file_exists)
 					print "<li>".SeedDMS_Core_File::format_filesize(filesize($dms->contentDir . $file->getPath())) ." bytes, ".htmlspecialchars($file->getMimeType())."</li>";
 				else print "<li>".htmlspecialchars($file->getMimeType())." - <span class=\"warning\">".getMLText("document_deleted")."</span></li>";
-
 				print "<li>".getMLText("uploaded_by")." <a href=\"mailto:".$responsibleUser->getEmail()."\">".htmlspecialchars($responsibleUser->getFullName())."</a></li>";
 				print "<li>".getLongReadableDate($file->getDate())."</li>";
-
 				print "<td>".htmlspecialchars($file->getComment())."</td>";
 				print "<td></td>";
 				print "<td><ul class=\"unstyled actions\">";
@@ -560,7 +513,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 		}
 		print "</tbody>\n</table>\n";
 		$this->contentContainerEnd(); // Attachment Listing End
-
 		if($user->isAdmin()) {
 			$this->contentHeading(getMLText("status"));
 			$this->contentContainerStart();
@@ -577,7 +529,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 			}
 			print "</tbody>\n</table>\n";
 			$this->contentContainerEnd();
-
 			$wkflogs = $latestContent->getWorkflowLog();
 			if($wkflogs) {
 				$this->contentHeading(getMLText("workflow_summary"));
@@ -609,17 +560,14 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 <?php
 		$this->contentContainerstart();
 		print "<table class=\"table-condensed\">\n";
-
 		/* Just check fo an exting reviewStatus, even workflow mode is set
 		 * to traditional_only_approval. There may be old documents which
 		 * are still in S_DRAFT_REV.
 		 */
 		if (/*$workflowmode != 'traditional_only_approval' &&*/ is_array($reviewStatus) && count($reviewStatus)>0) {
-
 			print "<tr><td colspan=5>\n";
 			$this->contentSubHeading(getMLText("reviewers"));
 			print "</tr>";
-
 			print "<tr>\n";
 			print "<td width='20%'><b>".getMLText("name")."</b></td>\n";
 			print "<td width='20%'><b>".getMLText("last_update")."</b></td>\n";
@@ -627,7 +575,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 			print "<td width='15%'><b>".getMLText("status")."</b></td>\n";
 			print "<td width='20%'></td>\n";
 			print "</tr>\n";
-
 			foreach ($reviewStatus as $r) {
 				$required = null;
 				$is_reviewer = false;
@@ -669,7 +616,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 				print "</td>\n";
 				print "<td>".getReviewStatusText($r["status"])."</td>\n";
 				print "<td><ul class=\"unstyled\">";
-
 				if($accessop->mayReview()) {
 					if ($is_reviewer && $r["status"]==0) {
 						print "<li><a href=\"../out/out.ReviewDocument.php?documentid=".$documentid."&version=".$latestContent->getVersion()."&reviewid=".$r['reviewID']."\" class=\"btn btn-mini\">".getMLText("add_review")."</a></li>";
@@ -677,18 +623,14 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 						print "<li><a href=\"../out/out.ReviewDocument.php?documentid=".$documentid."&version=".$latestContent->getVersion()."&reviewid=".$r['reviewID']."\" class=\"btn btn-mini\">".getMLText("edit")."</a></li>";
 					}
 				}
-
 				print "</ul></td>\n";	
 				print "</td>\n</tr>\n";
 			}
 		}
-
 		if (is_array($approvalStatus) && count($approvalStatus)>0) {
-
 			print "<tr><td colspan=5>\n";
 			$this->contentSubHeading(getMLText("approvers"));
 			print "</tr>";
-
 			print "<tr>\n";
 			print "<td width='20%'><b>".getMLText("name")."</b></td>\n";
 			print "<td width='20%'><b>".getMLText("last_update")."</b></td>\n";	
@@ -696,7 +638,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 			print "<td width='15%'><b>".getMLText("status")."</b></td>\n";
 			print "<td width='20%'></td>\n";
 			print "</tr>\n";
-
 			foreach ($approvalStatus as $a) {
 				$required = null;
 				$is_approver = false;
@@ -738,7 +679,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 				echo "</td>\n";
 				print "<td>".getApprovalStatusText($a["status"])."</td>\n";
 				print "<td><ul class=\"unstyled\">";
-
 				if($accessop->mayApprove()) {
 					if ($is_approver && $a['status'] == 0 /*$status["status"]==S_DRAFT_APP*/) {
 						print "<li><a class=\"btn btn-mini\" href=\"../out/out.ApproveDocument.php?documentid=".$documentid."&version=".$latestContent->getVersion()."&approveid=".$a['approveID']."\">".getMLText("add_approval")."</a></li>";
@@ -746,16 +686,13 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 						print "<li><a class=\"btn btn-mini\" href=\"../out/out.ApproveDocument.php?documentid=".$documentid."&version=".$latestContent->getVersion()."&approveid=".$a['approveID']."\">".getMLText("edit")."</a></li>";
 					}
 				}
-
 				print "</ul>";
 				print "</td>\n";	
 				print "</td>\n</tr>\n";
 			}
 		}
-
 		print "</table>\n";
 		$this->contentContainerEnd();
-
 		if($user->isAdmin()) {
 ?>
 			<div class="row-fluid">
@@ -796,7 +733,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 					print "<form action=\"../out/out.RewindWorkflow.php\" method=\"post\">".createHiddenFieldWithKey('rewindworkflow')."<input type=\"hidden\" name=\"documentid\" value=\"".$documentid."\" /><input type=\"hidden\" name=\"version\" value=\"".$latestContent->getVersion()."\" /><button type=\"submit\" class=\"btn\"><i class=\"icon-refresh\"></i> ".getMLText('rewind_workflow')."</button></form>";
 				}
 			}
-
 			echo "<h4>".$workflow->getName()."</h4>";
 			if($parentworkflow = $latestContent->getParentWorkflow()) {
 				echo "<p>Sub workflow of '".$parentworkflow->getName()."'</p>";
@@ -888,7 +824,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 			}
 			echo "</tr>";
 			echo "</table>";
-
 			$workflows = $dms->getAllWorkflows();
 			if($workflows) {
 				$subworkflows = array();
@@ -950,7 +885,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 										echo "<form action=\"../out/out.ReturnFromSubWorkflow.php\" method=\"post\">".createHiddenFieldWithKey('returnfromsubworkflow')."<input type=\"hidden\" name=\"documentid\" value=\"".$documentid."\" /><input type=\"hidden\" name=\"version\" value=\"".$latestContent->getVersion()."\" /><input type=\"hidden\" name=\"transition\" value=\"".$transition->getID()."\" />";
 										echo "<input type=\"submit\" class=\"btn\" value=\"".getMLText('return_from_subworkflow')."\" />";
 										echo "</form>";
-
 									}
 								}
 							}
@@ -991,15 +925,12 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 				}
 				
 				print "</tr>\n</thead>\n<tbody>\n";
-
 				$version = $versions[$i];
 				$vstat = $version->getStatus();
 				$workflow = $version->getWorkflow();
 				$workflowstate = $version->getWorkflowState();
-
 				// verify if file exists
 				$file_exists=file_exists($dms->contentDir . $version->getPath());
-
 				print "<tr>\n";
 				print "<td nowrap>";
 				if($file_exists) {
@@ -1063,16 +994,13 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 				print "<li><a href='../out/out.DocumentVersionDetail.php?documentid=".$documentid."&version=".$version->getVersion()."'><i class=\"icon-info-sign\"></i>".getMLText("details")."</a></li>";
 				print "</ul>";
 				print "</td>\n</tr>\n";
-
 				$ver_files = $document->getFilesByVersion($version);
 				if(count($ver_files) > 0) {
 					// List attachments for each version
 					print "<tr><td></td><td colspan='4'><b>".getMLText("attach_file")."</b></td></tr>";
 					foreach($ver_files as $ver_file) {
 						$file_exists=file_exists($dms->contentDir . $ver_file->getPath());
-
 						$responsibleUser = $ver_file->getUser();
-
 						print "<tr>";
 						print "<td>";
 						$previewer->createPreview($ver_file, $previewwidthdetail);
@@ -1085,32 +1013,25 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 						if($file_exists) {
 							print "</a>";
 						}
-
 						print "</td>";
 						print "<td><ul class=\"unstyled\">\n";
 						print "<li>".htmlspecialchars($ver_file->getName())."</li>\n";
 						print "<li>".htmlspecialchars($ver_file->getOriginalFileName())."</li>\n";
-
 						if ($file_exists)
 							print "<li>".SeedDMS_Core_File::format_filesize(filesize($dms->contentDir . $ver_file->getPath())) ." bytes, ".htmlspecialchars($ver_file->getMimeType())."</li>";
 						else print "<li>".htmlspecialchars($ver_file->getMimeType())." - <span class=\"warning\">".getMLText("document_deleted")."</span></li>";
-
 						print "<li>".getMLText("uploaded_by")." <a href=\"mailto:".$responsibleUser->getEmail()."\">".htmlspecialchars($responsibleUser->getFullName())."</a></li>";
 						print "<li>".getLongReadableDate($ver_file->getDate())."</li>";
 						print "<td>".htmlspecialchars($ver_file->getComment())."</td>";
 						print "<td></td><td><ul class=\"unstyled actions\">";
-
 						if ($file_exists) {
 							print "<li><a href=\"../op/op.Download.php?documentid=".$documentid."&file=".$ver_file->getID()."\"><i class=\"icon-download\"></i>".getMLText('download')."</a>";
 							if ($viewonlinefiletypes && in_array(strtolower($ver_file->getFileType()), $viewonlinefiletypes))
 								print "<li><a target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&file=". $ver_file->getID()."\"><i class=\"icon-star\"></i>" . getMLText("view_online") . "</a></li>";
 						} else print "<li><img class=\"mimeicon\" src=\"images/icons/".$this->getMimeIcon($ver_file->getFileType())."\" title=\"".htmlspecialchars($ver_file->getMimeType())."\">";
-
 						echo "</ul><ul class=\"unstyled actions\">";
-
 						if (($document->getAccessMode($user) == M_ALL)||($ver_file->getUserID()==$user->getID()))
 							print "<li><a href=\"out.RemoveDocumentFile.php?documentid=".$documentid."&fileid=".$ver_file->getID()."\"><i class=\"icon-remove\"></i>".getMLText("delete")."</a></li>";
-
 						print "</ul></td>";
 						print "</tr>";
 					}
@@ -1125,11 +1046,8 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 ?>
 		  <div class="tab-pane <?php if($currenttab == 'attachments') echo 'active'; ?>" id="attachments">
 <?php
-
 		$this->contentContainerStart();
-
 		if (count($files) > 0) {
-
 			print "<table class=\"table\">";
 			print "<thead>\n<tr>\n";
 			print "<th width='20%'></th>\n";
@@ -1137,13 +1055,9 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 			print "<th width='40%'>".getMLText("comment")."</th>\n";
 			print "<th width='20%'></th>\n";
 			print "</tr>\n</thead>\n<tbody>\n";
-
 			foreach($files as $file) {
-
 				$file_exists=file_exists($dms->contentDir . $file->getPath());
-
 				$responsibleUser = $file->getUser();
-
 				print "<tr>";
 				print "<td>";
 				$previewer->createPreview($file, $previewwidthdetail);
@@ -1161,40 +1075,31 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 				if($file_exists) {
 					print "</a>";
 				}
-
 				print "</td>";
 				print "<td><ul class=\"unstyled\">\n";
 				print "<li>".htmlspecialchars($file->getName())."</li>\n";
 				print "<li>".htmlspecialchars($file->getOriginalFileName())."</li>\n";
-
 				if ($file_exists)
 					print "<li>".SeedDMS_Core_File::format_filesize(filesize($dms->contentDir . $file->getPath())) ." bytes, ".htmlspecialchars($file->getMimeType())."</li>";
 				else print "<li>".htmlspecialchars($file->getMimeType())." - <span class=\"warning\">".getMLText("document_deleted")."</span></li>";
-
 				print "<li>".getMLText("uploaded_by")." <a href=\"mailto:".$responsibleUser->getEmail()."\">".htmlspecialchars($responsibleUser->getFullName())."</a></li>";
 				print "<li>".getLongReadableDate($file->getDate())."</li>";
 				print "<td>".htmlspecialchars($file->getComment())."</td>";
 				print "<td><ul class=\"unstyled actions\">";
-
 				if ($file_exists) {
 					print "<li><a href=\"../op/op.Download.php?documentid=".$documentid."&file=".$file->getID()."\"><i class=\"icon-download\"></i>".getMLText('download')."</a>";
 					if ($viewonlinefiletypes && in_array(strtolower($file->getFileType()), $viewonlinefiletypes))
 						print "<li><a target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&file=". $file->getID()."\"><i class=\"icon-star\"></i>" . getMLText("view_online") . "</a></li>";
 				} else print "<li><img class=\"mimeicon\" src=\"images/icons/".$this->getMimeIcon($file->getFileType())."\" title=\"".htmlspecialchars($file->getMimeType())."\">";
-
 				echo "</ul><ul class=\"unstyled actions\">";
-
 				if (($document->getAccessMode($user) == M_ALL)||($file->getUserID()==$user->getID()))
 					print "<li><a href=\"out.RemoveDocumentFile.php?documentid=".$documentid."&fileid=".$file->getID()."\"><i class=\"icon-remove\"></i>".getMLText("delete")."</a></li>";
-
 				print "</ul></td>";
 				print "</tr>";
 			}
 			print "</tbody>\n</table>\n";	
-
 		}
 		else printMLText("no_attached_files");
-
 		if ($document->getAccessMode($user) >= M_READWRITE){
 			print "<ul class=\"unstyled\"><li><a href=\"../out/out.AddFile.php?documentid=".$documentid."\" class=\"btn\">".getMLText("add")."</a></ul>\n";
 		}
@@ -1214,12 +1119,10 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 			print "<th></th>\n";
 			print "<th></th>\n";
 			print "</tr>\n</thead>\n<tbody>\n";
-
 			foreach($links as $link) {
 				$responsibleUser = $link->getUser();
 				$targetDoc = $link->getTarget();
 				$targetlc = $targetDoc->getLatestContent();
-
 				$previewer->createPreview($targetlc, $previewwidthlist);
 				print "<tr>";
 				print "<td><a href=\"../op/op.Download.php?documentid=".$targetDoc->getID()."&version=".$targetlc->getVersion()."\">";
@@ -1235,13 +1138,10 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 			print "</tbody>\n</table>\n";
 		}
 		else printMLText("no_linked_files");
-
 		$this->contentContainerEnd();
-
 		if (count($reverselinks) > 0) {
 			$this->contentHeading(getMLText("reverse_links"));
 			$this->contentContainerStart();
-
 			print "<table class=\"table table-condensed\">";
 			print "<thead>\n<tr>\n";
 			print "<th>".getMLText("doc_number")."</th>\n";
@@ -1250,12 +1150,10 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 			print "<th></th>\n";
 			print "<th></th>\n";
 			print "</tr>\n</thead>\n<tbody>\n";
-
 			foreach($reverselinks as $link) {
 				$responsibleUser = $link->getUser();
 				$sourceDoc = $link->getDocument();
 				$sourcelc = $sourceDoc->getLatestContent();
-
 				$previewer->createPreview($sourcelc, $previewwidthlist);
 				print "<tr>";
 				print "<td><a href=\"../op/op.Download.php?documentid=".$sourceDoc->getID()."&version=".$sourcelc->getVersion()."\">";
@@ -1306,7 +1204,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 		</div>
 <?php
 		$this->htmlEndPage();
-
 	} /* }}} */
 }
 ?>

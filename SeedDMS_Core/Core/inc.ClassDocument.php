@@ -2428,6 +2428,20 @@ class SeedDMS_Core_DocumentContent extends SeedDMS_Core_Object { /* {{{ */
 	} /* }}} */
 
 	function getVersion() { return $this->_version; }
+	function getCustomVersion($ver) {
+		if(!$ver) {
+			$ver = $this->_version;
+		}
+		$majArr = ['*', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+		$minArr = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+		if($ver == 1) { return '**'; }
+		else {
+			$minor = ($ver - 2) % 26;
+			$major = intval($ver - 2) / 26;
+			return $majArr[$major] . $minArr[$minor];
+		}
+
+	}
 	function getComment() { return $this->_comment; }
 	function getDate() { return $this->_date; }
 	function getOriginalFileName() { return $this->_orgFileName; }

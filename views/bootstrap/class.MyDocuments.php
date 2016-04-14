@@ -811,7 +811,7 @@ class SeedDMS_View_MyDocuments extends SeedDMS_Bootstrap_Style {
 					print "</a></td>";
 					print "<td><a href=\"out.ViewDocument.php?documentid=".$res["documentID"]."\">" . htmlspecialchars($res["name"]) . "</a></td>\n";
 					//print "<td>".getOverallStatusText($res["status"])."</td>";
-					print "<td>".$res["version"]."</td>";
+					print "<td>".$latestContent->getCustomVersion()."</td>";
 					print "<td>".$res["statusDate"]." <br>". htmlspecialchars($res["statusName"])."</td>";
 					//print "<td>".(!$res["expires"] ? getMLText("does_not_expire"):getReadableDate($res["expires"]))."</td>";				
 					//print "<td>".(!$res["expires"] ? "-":getReadableDate($res["expires"]))."</td>";				

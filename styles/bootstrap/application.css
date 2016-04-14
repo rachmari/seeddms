@@ -51,9 +51,9 @@ img.mimeicon {
 }
 
 #logo-img {
-    width: 60px;
+    height: 39px;
     padding-right: 25px;
-    height: auto;
+    width: auto;
 }
 
 .searchfield {

@@ -249,7 +249,7 @@ $(document).ready(function () {
 		echo "     <span class=\"icon-bar\"></span>\n";
 		echo "     <span class=\"icon-bar\"></span>\n";
 		echo "   </a>\n";
-		echo "   <a class=\"brand\" href='../out/out.Search.php'><img id='logo-img' src='../styles/bootstrap/bootstrap/img/parade_logo_s.png'>".(strlen($this->params['sitename'])>0 ? $this->params['sitename'] : "SeedDMS")."</a>\n";
+		echo "   <a class=\"brand\" href='../out/out.Search.php'><img id='logo-img' src='../styles/bootstrap/bootstrap/img/parade_logo.png'>".(strlen($this->params['sitename'])>0 ? $this->params['sitename'] : "SeedDMS")."</a>\n";
 		if(isset($this->params['user']) && $this->params['user']) {
 			echo "   <div class=\"nav-collapse nav-col1\">\n";
 			echo "   <ul id=\"main-menu-admin\" class=\"nav pull-right\">\n";

@@ -507,10 +507,11 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
         print "<ul class=\"unstyled actions\">";
 
         if ($pdf_file_exists) {
-            print "<li><a href=\"../op/op.Download.php?documentid=".$documentid."&pdf=1&version=".$latestPDFContent->getVersion()."\"><i class=\"icon-download\"></i></a></li>";
+            print "<li><a href=\"../op/op.Download.php?documentid=".$documentid."&pdf=1&version=".$latestPDFContent->getVersion()."\"><i class=\"icon-download\"></i></a>";
             if ($viewonlinefiletypes && in_array(strtolower($latestPDFContent->getFileType()), $viewonlinefiletypes))
-                print "<li><a target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&pdf=1&version=". $latestPDFContent->getVersion()."\"><i class=\"icon-star\"></i>" . getMLText("view_pdf") . "</a></li>";
+                print "<a target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&pdf=1&version=". $latestPDFContent->getVersion()."\"><i class=\"icon-star\"></i></a></li>";
         }
+        else print "</li>";
         print "</ul>";
         print "</td>";
 
@@ -1001,6 +1002,11 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
                 // verify if file exists
                 $file_exists=file_exists($dms->contentDir . $version->getPath());
 
+                // If a PDF file exists, get the path and check for existence on server
+                if($latestPDFContent) {
+                    $pdf_file_exists=file_exists($dms->contentDir . $latestPDFContent->getPDFPath());
+                }
+
                 print "<tr>\n";
                 print "<td class='table-align-center' nowrap>";
                 if($file_exists) {
@@ -1050,6 +1056,18 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
                     print "</ul>";
                     print "<ul class=\"actions unstyled\">";
                 }
+
+                print "<td class='table-align-center'>";
+                print "<ul class=\"unstyled actions\">";
+
+                if ($pdf_file_exists) {
+                    print "<li><a href=\"../op/op.Download.php?documentid=".$documentid."&pdf=1&version=".$latestPDFContent->getVersion()."\"><i class=\"icon-download\"></i></a>";
+                    if ($viewonlinefiletypes && in_array(strtolower($latestPDFContent->getFileType()), $viewonlinefiletypes))
+                        print "<a target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&pdf=1&version=". $latestPDFContent->getVersion()."\"><i class=\"icon-star\"></i></a></li>";
+                } else print "</li>";
+                print "</ul>";
+                print "</td>";
+
                 /* Only admin has the right to remove version in any case or a regular
                  * user if enableVersionDeletion is on
                  */

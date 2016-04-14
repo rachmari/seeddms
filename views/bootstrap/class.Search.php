@@ -448,9 +448,9 @@ class SeedDMS_View_Search extends SeedDMS_Bootstrap_Style {
 
 			print "<table id='tableSort' class=\"table tablesorter\">";
 			print "<thead>\n<tr>\n";
-			print "<th>".getMLText("doc_number")."</th>\n";
-			print "<th>".getMLText("name")."</th>\n";
-            print "<th>".getMLText("owner")."</th>\n";
+			print "<th width='20%'>".getMLText("doc_number")."</th>\n";
+			print "<th width='*'>".getMLText("name")."</th>\n";
+            print "<th width='20%'>".getMLText("owner")."</th>\n";
 			print "</tr>\n</thead>\n<tbody>\n";
 
 			$previewer = new SeedDMS_Preview_Previewer($cachedir, $previewwidth, $timeout);

@@ -1261,11 +1261,9 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 
             print "<table class=\"table table-condensed\">";
             print "<thead>\n<tr>\n";
-            print "<th>".getMLText("doc_number")."</th>\n";
-            print "<th>".getMLText("name")."</th>\n";
-            print "<th>".getMLText("comment_for_current_version")."</th>\n";
-            print "<th></th>\n";
-            print "<th></th>\n";
+            print "<th width='15%'>".getMLText("doc_number")."</th>\n";
+            print "<th width='60%'>".getMLText("name")."</th>\n";
+            print "<th width='*'>".getMLText("comment_for_current_version")."</th>\n";
             print "</tr>\n</thead>\n<tbody>\n";
 
             foreach($reverselinks as $link) {
@@ -1280,9 +1278,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
                 print "</td>";
                 print "<td><a href=\"out.ViewDocument.php?documentid=".$sourceDoc->getID()."\" class=\"linklist\">".htmlspecialchars($sourceDoc->getName())."</a></td>";
                 print "<td>".htmlspecialchars($sourceDoc->getComment())."</td>";
-                print "</td>";
-                print "<td><span class=\"actions\">";
-                print "</span></td>";
                 print "</tr>";
             }
             print "</tbody>\n</table>\n";

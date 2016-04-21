@@ -91,7 +91,7 @@ $lang = $resArr["language"];
 
 $dms->setUser($user);
 if($settings->_enableEmail) {
-	$notifier = new SeedDMS_EmailNotify($settings->_smtpSendFrom, $settings->_smtpServer, $settings->_smtpPort, $settings->_smtpUser, $settings->_smtpPassword);
+	$notifier = new SeedDMS_EmailNotify($user->getEmail(), $settings->_smtpServer, $settings->_smtpPort, $settings->_smtpUser, $settings->_smtpPassword);
 	$notifier->setSender($user);
 } else {
 	$notifier = null;

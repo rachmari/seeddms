@@ -255,10 +255,13 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
             echo "</tr>";
         }
 
-        echo "<tr>";
-        echo "<td><a class='revise-edit-links' href='../out/out.UpdateDocument.php?documentid=" . htmlspecialchars($document->getID()) . "'><i class='icon-copy'></i>&nbsp;" . getMLText("update_document_version") . "</a></td><tr>";
-        echo "<td><a class='revise-edit-links' href='../out/out.EditDocument.php?documentid=" . htmlspecialchars($document->getID()) . "'><i class='icon-edit'></i>&nbsp;" . getMLText("edit_document_info") . "</a></td>";
-        echo "</tr>";
+        if ($document->getAccessMode($user) >= M_READWRITE) {
+            echo "<tr>";
+            echo "<td><a class='revise-edit-links' href='../out/out.UpdateDocument.php?documentid=" . htmlspecialchars($document->getID()) . "'><i class='icon-copy'></i>&nbsp;" . getMLText("update_document_version") . "</a></td><tr>";
+            echo "<td><a class='revise-edit-links' href='../out/out.EditDocument.php?documentid=" . htmlspecialchars($document->getID()) . "'><i class='icon-edit'></i>&nbsp;" . getMLText("edit_document_info") . "</a></td>";
+            echo "</tr>";
+        }
+        
 ?>
         <tr hidden>
         <td><?php printMLText("name");?>:</td>
@@ -467,9 +470,9 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 
         print "<ul class=\"unstyled actions\">";
         if ($file_exists){
-            print "<li><a href=\"../op/op.Download.php?documentid=".$documentid."&version=".$latestContent->getVersion()."\"><i class=\"icon-download\"></i></a>";
+            print "<li><a data-toggle='tooltip' data-placement='bottom' title='" . getMLText('download_source') . "' href=\"../op/op.Download.php?documentid=".$documentid."&version=".$latestContent->getVersion()."\"><i class=\"icon-download\"></i></a>";
             if ($viewonlinefiletypes && in_array(strtolower($latestContent->getFileType()), $viewonlinefiletypes))
-                print "<a target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&version=". $latestContent->getVersion()."\"><i class=\"icon-star\"></i></a></li>";
+                print "<a data-toggle='tooltip' data-placement='bottom' title='" . getMLText('view_online') . "' target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&version=". $latestContent->getVersion()."\"><i class=\"icon-star\"></i></a></li>";
             else print "</li>";
         }
         print "<ul class=\"unstyled actions\">";
@@ -507,9 +510,9 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
         print "<ul class=\"unstyled actions\">";
 
         if ($pdf_file_exists) {
-            print "<li><a href=\"../op/op.Download.php?documentid=".$documentid."&pdf=1&version=".$latestPDFContent->getVersion()."\"><i class=\"icon-download\"></i></a>";
+            print "<li><a data-toggle='tooltip' data-placement='bottom' title='" . getMLText('download_pdf') . "' href=\"../op/op.Download.php?documentid=".$documentid."&pdf=1&version=".$latestPDFContent->getVersion()."\"><i class=\"icon-download\"></i></a>";
             if ($viewonlinefiletypes && in_array(strtolower($latestPDFContent->getFileType()), $viewonlinefiletypes))
-                print "<a target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&pdf=1&version=". $latestPDFContent->getVersion()."\"><i class=\"icon-star\"></i></a></li>";
+                print "<a data-toggle='tooltip' data-placement='bottom' title='" . getMLText('view_online') . "' target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&pdf=1&version=". $latestPDFContent->getVersion()."\"><i class=\"icon-star\"></i></a></li>";
         }
         else print "</li>";
         print "</ul>";
@@ -551,9 +554,9 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
                 print "<td></td>";
                 print "<td class='table-align-center'><ul class=\"unstyled actions\">";
                 if ($file_exists) {
-                    print "<li><a href=\"../op/op.Download.php?documentid=".$documentid."&file=".$file->getID()."\"><i class=\"icon-download\"></i></a>";
+                    print "<li><a data-toggle='tooltip' data-placement='bottom' title='" . getMLText('download') . "' href=\"../op/op.Download.php?documentid=".$documentid."&file=".$file->getID()."\"><i class=\"icon-download\"></i></a>";
                     if ($viewonlinefiletypes && in_array(strtolower($file->getFileType()), $viewonlinefiletypes))
-                        print "<a target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&file=". $file->getID()."\"><i class=\"icon-star\"></i></a></li>";
+                        print "<a data-toggle='tooltip' data-placement='bottom' title='" . getMLText('view_online') . "' target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&file=". $file->getID()."\"><i class=\"icon-star\"></i></a></li>";
                     else print "</li>";
                 } else print "<li><img class=\"mimeicon\" src=\"images/icons/".$this->getMimeIcon($file->getFileType())."\" title=\"".htmlspecialchars($file->getMimeType())."\">";
                 echo "</ul><ul class=\"unstyled actions\">";
@@ -1229,7 +1232,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
             print "<thead>\n<tr>\n";
             print "<th width='15%'>".getMLText("doc_number")."</th>\n";
             print "<th width='60%'>".getMLText("name")."</th>\n";
-            print "<th width='*'>".getMLText("comment_for_current_version")."</th>\n";
+            print "<th width='*'>".getMLText("comment")."</th>\n";
             print "</tr>\n</thead>\n<tbody>\n";
 
             foreach($links as $link) {
@@ -1263,7 +1266,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
             print "<thead>\n<tr>\n";
             print "<th width='15%'>".getMLText("doc_number")."</th>\n";
             print "<th width='60%'>".getMLText("name")."</th>\n";
-            print "<th width='*'>".getMLText("comment_for_current_version")."</th>\n";
+            print "<th width='*'>".getMLText("comment")."</th>\n";
             print "</tr>\n</thead>\n<tbody>\n";
 
             foreach($reverselinks as $link) {

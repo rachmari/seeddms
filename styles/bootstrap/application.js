@@ -1,6 +1,8 @@
 
 $(document).ready( function() {
 
+	$('[data-toggle="tooltip"]').tooltip({delay: { "show": 500, "hide": 100 }});
+
 	// Add table sorting capability
 	$('#tableSort').tablesorter();
 
@@ -143,8 +145,8 @@ $(document).ready( function() {
 			function(data) {
 				console.log(data);
 				if(data.success) {
-					$("#main-clipboard").html('Loading').load('../op/op.Ajax.php?command=view&view=mainclipboard')
-					$("#menu-clipboard").html('Loading').load('../op/op.Ajax.php?command=view&view=menuclipboard')
+					$("#main-clipboard").html('Loading').load('../op/op.Ajax.php?command=view&view=mainclipboard');
+					$("#menu-clipboard").html('Loading').load('../op/op.Ajax.php?command=view&view=menuclipboard');
 					noty({
 						text: attr_msg,
 						type: 'success',
@@ -179,8 +181,8 @@ $(document).ready( function() {
 			function(data) {
 				console.log(data);
 				if(data.success) {
-					$("#main-clipboard").html('Loading').load('../op/op.Ajax.php?command=view&view=mainclipboard')
-					$("#menu-clipboard").html('Loading').load('../op/op.Ajax.php?command=view&view=menuclipboard')
+					$("#main-clipboard").html('Loading').load('../op/op.Ajax.php?command=view&view=mainclipboard');
+					$("#menu-clipboard").html('Loading').load('../op/op.Ajax.php?command=view&view=menuclipboard');
 					noty({
 						text: attr_msg,
 						type: 'success',
@@ -214,7 +216,7 @@ $(document).ready( function() {
 			function(data) {
 				console.log(data);
 				if(data.success) {
-					$("#table-row-document-"+id).html('Loading').load('../op/op.Ajax.php?command=view&view=documentlistrow&id='+id)
+					$("#table-row-document-"+id).html('Loading').load('../op/op.Ajax.php?command=view&view=documentlistrow&id='+id);
 					noty({
 						text: attr_msg,
 						type: 'success',
@@ -440,8 +442,8 @@ function onAddClipboard(ev) {
 			{ command: 'addtoclipboard', type: source_type, id: source_id },
 			function(data) {
 				if(data.success) {
-					$("#main-clipboard").html('Loading').load('../op/op.Ajax.php?command=view&view=mainclipboard')
-					$("#menu-clipboard").html('Loading').load('../op/op.Ajax.php?command=view&view=menuclipboard')
+					$("#main-clipboard").html('Loading').load('../op/op.Ajax.php?command=view&view=mainclipboard');
+					$("#menu-clipboard").html('Loading').load('../op/op.Ajax.php?command=view&view=menuclipboard');
 					noty({
 						text: data.message,
 						type: 'success',
@@ -478,23 +480,23 @@ function onAddClipboard(ev) {
 
 	SeedDMSUpload.setUrl = function(url)  {
 		ajaxurl = url;
-	}
+	};
 
 	SeedDMSUpload.setAbortBtnLabel = function(label)  {
 		abortBtnLabel = label;
-	}
+	};
 
 	SeedDMSUpload.setEditBtnLabel = function(label)  {
 		editBtnLabel = label;
-	}
+	};
 
 	SeedDMSUpload.setMaxFileSize = function(size)  {
 		maxFileSize = size;
-	}
+	};
 
 	SeedDMSUpload.setMaxFileSizeMsg = function(msg)  {
 		maxFileSizeMsg = msg;
-	}
+	};
 	
 	function sendFileToServer(formData,status) {
 		formData.append('command', 'uploaddocument');
@@ -557,7 +559,7 @@ function onAddClipboard(ev) {
 		rowCount++;
 		var row="odd";
 		this.obj = obj;
-		if(rowCount %2 ==0) row ="even";
+		if(rowCount %2 === 0) row ="even";
 		this.statusbar = $("<div class='statusbar "+row+"'></div>");
 		this.filename = $("<div class='filename'></div>").appendTo(this.statusbar);
 		this.size = $("<div class='filesize'></div>").appendTo(this.statusbar);
@@ -577,21 +579,21 @@ function onAddClipboard(ev) {
 
 			this.filename.html(name);
 			this.size.html(sizeStr);
-		}
+		};
 		this.setProgress = function(progress) {       
 			var progressBarWidth =progress*this.progressBar.width()/ 100;  
 			this.progressBar.find('div').animate({ width: progressBarWidth }, 10).html(progress + "% ");
 			if(parseInt(progress) >= 100) {
 				this.abort.hide();
 			}
-		}
+		};
 		this.setAbort = function(jqxhr) {
 			var sb = this.statusbar;
 			this.abort.click(function() {
 				jqxhr.abort();
 				sb.hide();
 			});
-		}
+		};
 	}
 
 	SeedDMSUpload.handleFileUpload = function(files,obj) {
@@ -620,7 +622,7 @@ function onAddClipboard(ev) {
 				}
 			}
 		}
-	}
+	};
 }( window.SeedDMSUpload = window.SeedDMSUpload || {}, jQuery ));
 
 $(document).ready(function() {

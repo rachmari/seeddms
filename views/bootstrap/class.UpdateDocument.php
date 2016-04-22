@@ -327,7 +327,7 @@ $(document).ready( function() {
 				$expts = time();
 			}
 ?>
-		<tr id='list-group'>
+		<tr id='list-group' data-toggle='tooltip' data-placement='right' title='<?php printMLText('add_document_link_tooltip');?>'>
 			<td><?php printMLText('add_document_link');?>:</td>
 			<td>
 				<input class='input-with-button' type='text' name='links' autocomplete='off' id='link_input'>
@@ -380,7 +380,7 @@ $(document).ready( function() {
 		<!--
 			Add a form to add new users to notification list.
 		-->
-		<tr id='notify-group'>	
+		<tr id='notify-group' data-toggle='tooltip' data-placement='right' title='<?php printMLText('notify_link_tooltip');?>'>	
 			<td>
 				<div class="cbSelectTitle"><?php printMLText("individuals");?>:</div>
 			</td>

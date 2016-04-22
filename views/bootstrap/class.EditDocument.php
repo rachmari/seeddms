@@ -122,51 +122,7 @@ $(document).ready( function() {
 			<td valign="top" class="inputDescription"><?php printMLText("comment");?>:</td>
 			<td><textarea class='input-block-level' name="comment" id="comment" rows="4" cols="80"><?php print htmlspecialchars($document->getComment());?></textarea></td>
 		</tr>
-		<tr hidden>
-			<td valign="top" class="inputDescription"><?php printMLText("keywords");?>:</td>
-			<td class="standardText">
 <?php
-	$this->printKeywordChooserHtml('form1', $document->getKeywords());
-?>
-			</td>
-		</tr>
-		<tr hidden>
-			<td><?php printMLText("categories")?>:</td>
-			<td>
-        <select class="chzn-select" name="categories[]" multiple="multiple" data-placeholder="<?php printMLText('select_category'); ?>" data-no_results_text="<?php printMLText('unknown_document_category'); ?>">
-<?php
-			$categories = $dms->getDocumentCategories();
-			foreach($categories as $category) {
-				echo "<option value=\"".$category->getID()."\"";
-				if(in_array($category, $document->getCategories()))
-					echo " selected";
-				echo ">".$category->getName()."</option>";	
-			}
-?>
-				</select>
-      </td>
-		</tr>
-		<tr hidden>
-			<td><?php printMLText("expires");?>:</td>
-			<td>
-        <span class="input-append date span12" id="expirationdate" data-date="<?php echo $expdate; ?>" data-date-format="yyyy-mm-dd" data-date-language="<?php echo str_replace('_', '-', $this->params['session']->getLanguage()); ?>">
-          <input class="span3" size="16" name="expdate" type="text" value="<?php echo $expdate; ?>">
-          <span class="add-on"><i class="icon-calendar"></i></span>
-        </span><br />
-        <label class="checkbox inline">
-				  <input type="checkbox" name="expires" value="false"<?php if (!$document->expires()) print " checked";?>><?php printMLText("does_not_expire");?><br>
-        </label>
-			</td>
-		</tr>
-<?php
-		if ($folder->getAccessMode($user) > M_READ) {
-			print "<tr hidden>";
-			print "<td class=\"inputDescription\">" . getMLText("sequence") . ":</td>";
-			print "<td>";
-			$this->printSequenceChooser($folder->getDocuments('s'), $document->getID());
-			if($orderby != 's') echo "<br />".getMLText('order_by_sequence_off'); 
-			print "</td></tr>";
-		}
 		if($attrdefs) {
 			foreach($attrdefs as $attrdef) {
 				$arr = $this->callHook('editDocumentAttribute', $document, $attrdef);

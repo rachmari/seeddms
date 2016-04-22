@@ -69,7 +69,11 @@ if(isset($_POST['setDocNumber'])) {
 }
 
 $keywords = $_POST["keywords"];
-$categories = isset($_POST["categories"]) ? $_POST["categories"] : null;
+
+//Set category to Memo - No other categories used at this time
+$catID = array();
+$catID[] = $dms->getDocumentCategory(2); 
+
 if(isset($_POST["attributes"]))
 	$attributes = $_POST["attributes"];
 else
@@ -296,13 +300,6 @@ if(!$settings->_enableDuplicateDocNames) {
 	}
 }
 
-$cats = array();
-if($categories) {
-	foreach($categories as $catid) {
-		$cats[] = $dms->getDocumentCategory($catid);
-	}
-}
-
 if(isset($GLOBALS['SEEDDMS_HOOKS']['addDocument'])) {
 	foreach($GLOBALS['SEEDDMS_HOOKS']['addDocument'] as $hookObj) {
 		if (method_exists($hookObj, 'pretAddDocument')) {
@@ -312,7 +309,7 @@ if(isset($GLOBALS['SEEDDMS_HOOKS']['addDocument'])) {
 }
 
 $res = $folder->addDocument($name, $comment, $expires, $user, $keywords,
-							$cats, $userfiletmp, basename($userfilename),
+							$catID, $userfiletmp, basename($userfilename),
                             $fileType, $userfiletype, $sequence,
                             $reviewers, $approvers, $reqversion,
                             $version_comment, $attributes, $attributes_version, $workflow, $setDocNumber);
@@ -364,6 +361,8 @@ if (is_bool($res) && !$res) {
 	/* Todo: Currently there is no name or comment for attachments,
 	   so instantiate with an empty string. Name will be added
 	   in the future. */
+	$title = $name;
+	$summary = $comment;
 	$name = "";
 	$comment = "";
 
@@ -471,18 +470,15 @@ if (is_bool($res) && !$res) {
 		$subject = "new_document_email_subject";
 		$message = "new_document_email_body";
 		$params = array();
-		$params['name'] = $name;
-		//$params['folder_name'] = $folder->getName();
-		//$params['folder_path'] = $folder->getFolderPathPlain();
+		$params['name'] = $title;
 		$params['username'] = $user->getFullName();
-		$params['comment'] = $comment;
+		$params['comment'] = $summary;
 		$params['version_comment'] = $version_comment;
 		$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?documentid=".$document->getID();
 		$params['sitename'] = $settings->_siteName;
 		$params['http_root'] = $settings->_httpRoot;
 		$notifier->toList($user, $notifyList["users"], $subject, $message, $params);
 		foreach ($notifyList["groups"] as $grp) {
-
 			$notifier->toGroup($user, $grp, $subject, $message, $params);
 		}
 

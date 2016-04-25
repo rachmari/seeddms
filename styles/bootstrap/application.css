@@ -178,7 +178,7 @@ textarea, input[type="text"], input[type="password"], input[type="datetime"], in
   width: 200px;
 }
 
-.submit-button{
+.submit-button, input[disabled] {
     background-image: none;
     background-color: #0072B9;/*#257FE6;*/
     color: white;

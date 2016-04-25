@@ -32,6 +32,10 @@ img.mimeicon {
   text-shadow: none;
 }*/
 
+.tab-content {
+  overflow: visible;
+}
+
 .form-help {
   color: #0072B9;
   cursor: default;

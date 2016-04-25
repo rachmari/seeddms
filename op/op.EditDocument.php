@@ -55,13 +55,7 @@ if($document->isLocked()) {
 $name =     isset($_POST['name']) ? $_POST["name"] : "";
 $comment =  isset($_POST['comment']) ? $_POST["comment"] : "";
 $keywords = isset($_POST["keywords"]) ? $_POST["keywords"] : "";
-if(isset($_POST['categoryidform1'])) {
-	$categories = explode(',', preg_replace('/[^0-9,]+/', '', $_POST["categoryidform1"]));
-} elseif(isset($_POST["categories"])) { 
-	$categories = $_POST["categories"];
-} else {
-	$categories = array();
-}
+
 $sequence = isset($_POST["sequence"]) ? $_POST["sequence"] : "keep";
 $sequence = str_replace(',', '.', $_POST["sequence"]);
 if (!is_numeric($sequence)) {
@@ -226,33 +220,6 @@ if (($oldkeywords = $document->getKeywords()) != $keywords) {
 	if($document->setKeywords($keywords)) {
 	}
 	else {
-		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
-	}
-}
-
-if($categories) {
-	$categoriesarr = array();
-	foreach($categories as $catid) {
-		if($cat = $dms->getDocumentCategory($catid)) {
-			$categoriesarr[] = $cat;
-		}
-		
-	}
-	$oldcategories = $document->getCategories();
-	$oldcatsids = array();
-	foreach($oldcategories as $oldcategory)
-		$oldcatsids[] = $oldcategory->getID();
-
-	if (count($categoriesarr) != count($oldcategories) ||
-			array_diff($categories, $oldcatsids)) {
-		if($document->setCategories($categoriesarr)) {
-		} else {
-			UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
-		}
-	}
-} else {
-	if($document->setCategories(array())) {
-	} else {
 		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
 	}
 }

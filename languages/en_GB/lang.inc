@@ -297,12 +297,11 @@ URL: [url]',
 'documents_user_requiring_attention' => 'Documents owned by you that require attention',
 'document_already_checkedout' => 'This document is already checked out',
 'document_already_locked' => 'This document is aleady locked',
-'document_comment_changed_email' => 'Comment changed',
-'document_comment_changed_email_body' => 'Comment changed
+'document_comment_changed_email' => 'Summary changed',
+'document_comment_changed_email_body' => 'Summary changed
 Document: [name]
-Old comment: [old_comment]
-Comment: [new_comment]
-Parent folder: [folder_path]
+Old summary: [old_comment]
+Summary: [new_comment]
 User: [username]
 URL: [url]',
 'document_comment_changed_email_subject' => '[sitename]: [name] - Comment changed',
@@ -311,7 +310,6 @@ URL: [url]',
 'document_deleted_email' => 'Document deleted',
 'document_deleted_email_body' => 'Document deleted
 Document: [name]
-Parent folder: [folder_path]
 User: [username]',
 'document_deleted_email_subject' => '[sitename]: [name] - Document deleted',
 'document_duplicate_name' => 'Duplicate document name',
@@ -331,10 +329,9 @@ URL: [url]',
 'document_moved_email_subject' => '[sitename]: [name] - Document moved',
 'document_not_checkedout' => 'Document is not checked out.',
 'document_renamed_email' => 'Document renamed',
-'document_renamed_email_body' => 'Document name changed
+'document_renamed_email_body' => 'Document title changed
 Document: [name]
-Parent folder: [folder_path]
-Old name: [old_name]
+Old title: [old_name]
 User: [username]
 URL: [url]',
 'document_renamed_email_subject' => '[sitename]: [name] - Document renamed',
@@ -342,7 +339,6 @@ URL: [url]',
 'document_status_changed_email_body' => 'Document status changed
 Document: [name]
 Status: [status]
-Parent folder: [folder_path]
 User: [username]
 URL: [url]',
 'document_status_changed_email_subject' => '[sitename]: [name] - Document status changed',
@@ -350,10 +346,9 @@ URL: [url]',
 'document_updated_email' => 'Document updated',
 'document_updated_email_body' => 'Document updated
 Document: [name]
-Parent folder: [folder_path]
 User: [username]
-Comment: [comment]
-Version comment: [version_comment]
+Summary: [comment]
+Reason for change: [version_comment]
 URL: [url]',
 'document_updated_email_subject' => '[sitename]: [name] - Document updated',
 'does_not_expire' => 'Does not expire',
@@ -417,7 +412,6 @@ URL: [url]',
 'expiry_changed_email' => 'Expiry date changed',
 'expiry_changed_email_body' => 'Expiry date changed
 Document: [name]
-Parent folder: [folder_path]
 User: [username]
 URL: [url]',
 'expiry_changed_email_subject' => '[sitename]: [name] - Expiry date changed',
@@ -601,6 +595,7 @@ URL: [url]',
 'march' => 'March',
 'max_upload_size' => 'Maximum upload size',
 'may' => 'May',
+'metadatasearch' => 'Metadata Search',
 'mimetype' => 'Mime type',
 'minutes' => 'minutes',
 'misc' => 'Misc',
@@ -629,17 +624,16 @@ URL: [url]',
 'new_document_category' => 'Add category',
 'new_document_email' => 'New document',
 'new_document_email_body' => 'New document
-Name: [name]
-Parent folder: [folder_path]
-Comment: [comment]
-Version comment: [version_comment]
+Title: [name]
+Summary: [comment]
+Reason for change: [version_comment]
 User: [username]
 URL: [url]',
-'new_document_email_subject' => '[sitename]: [folder_name] - New document',
+'new_document_email_subject' => '[sitename]: - New document',
 'new_file_email' => 'New attachment',
-'new_file_email_body' => 'New attachmentrnName: [name]
+'new_file_email_body' => 'New attachment: [name]
 Document: [document]
-Comment: [comment]
+Summary: [comment]
 User: [username]
 URL: [url]',
 'new_file_email_subject' => '[sitename]: [document] - New attachment',
@@ -660,15 +654,13 @@ URL: [url]',
 'notification_list' => 'Notifications',
 'notify_added_email' => 'You\'ve been added to notify list',
 'notify_added_email_body' => 'Added to notification list
-Name: [name]
-Parent folder: [folder_path]
+Title: [name]
 User: [username]
 URL: [url]',
 'notify_added_email_subject' => '[sitename]: [name] - Added to notification list',
 'notify_deleted_email' => 'You\'ve been removed from notify list',
 'notify_deleted_email_body' => 'Removed from notification list
-Name: [name]
-Parent folder: [folder_path]
+Title: [name]
 User: [username]
 URL: [url]',
 'notify_deleted_email_subject' => '[sitename]: [name] - Removed from notification list',

@@ -103,7 +103,7 @@ class SeedDMS_View_Search extends SeedDMS_Bootstrap_Style {
 //echo "<pre>";print_r($_GET);echo "</pre>";
 ?>
   <ul class="nav nav-tabs" id="searchtab">
-	  <li <?php echo ($fullsearch == false) ? 'class="active"' : ''; ?>><a data-target="#database" data-toggle="tab"><?php printMLText('databasesearch'); ?></a></li>
+	  <li <?php echo ($fullsearch == false) ? 'class="active"' : ''; ?>><a data-target="#database" data-toggle="tab"><?php printMLText('metadatasearch'); ?></a></li>
 <?php
 		if($enablefullsearch) {
 ?>

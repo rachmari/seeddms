@@ -102,409 +102,398 @@ if ($_FILES['userfile']['error'] == 0) {
 }
 
 /* Check if the uploaded file is identical to last version */
-	$lc = $document->getLatestContent();
-	/*if($lc->getChecksum() == SeedDMS_Core_File::checksum($userfiletmp)) {
-		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("identical_version"));
-	}*/
+$lc = $document->getLatestContent();
+/*if($lc->getChecksum() == SeedDMS_Core_File::checksum($userfiletmp)) {
+	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("identical_version"));
+}*/
 
-	$fileType = ".".pathinfo($userfilename, PATHINFO_EXTENSION);
+$fileType = ".".pathinfo($userfilename, PATHINFO_EXTENSION);
 
-	// Get the list of reviewers and approvers for this document.
-	$reviewers = array();
-	$approvers = array();
-	$reviewers["i"] = array();
-	$reviewers["g"] = array();
+// Get the list of reviewers and approvers for this document.
+$reviewers = array();
+$approvers = array();
+$reviewers["i"] = array();
+$reviewers["g"] = array();
+$approvers["i"] = array();
+$approvers["g"] = array();
+$workflow = null;
+
+if($settings->_workflowMode == 'traditional' || $settings->_workflowMode == 'traditional_only_approval') {
+	if($settings->_workflowMode == 'traditional') {
+		// Retrieve the list of individual reviewers from the form.
+		$reviewers["i"] = array();
+		if (isset($_POST["indReviewers"])) {
+			foreach ($_POST["indReviewers"] as $ind) {
+				$reviewers["i"][] = $ind;
+			}
+		}
+		// Retrieve the list of reviewer groups from the form.
+		$reviewers["g"] = array();
+		if (isset($_POST["grpReviewers"])) {
+			foreach ($_POST["grpReviewers"] as $grp) {
+				$reviewers["g"][] = $grp;
+			}
+		}
+	}
+
+	// Retrieve the list of individual approvers from the form.
 	$approvers["i"] = array();
+	if (isset($_POST["indApprovers"])) {
+		foreach ($_POST["indApprovers"] as $ind) {
+			$approvers["i"][] = $ind;
+		}
+	}
+	// Retrieve the list of approver groups from the form.
 	$approvers["g"] = array();
-	$workflow = null;
-
-	if($settings->_workflowMode == 'traditional' || $settings->_workflowMode == 'traditional_only_approval') {
-		if($settings->_workflowMode == 'traditional') {
-			// Retrieve the list of individual reviewers from the form.
-			$reviewers["i"] = array();
-			if (isset($_POST["indReviewers"])) {
-				foreach ($_POST["indReviewers"] as $ind) {
-					$reviewers["i"][] = $ind;
-				}
-			}
-			// Retrieve the list of reviewer groups from the form.
-			$reviewers["g"] = array();
-			if (isset($_POST["grpReviewers"])) {
-				foreach ($_POST["grpReviewers"] as $grp) {
-					$reviewers["g"][] = $grp;
-				}
-			}
+	if (isset($_POST["grpApprovers"])) {
+		foreach ($_POST["grpApprovers"] as $grp) {
+			$approvers["g"][] = $grp;
 		}
+	}
 
-		// Retrieve the list of individual approvers from the form.
-		$approvers["i"] = array();
-		if (isset($_POST["indApprovers"])) {
-			foreach ($_POST["indApprovers"] as $ind) {
-				$approvers["i"][] = $ind;
-			}
-		}
-		// Retrieve the list of approver groups from the form.
-		$approvers["g"] = array();
-		if (isset($_POST["grpApprovers"])) {
-			foreach ($_POST["grpApprovers"] as $grp) {
-				$approvers["g"][] = $grp;
-			}
-		}
-
-		// add mandatory reviewers/approvers
-		$docAccess = $folder->getReadAccessList($settings->_enableAdminRevApp, $settings->_enableOwnerRevApp);
-		if($settings->_workflowMode == 'traditional') {
-			$res=$user->getMandatoryReviewers();
-			foreach ($res as $r){
-
-				if ($r['reviewerUserID']!=0){
-					foreach ($docAccess["users"] as $usr)
-						if ($usr->getID()==$r['reviewerUserID']){
-							$reviewers["i"][] = $r['reviewerUserID'];
-							break;
-						}
-				}
-				else if ($r['reviewerGroupID']!=0){
-					foreach ($docAccess["groups"] as $grp)
-						if ($grp->getID()==$r['reviewerGroupID']){
-							$reviewers["g"][] = $r['reviewerGroupID'];
-							break;
-						}
-				}
-			}
-		}
-		$res=$user->getMandatoryApprovers();
+	// add mandatory reviewers/approvers
+	$docAccess = $folder->getReadAccessList($settings->_enableAdminRevApp, $settings->_enableOwnerRevApp);
+	if($settings->_workflowMode == 'traditional') {
+		$res=$user->getMandatoryReviewers();
 		foreach ($res as $r){
 
-			if ($r['approverUserID']!=0){
+			if ($r['reviewerUserID']!=0){
 				foreach ($docAccess["users"] as $usr)
-					if ($usr->getID()==$r['approverUserID']){
-						$approvers["i"][] = $r['approverUserID'];
+					if ($usr->getID()==$r['reviewerUserID']){
+						$reviewers["i"][] = $r['reviewerUserID'];
 						break;
 					}
 			}
-			else if ($r['approverGroupID']!=0){
+			else if ($r['reviewerGroupID']!=0){
 				foreach ($docAccess["groups"] as $grp)
-					if ($grp->getID()==$r['approverGroupID']){
-						$approvers["g"][] = $r['approverGroupID'];
+					if ($grp->getID()==$r['reviewerGroupID']){
+						$reviewers["g"][] = $r['reviewerGroupID'];
 						break;
 					}
 			}
 		}
-	} elseif($settings->_workflowMode == 'advanced') {
-		if(!$workflows = $user->getMandatoryWorkflows()) {
-			if(isset($_POST["workflow"]))
-				$workflow = $dms->getWorkflow($_POST["workflow"]);
-			else
-				$workflow = null;
-		} else {
-			/* If there is excactly 1 mandatory workflow, then set no matter what has
-			 * been posted in 'workflow', otherwise check if the posted workflow is in the
-			 * list of mandatory workflows. If not, then take the first one.
-			 */
-			$workflow = array_shift($workflows);
-			foreach($workflows as $mw)
-				if($mw->getID() == $_POST['workflow']) {$workflow = $mw; break;}
+	}
+	$res=$user->getMandatoryApprovers();
+	foreach ($res as $r){
+
+		if ($r['approverUserID']!=0){
+			foreach ($docAccess["users"] as $usr)
+				if ($usr->getID()==$r['approverUserID']){
+					$approvers["i"][] = $r['approverUserID'];
+					break;
+				}
+		}
+		else if ($r['approverGroupID']!=0){
+			foreach ($docAccess["groups"] as $grp)
+				if ($grp->getID()==$r['approverGroupID']){
+					$approvers["g"][] = $r['approverGroupID'];
+					break;
+				}
 		}
 	}
-
-	if(isset($_POST["attributes"]) && $_POST["attributes"]) {
-		$attributes = $_POST["attributes"];
-		foreach($attributes as $attrdefid=>$attribute) {
-			$attrdef = $dms->getAttributeDefinition($attrdefid);
-			if($attribute) {
-				if($attrdef->getRegex()) {
-					if(!preg_match($attrdef->getRegex(), $attribute)) {
-						UI::exitError(getMLText("document_title", array("documentname" => $folder->getName())),getMLText("attr_no_regex_match"));
-					}
-				}
-				if(is_array($attribute)) {
-					if($attrdef->getMinValues() > count($attribute)) {
-						UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("attr_min_values", array("attrname"=>$attrdef->getName())));
-					}
-					if($attrdef->getMaxValues() && $attrdef->getMaxValues() < count($attribute)) {
-						UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("attr_max_values", array("attrname"=>$attrdef->getName())));
-					}
-				}
-			}
-		}
+} elseif($settings->_workflowMode == 'advanced') {
+	if(!$workflows = $user->getMandatoryWorkflows()) {
+		if(isset($_POST["workflow"]))
+			$workflow = $dms->getWorkflow($_POST["workflow"]);
+		else
+			$workflow = null;
 	} else {
-		$attributes = array();
+		/* If there is excactly 1 mandatory workflow, then set no matter what has
+		 * been posted in 'workflow', otherwise check if the posted workflow is in the
+		 * list of mandatory workflows. If not, then take the first one.
+		 */
+		$workflow = array_shift($workflows);
+		foreach($workflows as $mw)
+			if($mw->getID() == $_POST['workflow']) {$workflow = $mw; break;}
+	}
+}
+
+if(isset($_POST["attributes"]) && $_POST["attributes"]) {
+	$attributes = $_POST["attributes"];
+	foreach($attributes as $attrdefid=>$attribute) {
+		$attrdef = $dms->getAttributeDefinition($attrdefid);
+		if($attribute) {
+			if($attrdef->getRegex()) {
+				if(!preg_match($attrdef->getRegex(), $attribute)) {
+					UI::exitError(getMLText("document_title", array("documentname" => $folder->getName())),getMLText("attr_no_regex_match"));
+				}
+			}
+			if(is_array($attribute)) {
+				if($attrdef->getMinValues() > count($attribute)) {
+					UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("attr_min_values", array("attrname"=>$attrdef->getName())));
+				}
+				if($attrdef->getMaxValues() && $attrdef->getMaxValues() < count($attribute)) {
+					UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("attr_max_values", array("attrname"=>$attrdef->getName())));
+				}
+			}
+		}
+	}
+} else {
+	$attributes = array();
+}
+
+
+if (is_uploaded_file($_FILES["userfilePDF"]["tmp_name"])){
+	// Check for a size of 0
+    if ($_FILES["userfilePDF"]["size"] == 0) {
+        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_zerosize"));
+    }
+    // Check for max file size of 60MB
+    if ($_FILES["userfilePDF"]["size"] > 60*1024*1024) {
+        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),$_FILES["userfilePDF"]["name"] . " " . getMLText("uploading_maxsize"));
+    }
+    // Check for any logged errors
+    if ($_FILES["userfilePDF"]["error"] != 0){
+        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
+    }
+    // Check for any logged errors
+    if ($_FILES["userfilePDF"]["type"] != "application/pdf"){
+        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("pdf_filetype_error"));
+    }
+    /*
+    	If checks pass add the pdf file
+    	Location of file in tmp directory
+ 	*/
+	$pdfData = array();
+	$pdfData['pdfFileTmp'] = $_FILES['userfilePDF']['tmp_name'];
+	// MIME type of file
+	$pdfData['pdfFileType'] = $_FILES['userfilePDF']['type'];
+	// Original file name
+	$filename = $_FILES['userfilePDF']['name'];
+	$pdfData['fileType'] = ".".pathinfo($filename, PATHINFO_EXTENSION);
+	$pdfData['pdfFileName'] = basename($filename);
+
+	if($settings->_overrideMimeType) {
+		$finfo = finfo_open(FILEINFO_MIME_TYPE);
+		$pdfData['pdfFileType'] = finfo_file($finfo, $pdfData['pdfFileTmp']);
+	}
+}
+	
+$attachFileData = array();
+for ($file_num=0; $file_num<count($_FILES["attachfile"]["tmp_name"]); $file_num++){
+	/*
+		Perform some checks before proceeding with storage
+		Ensure files were uploaded to the server via HTTP POST
+	*/
+	if (is_uploaded_file($_FILES["attachfile"]["tmp_name"][$file_num])){
+		// Check for a size of 0
+	    if ($_FILES["attachfile"]["size"][$file_num] == 0) {
+	        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_zerosize"));
+	    }
+	    // Check for max file size of 60MB
+	    if ($_FILES["attachfile"]["size"][$file_num] > 60*1024*1024) {
+	        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),$_FILES["attachfile"]["name"][$file_num] . " " . getMLText("uploading_maxsize"));
+	    }
+	    // Check for any logged errors
+	    if ($_FILES['attachfile']['error'][$file_num] != 0){
+	        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
+	    }
 	}
 
-	$contentResult=$document->addContent($comment, $user, $userfiletmp, basename($userfilename), $fileType, $userfiletype, $reviewers, $approvers, $version=0, $attributes, $workflow);
+	$attachInfo = array();
+	$attachInfo['attachFileTmp'] = $_FILES['attachfile']['tmp_name'][$file_num];
+	// MIME type of file
+	$attachInfo['attachFileType'] = $_FILES['attachfile']['type'][$file_num];
+	
 
-	if (is_bool($contentResult) && !$contentResult) {
-		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+	// Original file name
+	$filename = $_FILES['attachfile']['name'][$file_num];
+
+	$attachInfo['fileType'] = ".".pathinfo($filename, PATHINFO_EXTENSION);
+	$attachInfo['attachFileName'] = basename($filename);
+
+	if($settings->_overrideMimeType) {
+		$finfo = finfo_open(FILEINFO_MIME_TYPE);
+		$attachInfo['attachFileType'] = finfo_file($finfo, $attachInfo['attachFileTmp']);
 	}
-	else {
-		$content = $document->getLatestContent();
-		// Add attachment files
-		/* Todo: Currently there is no name or comment for attachments,
-		   so instantiate with an empty string. Name will be added
-		   in the future. */
-		$name = "";
-		$comment = "";
+	$attachFileData[$file_num] = $attachInfo;
+}
 
-		if (is_uploaded_file($_FILES["userfilePDF"]["tmp_name"])){
-			// Check for a size of 0
-		    if ($_FILES["userfilePDF"]["size"] == 0) {
-		        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_zerosize"));
-		    }
-		    // Check for max file size of 60MB
-		    if ($_FILES["userfilePDF"]["size"] > 60*1024*1024) {
-		        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),$_FILES["userfilePDF"]["name"] . " " . getMLText("uploading_maxsize"));
-		    }
-		    // Check for any logged errors
-		    if ($_FILES["userfilePDF"]["error"] != 0){
-		        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
-		    }
-		    // Check for any logged errors
-		    if ($_FILES["userfilePDF"]["type"] != "application/pdf"){
-		        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("pdf_filetype_error"));
-		    }
-		    /*
-		    	If checks pass add the pdf file
-		    	Location of file in tmp directory
-		 	*/
-			$pdffiletmp = $_FILES["userfilePDF"]["tmp_name"];
-			// MIME type of file
-			$pdffiletype = $_FILES["userfilePDF"]["type"];
-			// Original file name
-			$pdffilename = $_FILES["userfilePDF"]["name"];
+if(count($attachFileData) == 0) {
+	$attachFileData = null;
+}
 
-			$fileType = ".".pathinfo($pdffilename, PATHINFO_EXTENSION);
+$contentResult=$document->addContent($comment, $user, $userfiletmp, basename($userfilename), $fileType, $userfiletype, $reviewers, $approvers, $version=0, $attributes, $workflow, $pdfData, $attachFileData);
 
-			if($settings->_overrideMimeType) {
-				$finfo = finfo_open(FILEINFO_MIME_TYPE);
-				$pdffiletype = finfo_file($finfo, $pdffiletmp);
-			}
+if (is_bool($contentResult) && !$contentResult) {
+	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+}
+else {
+	// Temporary fix to update doc links using remove all. 
+	// Next version will update database to version document links.
+	if(!$document->removeAllDocumentLinks()){
+		UI::exitError(getMLText("document_title", array("documentname" => $document->getID())),$linkID);
+	}
+	// Remove old links and add new ones
+	if(isset($_POST["linkInputs"])) {
+		$linkInputs = $_POST["linkInputs"];
+		foreach ($linkInputs as $linkInput) {
+			//Extract the document number only <number title>
+			$docNumber = explode(" ", $linkInput);
+			$docNumber = $docNumber[0];
+			$linkID = $dms->getDocumentIDByNumber($docNumber);
 
-			$res = $document->addContentPDF($comment, $user, $pdffiletmp, basename($pdffilename), $fileType, $pdffiletype, $content->getVersion());
-
-			if(!$res) {
-				UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),"PDF file not uploaded");
+			if (!$document->addDocumentLink($linkID, $user->getID(), true)){
+				UI::exitError(getMLText("document_title", array("documentname" => $document->getID())),$linkID);
 			}
 		}
+	}
 
-		for ($file_num=0; $file_num<count($_FILES["attachfile"]["tmp_name"]); $file_num++){
-			/*
-				Perform some checks before proceeding with storage
-				Ensure files were uploaded to the server via HTTP POST
-			*/
-			if (is_uploaded_file($_FILES["attachfile"]["tmp_name"][$file_num])){
-				// Check for a size of 0
-			    if ($_FILES["attachfile"]["size"][$file_num] == 0) {
-			        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_zerosize"));
-			    }
-			    // Check for max file size of 60MB
-			    if ($_FILES["attachfile"]["size"][$file_num] > 60*1024*1024) {
-			        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),$_FILES["attachfile"]["name"][$file_num] . " " . getMLText("uploading_maxsize"));
-			    }
-			    // Check for any logged errors
-			    if ($_FILES['attachfile']['error'][$file_num] != 0){
-			        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
-			    }
-			 	// Location of file in tmp directory
-				$attachfiletmp = $_FILES["attachfile"]["tmp_name"][$file_num];
-				// MIME type of file
-				$attachfiletype = $_FILES["attachfile"]["type"][$file_num];
-				// Original file name
-				$attachfilename = $_FILES["attachfile"]["name"][$file_num];
-
-				$fileType = ".".pathinfo($attachfilename, PATHINFO_EXTENSION);
-
-				if($settings->_overrideMimeType) {
-					$finfo = finfo_open(FILEINFO_MIME_TYPE);
-					$attachfiletype = finfo_file($finfo, $attachfiletmp);
-				}
-
-				// Add the document file to the database
-				$res = $document->addDocumentFile($name, $comment, $user, $attachfiletmp,
-				                                  basename($attachfilename), $fileType, $attachfiletype );
-
-				// Todo: Need to remove document from database if error occurs
-				if(!$res) {
-					UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),"Attachment files not uploaded");
-				}
+	// Temporary fix to update doc links using remove all. 
+	// Next version will update database to version document links.
+	if(!$document->removeAllDocumentNotifications()){
+		UI::exitError(getMLText("document_title", array("documentname" => $document->getID())),$linkID);
+	}
+	/* Check if additional notification shall be added */
+	if(isset($_POST['notifyInputsUsers'])) {
+		/* Add a default notification for the owner of the document */
+		if($settings->_enableOwnerNotification) {
+			$res = $document->addNotify($user->getID(), true);
+		}
+		foreach($_POST['notifyInputsUsers'] as $login) {
+			// Remove the period character from doc number for jQuery compatibility
+			str_replace('-', '.', $login);
+			$empID = $dms->getUserByLogin($login)->getID();
+			if($empID) {
+				if($document->getAccessMode($user) >= M_READ)
+					$res = $document->addNotify($empID, true);
 			}
 		}
+	}
 
-		// Temporary fix to update doc links using remove all. 
-		// Next version will update database to version document links.
-		if(!$document->removeAllDocumentLinks()){
-			UI::exitError(getMLText("document_title", array("documentname" => $document->getID())),$linkID);
+	// Send notification to subscribers.
+	if ($notifier){
+		$notifyList = $document->getNotifyList();
+		$folder = $document->getFolder();
+
+		$subject = "document_updated_email_subject";
+		$message = "document_updated_email_body";
+		$params = array();
+		$params['name'] = $document->getName();
+		$params['folder_path'] = $folder->getFolderPathPlain();
+		$params['username'] = $user->getFullName();
+		$params['comment'] = $document->getComment();
+		$params['version_comment'] = $contentResult->getContent()->getComment();
+		$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?documentid=".$document->getID();
+		$params['sitename'] = $settings->_siteName;
+		$params['http_root'] = $settings->_httpRoot;
+		$notifier->toList($user, $notifyList["users"], $subject, $message, $params);
+		foreach ($notifyList["groups"] as $grp) {
+			$notifier->toGroup($user, $grp, $subject, $message, $params);
 		}
-		// Remove old links and add new ones
-		if(isset($_POST["linkInputs"])) {
-			$linkInputs = $_POST["linkInputs"];
-			foreach ($linkInputs as $linkInput) {
-				//Extract the document number only <number title>
-				$docNumber = explode(" ", $linkInput);
-				$docNumber = $docNumber[0];
-				$linkID = $dms->getDocumentIDByNumber($docNumber);
+		// if user is not owner send notification to owner
+		if ($user->getID() != $document->getOwner()->getID()) 
+			$notifier->toIndividual($user, $document->getOwner(), $subject, $message, $params);
 
-				if (!$document->addDocumentLink($linkID, $user->getID(), true)){
-					UI::exitError(getMLText("document_title", array("documentname" => $document->getID())),$linkID);
-				}
-			}
-		}
-
-		// Temporary fix to update doc links using remove all. 
-		// Next version will update database to version document links.
-		if(!$document->removeAllDocumentNotifications()){
-			UI::exitError(getMLText("document_title", array("documentname" => $document->getID())),$linkID);
-		}
-		/* Check if additional notification shall be added */
-		if(isset($_POST['notifyInputsUsers'])) {
-			/* Add a default notification for the owner of the document */
-			if($settings->_enableOwnerNotification) {
-				$res = $document->addNotify($user->getID(), true);
-			}
-			foreach($_POST['notifyInputsUsers'] as $login) {
-				// Remove the period character from doc number for jQuery compatibility
-				str_replace('-', '.', $login);
-				$empID = $dms->getUserByLogin($login)->getID();
-				if($empID) {
-					if($document->getAccessMode($user) >= M_READ)
-						$res = $document->addNotify($empID, true);
-				}
-			}
-		}
-
-		// Send notification to subscribers.
-		if ($notifier){
-			$notifyList = $document->getNotifyList();
-			$folder = $document->getFolder();
-
-			$subject = "document_updated_email_subject";
-			$message = "document_updated_email_body";
+		if($workflow && $settings->_enableNotificationWorkflow) {
+			$subject = "request_workflow_action_email_subject";
+			$message = "request_workflow_action_email_body";
 			$params = array();
 			$params['name'] = $document->getName();
+			$params['version'] = $contentResult->getContent()->getVersion();
+			$params['workflow'] = $workflow->getName();
 			$params['folder_path'] = $folder->getFolderPathPlain();
+			$params['current_state'] = $workflow->getInitState()->getName();
 			$params['username'] = $user->getFullName();
-			$params['comment'] = $document->getComment();
-			$params['version_comment'] = $contentResult->getContent()->getComment();
-			$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?documentid=".$document->getID();
 			$params['sitename'] = $settings->_siteName;
 			$params['http_root'] = $settings->_httpRoot;
-			$notifier->toList($user, $notifyList["users"], $subject, $message, $params);
-			foreach ($notifyList["groups"] as $grp) {
-				$notifier->toGroup($user, $grp, $subject, $message, $params);
-			}
-			// if user is not owner send notification to owner
-			if ($user->getID() != $document->getOwner()->getID()) 
-				$notifier->toIndividual($user, $document->getOwner(), $subject, $message, $params);
+			$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?documentid=".$document->getID();
 
-			if($workflow && $settings->_enableNotificationWorkflow) {
-				$subject = "request_workflow_action_email_subject";
-				$message = "request_workflow_action_email_body";
+			foreach($workflow->getNextTransitions($workflow->getInitState()) as $ntransition) {
+				foreach($ntransition->getUsers() as $tuser) {
+					$notifier->toIndividual($user, $tuser->getUser(), $subject, $message, $params);
+				}
+				foreach($ntransition->getGroups() as $tuser) {
+					$notifier->toGroup($user, $tuser->getGroup(), $subject, $message, $params);
+				}
+			}
+		}
+
+		if($settings->_enableNotificationAppRev) {
+			/* Reviewers and approvers will be informed about the new document */
+			if($reviewers['i'] || $reviewers['g']) {
+				$subject = "review_request_email_subject";
+				$message = "review_request_email_body";
 				$params = array();
 				$params['name'] = $document->getName();
-				$params['version'] = $contentResult->getContent()->getVersion();
-				$params['workflow'] = $workflow->getName();
 				$params['folder_path'] = $folder->getFolderPathPlain();
-				$params['current_state'] = $workflow->getInitState()->getName();
+				$params['version'] = $contentResult->getContent()->getVersion();
+				$params['comment'] = $contentResult->getContent()->getComment();
 				$params['username'] = $user->getFullName();
+				$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?documentid=".$document->getID();
 				$params['sitename'] = $settings->_siteName;
 				$params['http_root'] = $settings->_httpRoot;
+
+				foreach($reviewers['i'] as $reviewerid) {
+					$notifier->toIndividual($user, $dms->getUser($reviewerid), $subject, $message, $params);
+				}
+				foreach($reviewers['g'] as $reviewergrpid) {
+					$notifier->toGroup($user, $dms->getGroup($reviewergrpid), $subject, $message, $params);
+				}
+			}
+
+			if($approvers['i'] || $approvers['g']) {
+				$subject = "approval_request_email_subject";
+				$message = "approval_request_email_body";
+				$params = array();
+				$params['name'] = $document->getName();
+				$params['folder_path'] = $folder->getFolderPathPlain();
+				$params['version'] = $contentResult->getContent()->getVersion();
+				$params['comment'] = $contentResult->getContent()->getComment();
+				$params['username'] = $user->getFullName();
 				$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?documentid=".$document->getID();
+				$params['sitename'] = $settings->_siteName;
+				$params['http_root'] = $settings->_httpRoot;
 
-				foreach($workflow->getNextTransitions($workflow->getInitState()) as $ntransition) {
-					foreach($ntransition->getUsers() as $tuser) {
-						$notifier->toIndividual($user, $tuser->getUser(), $subject, $message, $params);
-					}
-					foreach($ntransition->getGroups() as $tuser) {
-						$notifier->toGroup($user, $tuser->getGroup(), $subject, $message, $params);
-					}
+				foreach($approvers['i'] as $approverid) {
+					$notifier->toIndividual($user, $dms->getUser($approverid), $subject, $message, $params);
 				}
-			}
-
-			if($settings->_enableNotificationAppRev) {
-				/* Reviewers and approvers will be informed about the new document */
-				if($reviewers['i'] || $reviewers['g']) {
-					$subject = "review_request_email_subject";
-					$message = "review_request_email_body";
-					$params = array();
-					$params['name'] = $document->getName();
-					$params['folder_path'] = $folder->getFolderPathPlain();
-					$params['version'] = $contentResult->getContent()->getVersion();
-					$params['comment'] = $contentResult->getContent()->getComment();
-					$params['username'] = $user->getFullName();
-					$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?documentid=".$document->getID();
-					$params['sitename'] = $settings->_siteName;
-					$params['http_root'] = $settings->_httpRoot;
-
-					foreach($reviewers['i'] as $reviewerid) {
-						$notifier->toIndividual($user, $dms->getUser($reviewerid), $subject, $message, $params);
-					}
-					foreach($reviewers['g'] as $reviewergrpid) {
-						$notifier->toGroup($user, $dms->getGroup($reviewergrpid), $subject, $message, $params);
-					}
+				foreach($approvers['g'] as $approvergrpid) {
+					$notifier->toGroup($user, $dms->getGroup($approvergrpid), $subject, $message, $params);
 				}
-
-				if($approvers['i'] || $approvers['g']) {
-					$subject = "approval_request_email_subject";
-					$message = "approval_request_email_body";
-					$params = array();
-					$params['name'] = $document->getName();
-					$params['folder_path'] = $folder->getFolderPathPlain();
-					$params['version'] = $contentResult->getContent()->getVersion();
-					$params['comment'] = $contentResult->getContent()->getComment();
-					$params['username'] = $user->getFullName();
-					$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?documentid=".$document->getID();
-					$params['sitename'] = $settings->_siteName;
-					$params['http_root'] = $settings->_httpRoot;
-
-					foreach($approvers['i'] as $approverid) {
-						$notifier->toIndividual($user, $dms->getUser($approverid), $subject, $message, $params);
-					}
-					foreach($approvers['g'] as $approvergrpid) {
-						$notifier->toGroup($user, $dms->getGroup($approvergrpid), $subject, $message, $params);
-					}
-				}
-			}
-		}
-
-		$expires = false;
-		// Keeping backward compatibilty with original SeedDMS verison.
-		if(isset($_POST['expires'])) {
-		    if (!isset($_POST['expires']) || $_POST["expires"] != "false") {
-		        if($_POST["expdate"]) {
-		            $tmp = explode('-', $_POST["expdate"]);
-		            $expires = mktime(0,0,0, $tmp[1], $tmp[2], $tmp[0]);
-		        } else {
-		            $expires = mktime(0,0,0, $_POST["expmonth"], $_POST["expday"], $_POST["expyear"]);
-		        }
-		    }
-		}
-
-		if ($expires) {
-			if($document->setExpires($expires)) {
-				if($notifier) {
-					$notifyList = $document->getNotifyList();
-					$folder = $document->getFolder();
-
-					// Send notification to subscribers.
-					$subject = "expiry_changed_email_subject";
-					$message = "expiry_changed_email_body";
-					$params = array();
-					$params['name'] = $document->getName();
-					$params['folder_path'] = $folder->getFolderPathPlain();
-					$params['username'] = $user->getFullName();
-					$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?documentid=".$document->getID();
-					$params['sitename'] = $settings->_siteName;
-					$params['http_root'] = $settings->_httpRoot;
-					$notifier->toList($user, $notifyList["users"], $subject, $message, $params);
-					foreach ($notifyList["groups"] as $grp) {
-						$notifier->toGroup($user, $grp, $subject, $message, $params);
-					}
-				}
-			} else {
-				UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
 			}
 		}
 	}
+
+	$expires = false;
+	// Keeping backward compatibilty with original SeedDMS verison.
+	if(isset($_POST['expires'])) {
+	    if (!isset($_POST['expires']) || $_POST["expires"] != "false") {
+	        if($_POST["expdate"]) {
+	            $tmp = explode('-', $_POST["expdate"]);
+	            $expires = mktime(0,0,0, $tmp[1], $tmp[2], $tmp[0]);
+	        } else {
+	            $expires = mktime(0,0,0, $_POST["expmonth"], $_POST["expday"], $_POST["expyear"]);
+	        }
+	    }
+	}
+
+	if ($expires) {
+		if($document->setExpires($expires)) {
+			if($notifier) {
+				$notifyList = $document->getNotifyList();
+				$folder = $document->getFolder();
+
+				// Send notification to subscribers.
+				$subject = "expiry_changed_email_subject";
+				$message = "expiry_changed_email_body";
+				$params = array();
+				$params['name'] = $document->getName();
+				$params['folder_path'] = $folder->getFolderPathPlain();
+				$params['username'] = $user->getFullName();
+				$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?documentid=".$document->getID();
+				$params['sitename'] = $settings->_siteName;
+				$params['http_root'] = $settings->_httpRoot;
+				$notifier->toList($user, $notifyList["users"], $subject, $message, $params);
+				foreach ($notifyList["groups"] as $grp) {
+					$notifier->toGroup($user, $grp, $subject, $message, $params);
+				}
+			}
+		} else {
+			UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+		}
+	}
+}
 
 add_log_line("?documentid=".$documentid);
 header("Location:../out/out.ViewDocument.php?documentid=".$documentid);

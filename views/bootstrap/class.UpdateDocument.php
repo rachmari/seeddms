@@ -91,7 +91,7 @@ $(document).ready( function() {
 			var file = this.files[0];
 			if (file) {
 				if(file.size > 60*1024*1024) { // Don't allow file size to exceed 60MB
-					msg.push(file.name + " <?php printMLText("exceeds_file_size");?>");
+					msg.push(file.name + " <?php printMLText("uploading_maxsize");?>");
 				}
 			}
 		});

@@ -52,6 +52,7 @@ class SeedDMS_View_AddDocument extends SeedDMS_Bootstrap_Style {
 <script language="JavaScript">
 
 $(document).ready(function() {
+<?php ini_get('upload_max_filesize'); ?>
 	$('#new-file').click(function(event) {
 			$("#upload-file").clone().appendTo("#upload-files").removeAttr("id").children('div').children('input').val('');
 	});
@@ -98,10 +99,11 @@ $(document).ready(function() {
 			if(file.type !== 'application/pdf') msg.push("<?php printMLText("pdf_type_error");?>");
 		}
 		$('input:file').each(function() {
+			/*<?php echo ini_get('upload_max_filesize'); ?>*/
 			var file = this.files[0];
 			if (file) {
 				if(file.size > 60*1024*1024) { // Don't allow file size to exceed 60MB
-					msg.push(file.name + " <?php printMLText("exceeds_file_size");?>");
+					msg.push(file.name + " <?php printMLText("uploading_maxsize");?>");
 				}
 			}
 		});

@@ -65,9 +65,14 @@ else
 if ($_FILES['userfile']['error'] == 0) {
 	if(!is_uploaded_file($_FILES["userfile"]["tmp_name"]))
 		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
-
-	if($_FILES["userfile"]["size"] == 0)
+	// Checking for a filesize of 0
+	if($_FILES["userfile"]["size"] == 0) {
 		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("uploading_zerosize"));
+	}
+	// Checking for max file size
+	if($_FILES["userfile"]["size"] > 60*1024*1024) {
+		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),$_FILES["userfile"]["name"] . " " . getMLText("uploading_maxsize"));
+	}
 
 	$userfiletmp = $_FILES["userfile"]["tmp_name"];
 	$userfiletype = $_FILES["userfile"]["type"];
@@ -246,6 +251,10 @@ if ($_FILES['userfile']['error'] == 0) {
 		    if ($_FILES["userfilePDF"]["size"] == 0) {
 		        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_zerosize"));
 		    }
+		    // Check for max file size of 60MB
+		    if ($_FILES["userfilePDF"]["size"] > 60*1024*1024) {
+		        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),$_FILES["userfilePDF"]["name"] . " " . getMLText("uploading_maxsize"));
+		    }
 		    // Check for any logged errors
 		    if ($_FILES["userfilePDF"]["error"] != 0){
 		        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
@@ -287,6 +296,10 @@ if ($_FILES['userfile']['error'] == 0) {
 				// Check for a size of 0
 			    if ($_FILES["attachfile"]["size"][$file_num] == 0) {
 			        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_zerosize"));
+			    }
+			    // Check for max file size of 60MB
+			    if ($_FILES["attachfile"]["size"][$file_num] > 60*1024*1024) {
+			        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),$_FILES["attachfile"]["name"][$file_num] . " " . getMLText("uploading_maxsize"));
 			    }
 			    // Check for any logged errors
 			    if ($_FILES['attachfile']['error'][$file_num] != 0){

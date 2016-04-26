@@ -1012,6 +1012,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
                 $file_exists=file_exists($dms->contentDir . $version->getPath());
 
                 // If a PDF file exists, get the path and check for existence on server
+                $pdf_file_exists = null;
                 if($versionPDFContent) {
                     $pdf_file_exists=file_exists($dms->contentDir . $versionPDFContent->getPDFPath());
                 }

@@ -343,6 +343,7 @@ User: [username]
 URL: [url]',
 'document_status_changed_email_subject' => '[sitename]: [name] - Document status changed',
 'document_title' => 'Document \'[documentname]\'',
+'document_type' => 'Document Type',
 'document_updated_email' => 'Document updated',
 'document_updated_email_body' => 'Document updated
 Document: [name]

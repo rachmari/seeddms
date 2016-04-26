@@ -189,6 +189,7 @@ if(isset($_GET["fullsearch"]) && $_GET["fullsearch"] && $settings->_enableFullSe
 					case 2: // name
 					case 3: // comment
 					case 4: // attributes
+					case 5: // document number
 						$searchin[$si] = $si;
 						break;
 				}
@@ -197,7 +198,7 @@ if(isset($_GET["fullsearch"]) && $_GET["fullsearch"] && $settings->_enableFullSe
 	}
 
 	// if none is checkd search all
-	if (count($searchin)==0) $searchin=array(1, 2, 3, 4);
+	if (count($searchin)==0) $searchin=array(1, 2, 3, 4, 5);
 
 	// Check to see if the search has been restricted to a particular sub-tree in
 	// the folder hierarchy.

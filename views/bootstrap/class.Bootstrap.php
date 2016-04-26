@@ -318,6 +318,7 @@ $(document).ready(function () {
 			echo "      <input type=\"hidden\" name=\"searchin[]\" value=\"2\" />";
 			echo "      <input type=\"hidden\" name=\"searchin[]\" value=\"3\" />";
 			echo "      <input type=\"hidden\" name=\"searchin[]\" value=\"4\" />";
+			echo "      <input type=\"hidden\" name=\"searchin[]\" value=\"5\" />";
 			echo "      <input name=\"query\" class=\"search-query\" id=\"searchfield\" data-provide=\"typeahead\" type=\"text\" placeholder=\"".getMLText("search")."\"/>";
 			if($this->params['defaultsearchmethod'] == 'fulltext')
 				echo "      <input type=\"hidden\" name=\"fullsearch\" value=\"1\" />";

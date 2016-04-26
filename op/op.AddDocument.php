@@ -68,7 +68,9 @@ if(isset($_POST['setDocNumber'])) {
 	$setDocNumber = null;
 }
 
-$keywords = $_POST["keywords"];
+if(isset($_POST["keywords"])) {
+	$keywords = $_POST["keywords"];
+} else $keywords = "";
 
 //Set category to Memo - No other categories used at this time
 $catID = array();
@@ -308,105 +310,97 @@ if(isset($GLOBALS['SEEDDMS_HOOKS']['addDocument'])) {
 	}
 }
 
+// Add pdf content files if they exist
+if (is_uploaded_file($_FILES["userfilePDF"]["tmp_name"])){
+	// Check for a size of 0
+    if ($_FILES["userfilePDF"]["size"] == 0) {
+        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_zerosize"));
+    }
+    // Check for any logged errors
+    if ($_FILES["userfilePDF"]["error"] != 0){
+        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
+    }
+    // Ensure file type is a PDF.
+    if ($_FILES["userfilePDF"]["type"] != "application/pdf"){
+        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("pdf_filetype_error"));
+    }
+	/*
+		If checks pass add the pdf file
+		Location of file in tmp directory
+	*/
+    $pdfData = array();
+	$pdfData['pdfFileTmp'] = $_FILES['userfilePDF']['tmp_name'];
+	// MIME type of file
+	$pdfData['pdfFileType'] = $_FILES['userfilePDF']['type'];
+	// Original file name
+	$filename = $_FILES['userfilePDF']['name'];
+	$pdfData['fileType'] = ".".pathinfo($filename, PATHINFO_EXTENSION);
+	$pdfData['pdfFileName'] = basename($filename);
+
+	if($settings->_overrideMimeType) {
+		$finfo = finfo_open(FILEINFO_MIME_TYPE);
+		$pdfData['pdfFileType'] = finfo_file($finfo, $pdfData['pdfFileTmp']);
+	}
+}
+
+// Add attachment files
+/* Todo: Currently there is no name or comment for attachments,
+   so instantiate with an empty string. Name will be added
+   in the future. */
+$attachFileData = array();
+for ($file_num=0; $file_num<count($_FILES['attachfile']['tmp_name']); $file_num++){
+	/*
+		Perform some checks before proceeding with storage
+		Ensure files were uploaded to the server via HTTP POST
+	*/
+	if (is_uploaded_file($_FILES['attachfile']['tmp_name'][$file_num])){
+		// Check for a size of 0
+	    if ($_FILES['attachfile']['size'][$file_num] == 0) {
+	        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_zerosize"));
+	    }
+	    // Check for any logged errors
+	    if ($_FILES['attachfile']['error'][$file_num] != 0){
+	        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
+	    }
+
+	    /*
+	    	If checks pass add the attachment file(s)
+	    	Location of file in tmp directory
+	 	*/
+	   	$attachInfo = array();
+		$attachInfo['attachFileTmp'] = $_FILES['attachfile']['tmp_name'][$file_num];
+		// MIME type of file
+		$attachInfo['attachFileType'] = $_FILES['attachfile']['type'][$file_num];
+		
+
+		// Original file name
+		$filename = $_FILES['attachfile']['name'][$file_num];
+
+		$attachInfo['fileType'] = ".".pathinfo($filename, PATHINFO_EXTENSION);
+		$attachInfo['attachFileName'] = basename($filename);
+
+		if($settings->_overrideMimeType) {
+			$finfo = finfo_open(FILEINFO_MIME_TYPE);
+			$attachInfo['attachFileType'] = finfo_file($finfo, $attachInfo['attachFileTmp']);
+		}
+		$attachFileData[$file_num] = $attachInfo;
+	}
+}
+
+if(count($attachFileData) == 0) {
+	$attachFileData = null;
+}
+
 $res = $folder->addDocument($name, $comment, $expires, $user, $keywords,
 							$catID, $userfiletmp, basename($userfilename),
                             $fileType, $userfiletype, $sequence,
                             $reviewers, $approvers, $reqversion,
-                            $version_comment, $attributes, $attributes_version, $workflow, $setDocNumber);
+                            $version_comment, $attributes, $attributes_version, $workflow, $setDocNumber, 1, $pdfData, $attachFileData);
 
-if (is_bool($res) && !$res) {
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("error_occured"));
+if (is_bool($res[0]) && !$res[0]) {
+	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),$res[1]);
 } else {
 	$document = $res[0];
-	$document_id = $document->getID();
-	// Add pdf content files if they exist
-	$content = $document->getLatestContent();
-	if (is_uploaded_file($_FILES["userfilePDF"]["tmp_name"])){
-		// Check for a size of 0
-	    if ($_FILES["userfilePDF"]["size"] == 0) {
-	        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_zerosize"));
-	    }
-	    // Check for any logged errors
-	    if ($_FILES["userfilePDF"]["error"] != 0){
-	        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
-	    }
-	    // Check for any logged errors
-	    if ($_FILES["userfilePDF"]["type"] != "application/pdf"){
-	        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("pdf_filetype_error"));
-	    }
-	    /*
-	    	If checks pass add the pdf file
-	    	Location of file in tmp directory
-	 	*/
-		$pdffiletmp = $_FILES["userfilePDF"]["tmp_name"];
-		// MIME type of file
-		$pdffiletype = $_FILES["userfilePDF"]["type"];
-		// Original file name
-		$pdffilename = $_FILES["userfilePDF"]["name"];
-
-		$fileType = ".".pathinfo($pdffilename, PATHINFO_EXTENSION);
-
-		if($settings->_overrideMimeType) {
-			$finfo = finfo_open(FILEINFO_MIME_TYPE);
-			$pdffiletype = finfo_file($finfo, $pdffiletmp);
-		}
-
-		$res = $document->addContentPDF($version_comment, $user, $pdffiletmp, basename($pdffilename), $fileType, $pdffiletype, $reqversion);
-
-		if(!$res) {
-			UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),"PDF file not uploaded");
-		}
-	}
-	// Add attachment files
-	/* Todo: Currently there is no name or comment for attachments,
-	   so instantiate with an empty string. Name will be added
-	   in the future. */
-	$title = $name;
-	$summary = $comment;
-	$name = "";
-	$comment = "";
-
-	for ($file_num=0; $file_num<count($_FILES["attachfile"]["tmp_name"]); $file_num++){
-		/*
-			Perform some checks before proceeding with storage
-			Ensure files were uploaded to the server via HTTP POST
-		*/
-		if (is_uploaded_file($_FILES["attachfile"]["tmp_name"][$file_num])){
-			// Check for a size of 0
-		    if ($_FILES["attachfile"]["size"][$file_num] == 0) {
-		        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_zerosize"));
-		    }
-		    // Check for any logged errors
-		    if ($_FILES['attachfile']['error'][$file_num] != 0){
-		        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
-		    }
-
-		    /*
-		    	If checks pass add the attachment file(s)
-		    	Location of file in tmp directory
-		 	*/
-			$attachfiletmp = $_FILES["attachfile"]["tmp_name"][$file_num];
-			// MIME type of file
-			$attachfiletype = $_FILES["attachfile"]["type"][$file_num];
-			// Original file name
-			$attachfilename = $_FILES["attachfile"]["name"][$file_num];
-
-			$fileType = ".".pathinfo($attachfilename, PATHINFO_EXTENSION);
-
-			if($settings->_overrideMimeType) {
-				$finfo = finfo_open(FILEINFO_MIME_TYPE);
-				$attachfiletype = finfo_file($finfo, $attachfiletmp);
-			}
-
-			// Add the document file to the database
-			$res = $document->addDocumentFile($name, $comment, $user, $attachfiletmp,
-			                                  basename($attachfilename),$fileType, $attachfiletype );
-
-			if(!$res) {
-				UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),"Attachment files not uploaded");
-			}
-		}
-	}
 
 	// Add document links
 	if(isset($_POST["linkInputs"])) {
@@ -470,9 +464,9 @@ if (is_bool($res) && !$res) {
 		$subject = "new_document_email_subject";
 		$message = "new_document_email_body";
 		$params = array();
-		$params['name'] = $title;
+		$params['name'] = $name;
 		$params['username'] = $user->getFullName();
-		$params['comment'] = $summary;
+		$params['comment'] = $comment;
 		$params['version_comment'] = $version_comment;
 		$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?documentid=".$document->getID();
 		$params['sitename'] = $settings->_siteName;
@@ -558,4 +552,3 @@ add_log_line("?name=".$name."&folderid=".$folderid);
 
 header("Location:../out/out.MyDocuments.php");
 
-?>

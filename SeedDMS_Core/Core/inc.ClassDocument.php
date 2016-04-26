@@ -1217,9 +1217,11 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 	 * @param array $attributes list of version attributes. The element key
 	 *        must be the id of the attribute definition.
 	 * @param object $workflow
+	 * @param array $pdfData list of pdf file data.
+	 * @param array $attachFileData contains all attachment files with associated data
 	 * @return bool/array false in case of an error or a result set
 	 */
-	function addContent($comment, $user, $tmpFile, $orgFileName, $fileType, $mimeType, $reviewers=array(), $approvers=array(), $version=0, $attributes=array(), $workflow=null) { /* {{{ */
+	function addContent($comment, $user, $tmpFile, $orgFileName, $fileType, $mimeType, $reviewers=array(), $approvers=array(), $version=0, $attributes=array(), $workflow=null, $pdfData=null, $attachFileData=null) { /* {{{ */
 		$db = $this->_dms->getDB();
 
 		// the doc path is id/version.filetype
@@ -1360,6 +1362,27 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 		}
 
 		$docResultSet->setStatus($status,$comment,$user);
+
+
+		if($pdfData != null) {
+			$pdfVersion = $this->getLatestContent()->getVersion();
+			$res = $this->addContentPDF($comment, $user, $pdfData['pdfFileTmp'], $pdfData['pdfFileName'], $pdfData['fileType'], $pdfData['pdfFileType'], $pdfVersion);
+
+			if(is_bool($res[0]) && !$res[0]) {
+				$db->rollbackTransaction();
+				return array(false, $res[1]);
+			}
+		}
+
+		if($attachFileData != null) {
+			for($i=0; $i < count($attachFileData); $i++) {
+				$res = $this->addDocumentFile("", "", $user, $attachFileData[$i]['attachFileTmp'], $attachFileData[$i]['attachFileName'], $attachFileData[$i]['fileType'], $attachFileData[$i]['attachFileType']);
+				if(is_bool($res[0]) && !$res[0]) {
+					$db->rollbackTransaction();
+					return array(false, $res);
+				}
+			}
+		}
 
 		$db->commitTransaction();
 		return $docResultSet;
@@ -1644,20 +1667,17 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
         $filesize = SeedDMS_Core_File::fileSize($tmpFile);
         $checksum = SeedDMS_Core_File::checksum($tmpFile);
 
-        $db->startTransaction();
         $queryStr = "INSERT INTO tblDocumentContentPDF (content, version, comment, date, createdBy, dir, orgFileName, fileType, mimeType, fileSize, checksum) VALUES ".
                         "(" . $content->getID() . ", " . $content->getVersion() . ", '" . $comment . "', " . $content->getDate() . ", " . $content->getUser()->getID() . ", '" . $content->getDir() . "', " . $db->qstr($orgFileName) . ", " . $db->qstr($fileType) . ", " . $db->qstr($mimeType) . ", " . $filesize . ", " . $db->qstr($checksum) .")";
         if (!$db->getResult($queryStr)) {
-            $db->rollbackTransaction();
-            return false;
+            return array(false, "Error adding pdf content");
         }
 
         $pdfID = $db->getInsertID();
 
         // copy file
         if (!SeedDMS_Core_File::makeDir($this->_dms->contentDir . $content->getDir())) {
-            $db->rollbackTransaction();
-            return false;
+            return array(false, "Error making directory");
         }
 
         if($this->_dms->forceRename) {
@@ -1667,11 +1687,9 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 			$err = SeedDMS_Core_File::copyFile($tmpFile, $this->_dms->contentDir . $content->getDir() . "p" . $version . $fileType);
 		}
         if (!$err) {
-            $db->rollbackTransaction();
-            return false;
+            return array(false, "Error copying or renaming the file to the server");
         }
 
-        $db->commitTransaction();
         return $pdfID;
     } /* }}} */
 
@@ -1893,28 +1911,28 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 	function addDocumentFile($name, $comment, $user, $tmpFile, $orgFileName, $fileType, $mimeType) { /* {{{ */
 		$db = $this->_dms->getDB();
 		$dir = $this->getDir();
-		$latest_content = $this->getLatestContent();
+		$content = $this->getLatestContent();
 		$filesize = SeedDMS_Core_File::fileSize($tmpFile);
 		$checksum = SeedDMS_Core_File::checksum($tmpFile);
 
 		$queryStr = "INSERT INTO tblDocumentFiles (comment, userID, date, dir, content, fileType, mimeType, orgFileName, name, fileSize, checksum) VALUES ".
-			"(".$db->qstr($comment).", ".$user->getID().", ".$db->getCurrentTimestamp().", ".$db->qstr($dir).", ".$latest_content->getID().", ".$db->qstr($fileType).", ".$db->qstr($mimeType).", ".$db->qstr($orgFileName).",".$db->qstr($name).", ".$filesize.", ".$db->qstr($checksum).")";
-		if (!$db->getResult($queryStr)) return false;
+			"(".$db->qstr($comment).", ".$user->getID().", ".$db->getCurrentTimestamp().", ".$db->qstr($dir).", ".$content->getID().", ".$db->qstr($fileType).", ".$db->qstr($mimeType).", ".$db->qstr($orgFileName).",".$db->qstr($name).", ".$filesize.", ".$db->qstr($checksum).")";
+		if (!$db->getResult($queryStr)) return array(false, "Error adding document file");
 
 		$id = $db->getInsertID();
 
 		$file = $this->getDocumentFile($id);
-		if (is_bool($file) && !$file) return false;
+		if (is_bool($file) && !$file) return array(false, "Error retrieving document file");
 
 		// copy file
-		if (!SeedDMS_Core_File::makeDir($this->_dms->contentDir . $dir)) return false;
+		if (!SeedDMS_Core_File::makeDir($this->_dms->contentDir . $dir)) return array(false, "Error making directory for document file");
 		if($this->_dms->forceRename)
 			$err = SeedDMS_Core_File::renameFile($tmpFile, $this->_dms->contentDir . $file->getPath());
 		else
 			$err = SeedDMS_Core_File::copyFile($tmpFile, $this->_dms->contentDir . $file->getPath());
-		if (!$err) return false;
+		if (!$err) return array(false, "Error copying or renaming document file");
 
-		return true;
+		return array(true, $file);
 	} /* }}} */
 
 	function removeDocumentFile($ID) { /* {{{ */

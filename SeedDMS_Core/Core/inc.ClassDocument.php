@@ -1696,7 +1696,7 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 	/**
 	 * Return the content element of a document with a given version number
 	 *
-	 * @param integer $version version number of content element
+	 * @param object $content content that pdf is related to
 	 * @return object object of class SeedDMS_Core_DocumentContent
 	 */
 	function getPDFByContent($content) { /* {{{ */
@@ -2446,7 +2446,7 @@ class SeedDMS_Core_DocumentContent extends SeedDMS_Core_Object { /* {{{ */
 	} /* }}} */
 
 	function getVersion() { return $this->_version; }
-	function getCustomVersion($ver) {
+	function getCustomVersion($ver=null) {
 		if(!$ver) {
 			$ver = $this->_version;
 		}

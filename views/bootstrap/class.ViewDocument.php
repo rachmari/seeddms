@@ -377,7 +377,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
                 }
             }
 ?>
-          <li class="<?php if($currenttab == 'links') echo 'active'; ?>"><a data-target="#links" data-toggle="tab"><?php printMLText('linked_documents'); echo (count($links)) ? " (".count($links).")" : ""; ?></a></li>
         </ul>
         <div class="tab-content">
           <div class="tab-pane <?php if(!$currenttab || $currenttab == 'docinfo') echo 'active'; ?>" id="docinfo">
@@ -568,6 +567,68 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
         }
         print "</tbody>\n</table>\n";
         $this->contentContainerEnd(); // Attachment Listing End
+
+        $this->contentHeading(getMLText("linked_documents")); // Cross-references Begin
+        $this->contentContainerStart(); 
+        if (count($links) > 0) {
+            print "<table class=\"table table-condensed\">";
+            print "<thead>\n<tr>\n";
+            print "<th width='15%'>".getMLText("doc_number")."</th>\n";
+            print "<th width='60%'>".getMLText("name")."</th>\n";
+            print "<th width='*'>".getMLText("comment")."</th>\n";
+            print "</tr>\n</thead>\n<tbody>\n";
+
+            foreach($links as $link) {
+                $responsibleUser = $link->getUser();
+                $targetDoc = $link->getTarget();
+                $targetlc = $targetDoc->getLatestContent();
+
+                $previewer->createPreview($targetlc, $previewwidthlist);
+                print "<tr>";
+                print "<td><a href=\"../op/op.Download.php?documentid=".$targetDoc->getID()."&version=".$targetlc->getVersion()."\">";
+                print $targetDoc->getDocNum();
+                print "</td>";
+                print "<td><a href=\"out.ViewDocument.php?documentid=".$targetDoc->getID()."\" class=\"linklist\">".htmlspecialchars($targetDoc->getName())."</a></td>";
+                print "<td>".htmlspecialchars($targetDoc->getComment())."</td>";
+                print "</td>";
+                print "<td><span class=\"actions\">";
+                print "</span></td>";
+                print "</tr>";
+            }
+            print "</tbody>\n</table>\n";
+        }
+        else printMLText("no_linked_files");
+
+        $this->contentContainerEnd(); // Cross-references End
+
+        if (count($reverselinks) > 0) { // Citations Begin
+            $this->contentHeading(getMLText("reverse_links"));
+            $this->contentContainerStart();
+
+            print "<table class=\"table table-condensed\">";
+            print "<thead>\n<tr>\n";
+            print "<th width='15%'>".getMLText("doc_number")."</th>\n";
+            print "<th width='60%'>".getMLText("name")."</th>\n";
+            print "<th width='*'>".getMLText("comment")."</th>\n";
+            print "</tr>\n</thead>\n<tbody>\n";
+
+            foreach($reverselinks as $link) {
+                $responsibleUser = $link->getUser();
+                $sourceDoc = $link->getDocument();
+                $sourcelc = $sourceDoc->getLatestContent();
+
+                $previewer->createPreview($sourcelc, $previewwidthlist);
+                print "<tr>";
+                print "<td><a href=\"../op/op.Download.php?documentid=".$sourceDoc->getID()."&version=".$sourcelc->getVersion()."\">";
+                print $sourceDoc->getDocNum();
+                print "</td>";
+                print "<td><a href=\"out.ViewDocument.php?documentid=".$sourceDoc->getID()."\" class=\"linklist\">".htmlspecialchars($sourceDoc->getName())."</a></td>";
+                print "<td>".htmlspecialchars($sourceDoc->getComment())."</td>";
+                print "</tr>";
+            }
+            print "</tbody>\n</table>\n";
+            $this->contentContainerEnd(); // Citations End
+        }
 
         if($user->isAdmin()) {
             $this->contentHeading(getMLText("status"));

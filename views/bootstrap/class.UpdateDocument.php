@@ -98,6 +98,14 @@ $(document).ready( function() {
 			var file = $('#userfilePDF').prop("files")[0];
 			if(file.type !== 'application/pdf') msg.push("<?php printMLText("pdf_type_error");?>");
 		}
+		$('input:file').each(function() {
+			var file = this.files[0];
+			if (file) {
+				if(file.size > 60*1024*1024) { // Don't allow file size to exceed 60MB
+					msg.push(file.name + " <?php printMLText("uploading_maxsize");?>");
+				}
+			}
+		});
 
 		/* If the form is missing data, display messages
 		 * and prevent the form from submitting

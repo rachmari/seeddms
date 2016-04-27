@@ -131,7 +131,7 @@ class SeedDMS_View_Search extends SeedDMS_Bootstrap_Style {
 </td>
 </tr>
 <tr>
-<td><?php printMLText("category");?>:</td>
+<td><?php printMLText("document_type");?>:</td>
 <td>
 <select class="chzn-select" name="categoryids[]" multiple="multiple" data-placeholder="<?php printMLText('select_category'); ?>" data-no_results_text="<?php printMLText('unknown_document_category'); ?>">
 <!--
@@ -154,6 +154,7 @@ class SeedDMS_View_Search extends SeedDMS_Bootstrap_Style {
 <!--<label class="checkbox" for="keywords"><input type="checkbox" id="keywords" name="searchin[]" value="1" <?php if(in_array('1', $searchin)) echo " checked"; ?>><?php printMLText("keywords");?> (<?php printMLText('documents_only'); ?>)</label>-->
 <label class="checkbox" for="searchName"><input type="checkbox" name="searchin[]" id="searchName" value="2" <?php if(in_array('2', $searchin)) echo " checked"; ?>><?php printMLText("name");?></label>
 <label class="checkbox" for="comment"><input type="checkbox" name="searchin[]" id="comment" value="3" <?php if(in_array('3', $searchin)) echo " checked"; ?>><?php printMLText("comment");?></label>
+<label class="checkbox" for="searchNumber"><input type="checkbox" name="searchin[]" id="searchNumber" value="5" <?php if(in_array('5', $searchin)) echo " checked"; ?>><?php printMLText("doc_number");?></label>
 <!--<label class="checkbox" for="attributes"><input type="checkbox" name="searchin[]" id="attributes" value="4" <?php if(in_array('4', $searchin)) echo " checked"; ?>><?php printMLText("attributes");?></label>-->
 </td>
 </tr>

@@ -276,6 +276,10 @@ if($settings->_dropFolderDir) {
 if ($_FILES["userfile"]["size"]==0) {
 	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_zerosize"));
 }
+// Check for max file size of 60MB
+if ($_FILES["userfile"]["size"] > 60*1024*1024) {
+	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),$_FILES["userfile"]["name"] . " " .getMLText("uploading_maxsize"));
+}
 if (is_uploaded_file($_FILES["userfile"]["tmp_name"]) && $_FILES['userfile']['error']!=0){
 	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
 }
@@ -324,6 +328,10 @@ if (is_uploaded_file($_FILES["userfilePDF"]["tmp_name"])){
     if ($_FILES["userfilePDF"]["size"] == 0) {
         UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_zerosize"));
     }
+    // Check for max file size of 60MB
+    if ($_FILES["userfilePDF"]["size"] > 60*1024*1024) {
+        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),$_FILES['userfilePDF']['name'] . " " . getMLText("uploading_maxsize"));
+    }
     // Check for any logged errors
     if ($_FILES["userfilePDF"]["error"] != 0){
         UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
@@ -365,6 +373,10 @@ for ($file_num=0; $file_num<count($_FILES['attachfile']['tmp_name']); $file_num+
 		// Check for a size of 0
 	    if ($_FILES['attachfile']['size'][$file_num] == 0) {
 	        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_zerosize"));
+	    }
+	    // Check for max file size of 60MB
+	    if ($_FILES['attachfile']['size'][$file_num] > 60*1024*1024) {
+	        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),$_FILES['attachfile']['name'][$file_num] . " " . getMLText("uploading_maxsize"));
 	    }
 	    // Check for any logged errors
 	    if ($_FILES['attachfile']['error'][$file_num] != 0){

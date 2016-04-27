@@ -398,6 +398,7 @@ $(document).ready(function() {
 				</a>
 				</td>
 			</tr>
+			<tr><td></td><td><p class='note'><?php printMLText("owner_added");?></p></td></tr>
 		<tr>
 		<td colspan="2"><p class='submit-button-container'><input id='submit-btn' class='submit-button' type="submit" value="<?php printMLText("submit");?>"></p></td>
 		</tr>

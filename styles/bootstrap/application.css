@@ -60,6 +60,10 @@ img.mimeicon {
     width: auto;
 }
 
+.note {
+  color: #0072B9;
+}
+
 .searchfield {
   width: 200px;
 }

@@ -81,7 +81,18 @@ $(document).ready( function() {
 
 		/* Check the form for missing information */
 		msg = new Array();
+		var acceptedFileTypes = ['application/pdf', 'application/vnd.oasis.opendocument.text', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.oasis.opendocument.presentation'];
+		
 		if ($('#userfile').val() ==='') msg.push("<?php printMLText("js_no_file");?>");
+		// Check for file type to be document, pdf, or presentation
+		else {
+			var file = $('#userfile').prop("files")[0];
+			var match, i = 0;
+			for(i; i < acceptedFileTypes.length; i++) {
+				if(file.type === acceptedFileTypes[i]) match = 1;
+			}
+			if(!match) msg.push("<?php printMLText("source_type_error");?>");
+		}
 		// Get file object from input to check for pdf type
 		if($('#userfilePDF').prop("files")[0]) {
 			var file = $('#userfilePDF').prop("files")[0];

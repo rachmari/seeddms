@@ -68,6 +68,14 @@ if ($_FILES['userfile']['error'] == 0) {
 
 	if($_FILES["userfile"]["size"] == 0)
 		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("uploading_zerosize"));
+	// Ensure file type is a PDF.
+	$acceptedFileTypes = array('application/pdf', 'application/vnd.oasis.opendocument.text', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.oasis.opendocument.presentation');
+	$match = 0;
+	$fileType = $_FILES["userfile"]["type"];
+	for ($i=0; $i<count($acceptedFileTypes); $i++) {
+		if ($fileType == $acceptedFileTypes[$i]) $match = 1;
+	}
+	if (!$match) UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("source_type_error"));
 
 	$userfiletmp = $_FILES["userfile"]["tmp_name"];
 	$userfiletype = $_FILES["userfile"]["type"];

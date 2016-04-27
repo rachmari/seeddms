@@ -807,9 +807,9 @@ class SeedDMS_View_MyDocuments extends SeedDMS_Bootstrap_Style {
 					print "<tr>\n";
 					$latestContent = $document->getLatestContent();
 					$docNumber = $document->getDocNum();
-					print "<td><a class=\"standardText\" href=\"../out/out.ViewDocument.php?documentid=".$document->getID()."\">".$docNumber;
+					print "<td><a class=\"standardText\" href=\"../out/out.ViewDocument.php?docnum=".$docNumber."\">".$docNumber;
 					print "</a></td>";
-					print "<td><a href=\"out.ViewDocument.php?documentid=".$res["documentID"]."\">" . htmlspecialchars($res["name"]) . "</a></td>\n";
+					print "<td><a href=\"out.ViewDocument.php?docnum=".$docNumber."\">" . htmlspecialchars($res["name"]) . "</a></td>\n";
 					//print "<td>".getOverallStatusText($res["status"])."</td>";
 					print "<td>".$latestContent->getCustomVersion()."</td>";
 					print "<td>".$res["statusDate"]." <br>". htmlspecialchars($res["statusName"])."</td>";

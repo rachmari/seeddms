@@ -467,9 +467,9 @@ class SeedDMS_View_Search extends SeedDMS_Bootstrap_Style {
 						} else {
 							$docName = htmlspecialchars($document->getName());
 						}
-						print "<td><a class=\"standardText\" href=\"../out/out.ViewDocument.php?documentid=".$document->getID()."\">".$docNumber;
+						print "<td><a class=\"standardText\" href=\"../out/out.ViewDocument.php?docnum=".$document->getDocNum()."\">".$docNumber;
 						print "</a></td>";
-						print "<td><a class=\"standardText\" href=\"../out/out.ViewDocument.php?documentid=".$document->getID()."\">";
+						print "<td><a class=\"standardText\" href=\"../out/out.ViewDocument.php?docnum=".$document->getDocNum()."\">";
 						$folder = $document->getFolder();
 						$path = $folder->getPath();
 						for ($i = 1; $i  < count($path); $i++) {

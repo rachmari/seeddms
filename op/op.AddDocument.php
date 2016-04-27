@@ -488,7 +488,7 @@ if (is_bool($res[0]) && !$res[0]) {
 		$params['username'] = $user->getFullName();
 		$params['comment'] = $comment;
 		$params['version_comment'] = $version_comment;
-		$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?documentid=".$document->getID();
+		$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?docnum=".$document->getDocNum();
 		$params['sitename'] = $settings->_siteName;
 		$params['http_root'] = $settings->_httpRoot;
 		$notifier->toList($user, $notifyList["users"], $subject, $message, $params);
@@ -508,7 +508,7 @@ if (is_bool($res[0]) && !$res[0]) {
 			$params['username'] = $user->getFullName();
 			$params['sitename'] = $settings->_siteName;
 			$params['http_root'] = $settings->_httpRoot;
-			$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?documentid=".$document->getID();
+			$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?docnum=".$document->getDocNum();
 
 			foreach($workflow->getNextTransitions($workflow->getInitState()) as $ntransition) {
 				foreach($ntransition->getUsers() as $tuser) {
@@ -531,7 +531,7 @@ if (is_bool($res[0]) && !$res[0]) {
 				$params['version'] = $reqversion;
 				$params['comment'] = $comment;
 				$params['username'] = $user->getFullName();
-				$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?documentid=".$document->getID();
+				$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?docnum=".$document->getDocNum();
 				$params['sitename'] = $settings->_siteName;
 				$params['http_root'] = $settings->_httpRoot;
 
@@ -552,7 +552,7 @@ if (is_bool($res[0]) && !$res[0]) {
 				$params['version'] = $reqversion;
 				$params['comment'] = $comment;
 				$params['username'] = $user->getFullName();
-				$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?documentid=".$document->getID();
+				$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?docnum=".$document->getDocNum();
 				$params['sitename'] = $settings->_siteName;
 				$params['http_root'] = $settings->_httpRoot;
 

@@ -38,14 +38,28 @@ $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
 $view = UI::factory($theme, $tmp[1]);
 if(!$view) {
 }
+$documentID = null;
+if (isset($_GET["documentid"]) && is_numeric($_GET["documentid"]) && intval($_GET["documentid"])>0) {
+	$documentID = $_GET["documentid"];
+}
 
-if (!isset($_GET["documentid"]) || !is_numeric($_GET["documentid"]) || intval($_GET["documentid"])<1) {
+$documentNumber = null;
+if (isset($_GET["docnum"])) {
+	$documentNumber = $_GET["docnum"];
+}
+
+if($documentID == null && $documentNumber == null) {
 	$view->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
-$document = $dms->getDocument($_GET["documentid"]);
+if($documentNumber) {
+	$documentID = $dms->getDocIDbyNum($_GET["docnum"]);	
+}
+
+$document = $dms->getDocument($documentID);
+
 if (!is_object($document)) {
-	$view->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	$view->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))), $documentID . " " .getMLText("no_doc"));
 }
 
 /* Create object for checking access to certain operations */

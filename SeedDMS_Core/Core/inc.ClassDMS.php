@@ -518,6 +518,34 @@ class SeedDMS_Core_DMS {
 		return $classname::getInstance($id, $this);
 	} /* }}} */
 
+	/*
+	 * Return the document id given a document number
+	 *
+	 * @return int document number or false if query failed
+	 */
+	function getDocIDbyNum($docNum) { /* {{{ */
+		$db = $this->getDB();
+		if(is_numeric($docNum[0])) {
+			$queryStr = "SELECT documentID AS dID FROM tblSpecNumbers where number='".$docNum."'";
+			$resArr = $db->getResultArray($queryStr);
+			if (is_bool($resArr) && $resArr == false)
+				return false;
+			if (count($resArr) != 1)
+				return false;
+			return $resArr[0]['dID'];
+		}
+		else {
+			$queryStr = "SELECT documentID AS dID FROM tblMemoNumbers where number='".$docNum."'";
+			$resArr = $db->getResultArray($queryStr);
+			if (is_bool($resArr) && $resArr == false)
+				return false;
+			if (count($resArr) != 1)
+				return false;
+			return $resArr[0]['dID'];
+		}
+		return false;
+	} /* }}} */
+
 	/**
 	 * Return a document ID by its unique document number
 	 *

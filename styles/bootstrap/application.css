@@ -55,7 +55,7 @@ img.mimeicon {
 }
 
 #logo-img {
-    height: 39px;
+    height: 42px;
     padding-right: 25px;
     width: auto;
 }
@@ -216,13 +216,20 @@ textarea, input[type="text"], input[type="password"], input[type="datetime"], in
 	margin-bottom: 10px;
 }
 
-ul.actions li a:hover > i {
+ul.actions li a:hover{
 	text-decoration: none;
 }
+
 ul.actions li a > i {
 	color: #000;
-	margin-right: 5px;
+  padding: 0 2.5px;
+  font-size: 18px;
 }
+
+ul.actions li a> i:hover {
+  color: #0072B9;
+}
+
 ul.actions li a.btn > i {
 	font-size: 200%;
 }

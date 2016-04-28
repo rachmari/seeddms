@@ -53,7 +53,7 @@ if($documentID == null && $documentNumber == null) {
 }
 
 if($documentNumber) {
-	$documentID = $dms->getDocIDbyNum($_GET["docnum"]);	
+	$documentID = $dms->getDocIDbyNum($documentNumber);
 }
 
 $document = $dms->getDocument($documentID);

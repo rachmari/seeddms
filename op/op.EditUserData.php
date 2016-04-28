@@ -44,7 +44,7 @@ $language  = $_POST["language"];
 /* 'theme' won't be set, if themeselector is turn off */
 if(isset($_POST["theme"]))
 	$mytheme  = $_POST["theme"];
-$current_pwd  = $_POST["currentpwd"];
+/*$current_pwd  = $_POST["currentpwd"];
 
 if($user->getPwd() != md5($current_pwd)) {
 	UI::exitError(getMLText("edit_user_details"),getMLText("password_wrong"));
@@ -84,7 +84,7 @@ if (isset($_POST["pwd"]) && ($_POST["pwd"] != "")) {
 		$user->setPwd(md5($_POST["pwd"]));
 		$user->setPwdExpiration(date('Y-m-d H:i:s', time()+$settings->_passwordExpiration*86400));
 	}
-}
+}*/
 
 if ($user->getFullName() != $fullname)
 	$user->setFullName($fullname);

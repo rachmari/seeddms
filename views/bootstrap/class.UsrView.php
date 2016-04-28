@@ -46,7 +46,7 @@ class SeedDMS_View_UsrView extends SeedDMS_Bootstrap_Style {
 		$this->contentHeading(getMLText("users"));
 		$this->contentContainerStart();
 
-		echo "<table class=\"table-condensed\">\n";
+		echo "<table id='tableSort' class=\"table table-condensed tablesorter\">\n";
 		echo "<thead>\n<tr>\n";
 		echo "<th>".getMLText("name")."</th>\n";
 		echo "<th>".getMLText("email")."</th>\n";

@@ -510,21 +510,22 @@ $(document).ready(function () {
 	} /* }}} */
 
 	private function accountNavigationBar() { /* {{{ */
-		echo "<id=\"first\"><a href=\"../out/out.MyAccount.php\" class=\"brand\">".getMLText("my_account")."</a>\n";
+		//echo "<id=\"first\"><a href=\"../out/out.MyAccount.php\" class=\"brand\">".getMLText("my_account")."</a>\n";
 		echo "<div class=\"nav-collapse col2\">\n";
 		echo "<ul class=\"nav\">\n";
 
+		echo "<li id=\"first\"><a href=\"../out/out.MyAccount.php\">".getMLText("my_account")."</a></li>\n";
 		if ($this->params['user']->isAdmin() || !$this->params['disableselfedit'])
-			echo "<li id=\"first\"><a href=\"../out/out.EditUserData.php\">".getMLText("edit_user_details")."</a></li>\n";
+			echo "<li><a href=\"../out/out.EditUserData.php\">".getMLText("edit_user_details")."</a></li>\n";
 		
-		if (!$this->params['user']->isAdmin()) 
-			echo "<li><a href=\"../out/out.UserDefaultKeywords.php\">".getMLText("edit_default_keywords")."</a></li>\n";
+		/*if (!$this->params['user']->isAdmin()) 
+			echo "<li><a href=\"../out/out.UserDefaultKeywords.php\">".getMLText("edit_default_keywords")."</a></li>\n";*/
 
 		echo "<li><a href=\"../out/out.ManageNotify.php\">".getMLText("edit_existing_notify")."</a></li>\n";
 
 		if ($this->params['enableusersview']){
-			echo "<li><a href=\"../out/out.UsrView.php\">".getMLText("users")."</a></li>\n";
-			echo "<li><a href=\"../out/out.GroupView.php\">".getMLText("groups")."</a></li>\n";
+			echo "<li><a href=\"../out/out.UsrView.php\">".getMLText("employee_directory")."</a></li>\n";
+		//	echo "<li><a href=\"../out/out.GroupView.php\">".getMLText("groups")."</a></li>\n";
 		}		
 		echo "</ul>\n";
 		echo "</div>\n";

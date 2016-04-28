@@ -41,6 +41,7 @@ class SeedDMS_View_MyAccount extends SeedDMS_Bootstrap_Style {
 
 		$this->htmlStartPage(getMLText("my_account"));
 		$this->globalNavigation();
+		$this->contentHeading(getMLText("my_account"));
 		$this->contentStart();
 		$this->pageNavigation(getMLText("my_account"), "my_account");
 
@@ -83,10 +84,10 @@ class SeedDMS_View_MyAccount extends SeedDMS_Bootstrap_Style {
 			print "<td>".htmlspecialchars($user->getPwdExpiration())."</td>\n";
 			print "</tr>\n";
 		}
-		print "<tr>\n";
+		/*print "<tr>\n";
 		print "<td>".getMLText("used_discspace")." : </td>\n";
-		print "<td>".SeedDMS_Core_File::format_filesize($user->getUsedDiskSpace())."</td>\n";
-		print "</tr>\n";
+		//print "<td>".SeedDMS_Core_File::format_filesize($user->getUsedDiskSpace())."</td>\n";
+		print "</tr>\n";*/
 		if($quota > 0) {
 			print "<tr>\n";
 			print "<td>".getMLText("quota")." : </td>\n";

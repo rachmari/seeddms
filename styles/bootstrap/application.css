@@ -115,6 +115,7 @@ textarea, input[type="text"], input[type="password"], input[type="datetime"], in
 
 .navbar-inner {
     min-height: 61px;
+    border: none;
 }
 
 .navbar-inverse .navbar-inner {

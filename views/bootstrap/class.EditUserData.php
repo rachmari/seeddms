@@ -37,7 +37,7 @@ class SeedDMS_View_EditUserData extends SeedDMS_Bootstrap_Style {
 function checkForm()
 {
 	msg = new Array();
-	if ($("#pwd").val() != $("#pwdconf").val()) msg.push("<?php printMLText("js_pwd_not_conf");?>");
+	//if ($("#pwd").val() != $("#pwdconf").val()) msg.push("<?php printMLText("js_pwd_not_conf");?>");
 	if ($("#fullname").val() == "") msg.push("<?php printMLText("js_no_name");?>");
 	if ($("#email").val() == "") msg.push("<?php printMLText("js_no_email");?>");
 //	if (document.form1.comment.value == "") msg.push("<?php printMLText("js_no_comment");?>");
@@ -71,11 +71,12 @@ $(document).ready( function() {
 		$enableuserimage = $this->params['enableuserimage'];
 		$enablelanguageselector = $this->params['enablelanguageselector'];
 		$enablethemeselector = $this->params['enablethemeselector'];
-		$passwordstrength = $this->params['passwordstrength'];
+		//$passwordstrength = $this->params['passwordstrength'];
 		$httproot = $this->params['httproot'];
 
 		$this->htmlStartPage(getMLText("edit_user_details"));
 		$this->globalNavigation();
+		$this->contentHeading(getMLText("my_account"));
 		$this->contentStart();
 		$this->pageNavigation(getMLText("my_account"), "my_account");
 
@@ -84,7 +85,7 @@ $(document).ready( function() {
 ?>
 <form action="../op/op.EditUserData.php" enctype="multipart/form-data" method="post" id="form">
 <table class="table-condensed">
-	<tr>
+	<!--<tr>
 		<td><?php printMLText("current_password");?>:</td>
 		<td><input id="currentpwd" type="password" name="currentpwd" size="30"></td>
 	</tr>
@@ -104,10 +105,11 @@ $(document).ready( function() {
 <?php
 	}
 ?>
+
 	<tr>
 		<td><?php printMLText("confirm_pwd");?>:</td>
 		<td><input id="pwdconf" type="Password" id="pwdconf" name="pwdconf" size="30"></td>
-	</tr>
+	</tr>-->
 	<tr>
 		<td><?php printMLText("name");?>:</td>
 		<td><input type="text" id="fullname" name="fullname" value="<?php print htmlspecialchars($user->getFullName());?>" size="30"></td>

@@ -255,7 +255,7 @@ $(document).ready(function () {
 			echo "   <ul id=\"main-menu-admin\" class=\"nav pull-right\">\n";
 			if($this->params['enablehelp']) {
 			$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-			echo "    <li><a href=\"../out/out.Help.php?context=".$tmp[1]."\"><i class=\"icon-question-sign\"></i></a></li>\n";
+			echo "    <li><a target='_blank' href='http://wiki.paradesh.com/w/index.php/CAD/DMS'><i class=\"icon-question-sign\"></i></a></li>\n";
 			}
 			echo "    <li class=\"dropdown\">\n";
 			echo "     <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">".($this->params['session']->getSu() ? getMLText("switched_to") : "")." ".htmlspecialchars($this->params['user']->getFullName())." <i class=\"icon-caret-down\"></i></a>\n";

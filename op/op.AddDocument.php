@@ -368,7 +368,9 @@ for ($file_num=0; $file_num<count($_FILES['attachfile']['tmp_name']); $file_num+
 	/*
 		Perform some checks before proceeding with storage
 		Ensure files were uploaded to the server via HTTP POST
+
 	*/
+
 	if (is_uploaded_file($_FILES['attachfile']['tmp_name'][$file_num])){
 		// Check for a size of 0
 	    if ($_FILES['attachfile']['size'][$file_num] == 0) {
@@ -403,10 +405,9 @@ for ($file_num=0; $file_num<count($_FILES['attachfile']['tmp_name']); $file_num+
 			$finfo = finfo_open(FILEINFO_MIME_TYPE);
 			$attachInfo['attachFileType'] = finfo_file($finfo, $attachInfo['attachFileTmp']);
 		}
-		$attachFileData[$file_num] = $attachInfo;
-	}
+		$attachFileData[] = $attachInfo;
+	} 
 }
-
 if(count($attachFileData) == 0) {
 	$attachFileData = null;
 }

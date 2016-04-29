@@ -21,6 +21,10 @@ img.mimeicon {
   border-width: 1px 2px 2px 1px;
 }
 
+.hidden {
+  display: none;
+}
+
 .table-align-center {
   text-align: center !important;
 }

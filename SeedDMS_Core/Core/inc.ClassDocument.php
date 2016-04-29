@@ -1235,7 +1235,7 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 			$queryStr = "SELECT MAX(version) as m from tblDocumentContent where document = ".$this->_id;
 			$resArr = $db->getResultArray($queryStr);
 			if (is_bool($resArr) && !$res)
-				return false;
+				return array(false, "Error selecting maximum version in document content table");
 
 			$version = $resArr[0]['m']+1;
 		}
@@ -1248,7 +1248,7 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 						"(".$this->_id.", ".(int)$version.",".$db->qstr($comment).", ".$db->getCurrentTimestamp().", ".$user->getID().", ".$db->qstr($dir).", ".$db->qstr($orgFileName).", ".$db->qstr($fileType).", ".$db->qstr($mimeType).", ".$filesize.", ".$db->qstr($checksum).")";
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();
-			return false;
+			return array(false, "Error adding document content");
 		}
 
 		$contentID = $db->getInsertID();
@@ -1256,7 +1256,7 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 		// copy file
 		if (!SeedDMS_Core_File::makeDir($this->_dms->contentDir . $dir)) {
 			$db->rollbackTransaction();
-			return false;
+			return array(false, "Error copying content file over to server");
 		}
 		if($this->_dms->forceRename)
 			$err = SeedDMS_Core_File::renameFile($tmpFile, $this->_dms->contentDir . $dir . $version . $fileType);
@@ -1264,7 +1264,7 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 			$err = SeedDMS_Core_File::copyFile($tmpFile, $this->_dms->contentDir . $dir . $version . $fileType);
 		if (!$err) {
 			$db->rollbackTransaction();
-			return false;
+			return array(false, "Error moving or copying file over to server");
 		}
 
 		unset($this->_content);
@@ -1282,7 +1282,7 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 					if(!$content->setAttributeValue($this->_dms->getAttributeDefinition($attrdefid), $attribute)) {
 						$this->removeContent($content);
 						$db->rollbackTransaction();
-						return false;
+						return array(false, "Error adding content attributes");
 					}
 			}
 		}
@@ -1296,7 +1296,7 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 		if (!$db->getResult($queryStr)) {
 			$this->removeContent($content);
 			$db->rollbackTransaction();
-			return false;
+			return array(false, "Error setting content status");
 		}
 
 		$statusID = $db->getInsertID();
@@ -1358,7 +1358,7 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 			"VALUES ('". $statusID ."', '". $status."', 'New document content submitted". $comment ."', ".$db->getCurrentDatetime().", '". $user->getID() ."')";
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();
-			return false;
+			return array(false, "Error adding docment content status log");
 		}
 
 		$docResultSet->setStatus($status,$comment,$user);
@@ -1370,7 +1370,7 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 
 			if(is_bool($res[0]) && !$res[0]) {
 				$db->rollbackTransaction();
-				return array(false, $res[1]);
+				return $res;
 			}
 		}
 
@@ -1379,13 +1379,13 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 				$res = $this->addDocumentFile("", "", $user, $attachFileData[$i]['attachFileTmp'], $attachFileData[$i]['attachFileName'], $attachFileData[$i]['fileType'], $attachFileData[$i]['attachFileType']);
 				if(is_bool($res[0]) && !$res[0]) {
 					$db->rollbackTransaction();
-					return array(false, $res);
+					return $res;
 				}
 			}
 		}
 
 		$db->commitTransaction();
-		return $docResultSet;
+		return array(true, $docResultSet);
 	} /* }}} */
 
 	/**

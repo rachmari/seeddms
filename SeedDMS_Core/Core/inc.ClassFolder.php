@@ -818,10 +818,9 @@ class SeedDMS_Core_Folder extends SeedDMS_Core_Object {
 		$document = $this->_dms->getDocument($db->getInsertID());
 
 		$res = $document->addContent($version_comment, $owner, $tmpFile, $orgFileName, $fileType, $mimeType, $reviewers, $approvers, $reqversion, $version_attributes, $workflow, $pdfData, $attachFileData);
-
-		if (is_bool($res) && !$res) {
+		if (is_bool($res[0]) && !$res[0]) {
 			$db->rollbackTransaction();
-			return array(false, "Error adding content");
+			return $res;
 		}
 		
 		if($categories) {

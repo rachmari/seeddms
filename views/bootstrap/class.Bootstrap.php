@@ -265,6 +265,8 @@ $(document).ready(function () {
 				echo "    <li><a href=\"../out/out.MyAccount.php\">".getMLText("my_account")."</a></li>\n";
 				echo "    <li class=\"divider\"></li>\n";
 			}
+			echo "    <li><a href=\"../out/out.Help.php\">".getMLText("version")."</a></li>\n";
+			echo "    <li class=\"divider\"></li>\n";
 			$showdivider = false;
 			if($this->params['enablelanguageselector']) {
 				$showdivider = true;

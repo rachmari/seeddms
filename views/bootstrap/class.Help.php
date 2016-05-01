@@ -38,11 +38,11 @@ class SeedDMS_View_Help extends SeedDMS_Bootstrap_Style {
 
 		$this->htmlStartPage(getMLText("help"));
 		$this->globalNavigation();
-		$this->contentHeading(getMLText("help"));
+		$this->contentHeading(getMLText("version"));
 		$this->contentStart();
 		$this->contentContainerStart('help');
 
-		$helpfile = "../languages/".$this->params['session']->getLanguage()."/help/".$context.".html";
+		$helpfile = "../languages/en_GB/version.htm";
 		if(file_exists($helpfile))
 			readfile($helpfile);
 		else

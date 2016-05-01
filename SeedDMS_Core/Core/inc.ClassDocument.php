@@ -1363,7 +1363,7 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 
 		$docResultSet->setStatus($status,$comment,$user);
 
-
+		/* Add PDF Counterpart for content file */
 		if($pdfData != null) {
 			$pdfVersion = $this->getLatestContent()->getVersion();
 			$res = $this->addContentPDF($comment, $user, $pdfData['pdfFileTmp'], $pdfData['pdfFileName'], $pdfData['fileType'], $pdfData['pdfFileType'], $pdfVersion);
@@ -1374,12 +1374,42 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 			}
 		}
 
+		/* Add attachment files and thier pdf counterpart if it exists
+		Each element in attachFileData is structured in the following way:
+		If a 'file' object does not exist a 'pdf' counterpart cannot exist
+		 {
+			'file': {
+				'attachFileTmp': 
+				'attachFileName': 
+				'fileType': 
+				'attachFileType':
+				},
+			'pdfFile': {
+				'attachFileTmp': 
+				'attachFileName': 
+				'fileType': 
+				'attachFileType':
+				}
+			} */
 		if($attachFileData != null) {
 			for($i=0; $i < count($attachFileData); $i++) {
-				$res = $this->addDocumentFile("", "", $user, $attachFileData[$i]['attachFileTmp'], $attachFileData[$i]['attachFileName'], $attachFileData[$i]['fileType'], $attachFileData[$i]['attachFileType']);
-				if(is_bool($res[0]) && !$res[0]) {
-					$db->rollbackTransaction();
-					return $res;
+				$fileData = $attachFileData[$i]['file'];
+				$pdfFileData = $attachFileData[$i]['pdfFile'];
+				$file = null;
+				if($fileData) {
+					$res = $this->addDocumentFile("", "", $user, $fileData['attachFileTmp'], $fileData['attachFileName'], $fileData['fileType'], $fileData['attachFileType']);
+					if(is_bool($res[0]) && !$res[0]) {
+						$db->rollbackTransaction();
+						return $res;
+					}
+					$file = $res[1];
+				} 
+				if($pdfFileData) {
+					$res = $file->addDocumentFilePDF("", "", $user, $pdfFileData['attachFileTmp'], $pdfFileData['attachFileName'], $pdfFileData['fileType'], $pdfFileData['attachFileType']);
+					if(is_bool($res[0]) && !$res[0]) {
+						$db->rollbackTransaction();
+						return $res;
+					}
 				}
 			}
 		}
@@ -1907,6 +1937,7 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 		}
 		return $documentFilesByVer;
 	}
+
 
 	function addDocumentFile($name, $comment, $user, $tmpFile, $orgFileName, $fileType, $mimeType) { /* {{{ */
 		$db = $this->_dms->getDB();
@@ -4542,6 +4573,55 @@ class SeedDMS_Core_DocumentFile { /* {{{ */
 	function getDocument() { 
 		return $this->_content->getDocument(); 
 	}
+
+	/**
+     * Add PDF counterpart for an attachment file.
+     *
+     * Each attachment file may have a PDF counterpart
+     * associated with it.
+     *
+     * @param string $comment usused for now
+     * @param object $user the user that created the content
+     * @param string $tmpFile file containing the actual content
+     * @param string $orgFileName original file name
+     * @param string $fileType
+     * @param string $mimeType MimeType of the content
+     * @return contentPDF insert id or false in case of an error
+     */
+    function addDocumentFilePDF($name, $comment, $user, $tmpFile, $orgFileName, $fileType, $mimeType) { /* {{{ */
+        $document = $this->getDocument();
+        $db = $document->_dms->getDB();
+        $fileID = $this->getID();
+        $content = $this->getContent();
+        $filesize = SeedDMS_Core_File::fileSize($tmpFile);
+        $checksum = SeedDMS_Core_File::checksum($tmpFile);
+
+        $queryStr = "INSERT INTO tblDocumentFilesPDF (comment, userID, date, dir, file, fileType, mimeType, orgFileName, name, fileSize, checksum) VALUES ".
+        	"(".$db->qstr($comment).", ".$user->getID().", ".$db->getCurrentTimestamp().", ".$db->qstr($dir).", ".$fileID.", ".$db->qstr($fileType).", ".$db->qstr($mimeType).", ".$db->qstr($orgFileName).",".$db->qstr($name).", ".$filesize.", ".$db->qstr($checksum).")";
+        if (!$db->getResult($queryStr)) {
+            return array(false, "Error adding attachment pdf file");
+        }
+
+        $attachPDFID = $db->getInsertID();
+
+        // copy file
+        if (!SeedDMS_Core_File::makeDir($document->_dms->contentDir . $content->getDir())) {
+            return array(false, "Error making directory during attachment pdf file add");
+        }
+
+        if($document->_dms->forceRename) {
+			$err = SeedDMS_Core_File::renameFile($tmpFile, $document->_dms->contentDir . $content->getDir() . "fp" . $content->_version .  $fileType);
+		}
+		else {
+			$err = SeedDMS_Core_File::copyFile($tmpFile, $document->_dms->contentDir . $content->getDir() . "fp" . $content->_version . $fileType);
+		}
+        if (!$err) {
+            return array(false, "Error copying or renaming the file to the server during attachment pdf file add");
+        }
+
+        return $attachPDFID;
+    } /* }}} */
+
 
 } /* }}} */
 

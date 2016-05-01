@@ -339,6 +339,26 @@ CREATE TABLE `tblDocumentFiles` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 
+-- Table structure for table `tblDocumentFilesPDF`
+-- 
+CREATE TABLE `tblDocumentFilesPDF` (
+  `id` int(11) NOT NULL auto_increment,
+  `userID` int(11) NOT NULL default '0',
+  `file` int(11) NOT NULL default '0',
+  `comment` text,
+  `name` varchar(150) default NULL,
+  `date` int(12) default NULL,
+  `dir` varchar(255) NOT NULL default '',
+  `orgFileName` varchar(150) NOT NULL default '',
+  `fileType` varchar(10) NOT NULL default '',
+  `mimeType` varchar(100) NOT NULL default '',
+  `fileSize` BIGINT,
+  `checksum` char(32), 
+  PRIMARY KEY  (`id`),
+  CONSTRAINT `tblDocumentFiles_file` FOREIGN KEY (`file`) REFERENCES `tblDocumentFiles` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- 
 -- Table structure for table `tblSpecNumbers`
 -- 
 
@@ -761,7 +781,7 @@ CREATE TABLE `tblVersion` (
 -- Initial content for database
 --
 
-INSERT INTO tblUsers VALUES (1, 'admin', '21232f297a57a5a743894a0e4a801fc3', 'Administrator', 'address@server.com', '', '', '', 1, 0, '0000-00-00 00:00:00', 0, 0, 0, NULL);
+INSERT INTO tblUsers VALUES (1, 'admin', '026bf1cf040d6ed2386a9c2fd6f48f60', 'Administrator', 'rachael.sewell@paradetech.com', '', '', '', 1, 0, '0000-00-00 00:00:00', 0, 0, 0, NULL);
 INSERT INTO tblUsers VALUES (2, 'guest', NULL, 'Guest User', NULL, '', '', '', 2, 0, '0000-00-00 00:00:00', 0, 0, 0, NULL);
 INSERT INTO tblFolders VALUES (1, 'DMS', 0, '', 'DMS root', UNIX_TIMESTAMP(), 1, 0, 3, 0);
 INSERT INTO tblVersion VALUES (NOW(), 5, 0, 1);

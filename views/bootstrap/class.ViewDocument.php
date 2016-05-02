@@ -522,8 +522,11 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
             // Attachment Listing Begin
             print "<tr><td></td><td colspan='4'><b>".getMLText("attach_file")."</b></td></tr>";
             foreach($files as $file) {
-
+                $filePDF = $file->getFilePDF();
                 $file_exists=file_exists($dms->contentDir . $file->getPath());
+                if($filePDF) {
+                    $file_exists_PDF=file_exists($dms->contentDir . $filePDF->getPathPDF());
+                }
 
                 $responsibleUser = $latestContent->getUser();
 
@@ -559,6 +562,14 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
                         print "<a data-toggle='tooltip' data-placement='bottom' title='" . getMLText('view_online') . "' target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&file=". $file->getID()."\"><i class=\"icon-star\"></i></a></li>";
                     else print "</li>";
                 } else print "<li><img class=\"mimeicon\" src=\"images/icons/".$this->getMimeIcon($file->getFileType())."\" title=\"".htmlspecialchars($file->getMimeType())."\">";
+                echo "</ul><ul class=\"unstyled actions\">";
+                if($filePDF && $file_exists_PDF) {
+                    print "<td class='table-align-center'><ul class=\"unstyled actions\">";
+                    print "<li><a data-toggle='tooltip' data-placement='bottom' title='" . getMLText('download') . "' href=\"../op/op.Download.php?documentid=".$documentid."&file=".$file->getID()."&pdffile=".$filePDF->getID()."\"><i class=\"icon-download\"></i></a>";
+                    if ($viewonlinefiletypes && in_array(strtolower($filePDF->getFileType()), $viewonlinefiletypes))
+                        print "<a data-toggle='tooltip' data-placement='bottom' title='" . getMLText('view_online') . "' target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&file=".$file->getID()."&pdffile=". $filePDF->getID()."\"><i class=\"icon-star\"></i></a></li>";
+                    else print "</li>";
+                } else print "<li><img class=\"mimeicon\" src=\"images/icons/".$this->getMimeIcon($filePDF->getFileType())."\" title=\"".htmlspecialchars($filePDF->getMimeType())."\">";
                 echo "</ul><ul class=\"unstyled actions\">";
                 print "</ul></td>";
                 print "<td></td>";

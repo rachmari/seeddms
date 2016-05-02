@@ -409,9 +409,6 @@ for ($file_num=0; $file_num<count($_FILES['attachfile']['tmp_name']); $file_num+
 			$attachInfoFile['attachFileType'] = finfo_file($finfo, $attachInfoFile['attachFileTmp']);
 		}
 		
-
-
-
 		if (is_uploaded_file($_FILES['attachfilePDF']['tmp_name'][$file_num])){
 			// Check for a size of 0
 		    if ($_FILES['attachfilePDF']['size'][$file_num] == 0) {
@@ -446,10 +443,12 @@ for ($file_num=0; $file_num<count($_FILES['attachfile']['tmp_name']); $file_num+
 				$finfo = finfo_open(FILEINFO_MIME_TYPE);
 				$attachInfoFile['attachFileType'] = finfo_file($finfo, $attachInfoFile['attachFileTmp']);
 			}
-			$attachInfo['pdfFile'] = $attachInfoPDF;
 		}
+
 		$attachInfo['file'] = $attachInfoFile;
+		$attachInfo['pdfFile'] = $attachInfoPDF;
 		$attachFileData[] = $attachInfo;
+		
 	} 
 }
 if(count($attachFileData) == 0) {

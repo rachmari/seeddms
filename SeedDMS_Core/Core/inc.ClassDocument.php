@@ -1938,6 +1938,19 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 		return $documentFilesByVer;
 	}
 
+	function getFilePDF($ID) { /* {{{ */
+        $db = $this->_dms->getDB();
+        $content = $this->getContent();
+
+		$queryStr = "SELECT * FROM tblDocumentFilesPDF WHERE id = " . (int) $ID;
+		$resArr = $db->getResultArray($queryStr);
+		if ((is_bool($resArr) && !$resArr) || count($resArr)==0) return false;
+
+		$resArr = $resArr[0];
+
+		return new SeedDMS_Core_DocumentFile($resArr["id"], $content, $resArr["userID"], $resArr["comment"], $resArr["date"], $resArr["dir"], $resArr["fileType"], $resArr["mimeType"], $resArr["orgFileName"], $resArr["name"], $resArr["fileSize"], $resArr["checksum"]);
+	} /* }}} */
+
 
 	function addDocumentFile($name, $comment, $user, $tmpFile, $orgFileName, $fileType, $mimeType) { /* {{{ */
 		$db = $this->_dms->getDB();
@@ -4570,6 +4583,10 @@ class SeedDMS_Core_DocumentFile { /* {{{ */
 		return $this->_dir . "f" .$this->_id . $this->_fileType;
 	}
 
+	function getPathPDF() {
+		return $this->_dir . "fp" .$this->getParentFileID() . $this->_fileType;
+	}
+
 	function getDocument() { 
 		return $this->_content->getDocument(); 
 	}
@@ -4597,7 +4614,7 @@ class SeedDMS_Core_DocumentFile { /* {{{ */
         $checksum = SeedDMS_Core_File::checksum($tmpFile);
 
         $queryStr = "INSERT INTO tblDocumentFilesPDF (comment, userID, date, dir, file, fileType, mimeType, orgFileName, name, fileSize, checksum) VALUES ".
-        	"(".$db->qstr($comment).", ".$user->getID().", ".$db->getCurrentTimestamp().", ".$db->qstr($dir).", ".$fileID.", ".$db->qstr($fileType).", ".$db->qstr($mimeType).", ".$db->qstr($orgFileName).",".$db->qstr($name).", ".$filesize.", ".$db->qstr($checksum).")";
+        	"(".$db->qstr($comment).", ".$user->getID().", ".$db->getCurrentTimestamp().", ".$db->qstr($this->_dir).", ".$fileID.", ".$db->qstr($fileType).", ".$db->qstr($mimeType).", ".$db->qstr($orgFileName).",".$db->qstr($name).", ".$filesize.", ".$db->qstr($checksum).")";
         if (!$db->getResult($queryStr)) {
             return array(false, "Error adding attachment pdf file");
         }
@@ -4610,10 +4627,10 @@ class SeedDMS_Core_DocumentFile { /* {{{ */
         }
 
         if($document->_dms->forceRename) {
-			$err = SeedDMS_Core_File::renameFile($tmpFile, $document->_dms->contentDir . $content->getDir() . "fp" . $content->_version .  $fileType);
+			$err = SeedDMS_Core_File::renameFile($tmpFile, $document->_dms->contentDir . $this->_dir . "fp" .$this->_id . $this->_fileType);
 		}
 		else {
-			$err = SeedDMS_Core_File::copyFile($tmpFile, $document->_dms->contentDir . $content->getDir() . "fp" . $content->_version . $fileType);
+			$err = SeedDMS_Core_File::copyFile($tmpFile, $document->_dms->contentDir . $this->_dir . "fp" .$this->_id . $this->_fileType);
 		}
         if (!$err) {
             return array(false, "Error copying or renaming the file to the server during attachment pdf file add");
@@ -4621,6 +4638,33 @@ class SeedDMS_Core_DocumentFile { /* {{{ */
 
         return $attachPDFID;
     } /* }}} */
+
+    function getFilePDF() { /* {{{ */
+    	$document = $this->getDocument();
+        $db = $document->_dms->getDB();
+        $fileID = $this->getID();
+        $content = $this->getContent();
+
+		$queryStr = "SELECT * FROM tblDocumentFilesPDF WHERE file = " . $fileID;
+		$resArr = $db->getResultArray($queryStr);
+		if ((is_bool($resArr) && !$resArr) || count($resArr)==0) return false;
+
+		$resArr = $resArr[0];
+
+		return new SeedDMS_Core_DocumentFile($resArr["id"], $content, $resArr["userID"], $resArr["comment"], $resArr["date"], $resArr["dir"], $resArr["fileType"], $resArr["mimeType"], $resArr["orgFileName"], $resArr["name"], $resArr["fileSize"], $resArr["checksum"]);
+	} /* }}} */
+
+	function getParentFileID() {
+		$document = $this->getDocument();
+		$db = $document->_dms->getDB();
+		$queryStr = "SELECT * FROM tblDocumentFilesPDF WHERE id = " . $this->_id;
+		$resArr = $db->getResultArray($queryStr);
+		if ((is_bool($resArr) && !$resArr) || count($resArr)==0) return false;
+
+		$resArr = $resArr[0];
+		return $resArr['file'];
+	}
+
 
 
 } /* }}} */

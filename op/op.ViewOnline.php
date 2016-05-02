@@ -98,12 +98,31 @@ if(isset($_GET["version"])) {
 		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_file_id"));
 	}
 
-	if (isset($settings->_viewOnlineFileTypes) && is_array($settings->_viewOnlineFileTypes) && in_array(strtolower($file->getFileType()), $settings->_viewOnlineFileTypes)) {
-		header("Content-Type: " . $file->getMimeType());
+	if(isset($_GET["pdffile"])) {
+		$pdffileid = $_GET["pdffile"];
+
+		if (!is_numeric($fileid) || intval($fileid)<1) {
+			UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
+		}
+
+		$pdffile = $file->getFilePDF();
+		if (isset($settings->_viewOnlineFileTypes) && is_array($settings->_viewOnlineFileTypes) && in_array(strtolower($pdffile->getFileType()), $settings->_viewOnlineFileTypes)) {
+			header("Content-Type: " . $pdffile->getMimeType());
+		}
+		$filepath = $dms->contentDir . $pdffile->getDir() . "fp" .$file->getID() . $pdffile->getFileType();
+
+		header("Content-Disposition: filename=\"" . $pdffile->getOriginalFileName() . "\"");
+		header("Content-Length: " . filesize($filepath));
+	} else {
+
+		if (isset($settings->_viewOnlineFileTypes) && is_array($settings->_viewOnlineFileTypes) && in_array(strtolower($file->getFileType()), $settings->_viewOnlineFileTypes)) {
+			header("Content-Type: " . $file->getMimeType());
+		}
+		$filepath = $dms->contentDir . $file->getPath();
+
+		header("Content-Disposition: filename=\"" . $file->getOriginalFileName() . "\"");
+		header("Content-Length: " . filesize($filepath));
 	}
-	$filepath = $dms->contentDir . $file->getPath();
-	header("Content-Disposition: filename=\"" . $file->getOriginalFileName() . "\"");
-	header("Content-Length: " . filesize($filepath));
 	header("Expires: 0");
 	header("Cache-Control: no-cache, must-revalidate");
 	header("Pragma: no-cache");

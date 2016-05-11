@@ -62,15 +62,12 @@ class SeedDMS_View_AddDocument extends SeedDMS_Bootstrap_Style {
 <script language="JavaScript">
 
 $(document).ready(function() {
-<?php ini_get('upload_max_filesize'); ?>
 	var addUploader = function() {
 	    var template = $('#upload-template').html();
 	    $('#uploads').prepend(template);
 	};
 	addUploader();
-	/*$('#new-file').click(function(event) {
-			$("#upload-file").clone().appendTo("#upload-files").removeAttr("id").children('div').children('input').val('');
-	});*/
+
 	$('#uploads').on('change', '.upload-input', function() {
 	    var fileName = $(this).val().replace(/^.*[\\\/]/, '');
 	    $(this).addClass('hidden');

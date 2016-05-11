@@ -1419,7 +1419,7 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 		}
 
 		$db->commitTransaction();
-		return array(true, $docResultSet);
+		return array(true, $content);
 	} /* }}} */
 
 	/**

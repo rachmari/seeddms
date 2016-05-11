@@ -34,6 +34,32 @@ class SeedDMS_View_UpdateDocument extends SeedDMS_Bootstrap_Style {
 	function __takeOverButton($name, $users) { /* {{{ */
 ?>
 	<span id="<?php echo $name; ?>_btn" style="cursor: pointer;" title="<?php printMLText("takeOver".$name); ?>"><i class="icon-arrow-left"></i></span>
+
+<?php
+	} /* }}} */
+
+	function show() { /* {{{ */
+		$dms = $this->params['dms'];
+		$user = $this->params['user'];
+		$folder = $this->params['folder'];
+		$document = $this->params['document'];
+		$strictformcheck = $this->params['strictformcheck'];
+		$enablelargefileupload = $this->params['enablelargefileupload'];
+		$enableadminrevapp = $this->params['enableadminrevapp'];
+		$enableownerrevapp = $this->params['enableownerrevapp'];
+		$enableselfrevapp = $this->params['enableselfrevapp'];
+		$dropfolderdir = $this->params['dropfolderdir'];
+		$workflowmode = $this->params['workflowmode'];
+		$presetexpiration = $this->params['presetexpiration'];
+		$documentid = $document->getId();
+		$sortusersinlist = $this->params['sortusersinlist'];
+		$notifyList = $document->getNotifyList();
+
+		$this->htmlStartPage(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))));
+		$this->globalNavigation($folder);
+		$this->contentHeading(getMLText("revising").$document->getDocNum());
+		$this->contentStart();
+?>
 <script id="upload-template" type="text/template">
   <div class="upload ">
   	<span class='myLabel'></span>
@@ -44,7 +70,7 @@ class SeedDMS_View_UpdateDocument extends SeedDMS_Bootstrap_Style {
     </div>
   </div>
 </script>
-<script>
+<script language="JavaScript">
 $(document).ready( function() {
 	$('#<?php echo $name; ?>_btn').click(function(ev){
 		ev.preventDefault();
@@ -55,27 +81,21 @@ $(document).ready( function() {
 ?>
 		$("#<?php echo $name; ?>").trigger("chosen:updated");
 	});
-});
-</script>
-<?php
-	} /* }}} */
 
+<?php
 	function js() { /* {{{ */
 		$strictformcheck = $this->params['strictformcheck'];
 		$dropfolderdir = $this->params['dropfolderdir'];
 		header('Content-Type: application/javascript');
 		$this->printDropFolderChooserJs("form1");
+	}
 ?>
-
-$(document).ready( function() {
 	var addUploader = function() {
 	    var template = $('#upload-template').html();
 	    $('#uploads').prepend(template);
-	  };
+	};
 	addUploader();
-	/*$('#new-file').click(function(event) {
-			$("#upload-file").clone().appendTo("#upload-files").removeAttr("id").children('div').children('input').val('');
-	});*/
+
 	$('#uploads').on('change', '.upload-input', function() {
 	    var fileName = $(this).val().replace(/^.*[\\\/]/, '');
 	    $(this).addClass('hidden');
@@ -83,11 +103,11 @@ $(document).ready( function() {
 	    $(this).siblings('.myLabel').addClass('hidden');
 	    $(this).siblings('.file').children('.filename').text(fileName);
 	    addUploader();
-	  });
+	});
 
-	 $('#uploads').on('click', '.delete', function() {
-	    $(this).parents('.upload').remove();
-	  });
+	$('#uploads').on('click', '.delete', function() {
+		$(this).parents('.upload').remove();
+	});
 
 	$('#userfilePDF').change(function(event) {
 		msg = new Array();
@@ -262,31 +282,8 @@ $(document).ready( function() {
 		$(this).parents('.add_row').remove();
 	}));
 });
+</script>
 <?php
-	} /* }}} */
-
-	function show() { /* {{{ */
-		$dms = $this->params['dms'];
-		$user = $this->params['user'];
-		$folder = $this->params['folder'];
-		$document = $this->params['document'];
-		$strictformcheck = $this->params['strictformcheck'];
-		$enablelargefileupload = $this->params['enablelargefileupload'];
-		$enableadminrevapp = $this->params['enableadminrevapp'];
-		$enableownerrevapp = $this->params['enableownerrevapp'];
-		$enableselfrevapp = $this->params['enableselfrevapp'];
-		$dropfolderdir = $this->params['dropfolderdir'];
-		$workflowmode = $this->params['workflowmode'];
-		$presetexpiration = $this->params['presetexpiration'];
-		$documentid = $document->getId();
-		$sortusersinlist = $this->params['sortusersinlist'];
-		$notifyList = $document->getNotifyList();
-
-		$this->htmlStartPage(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))));
-		$this->globalNavigation($folder);
-		$this->contentHeading(getMLText("revising").$document->getDocNum());
-		$this->contentStart();
-
 
 		if ($document->isLocked()) {
 

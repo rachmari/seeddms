@@ -279,58 +279,105 @@ if (is_uploaded_file($_FILES["userfilePDF"]["tmp_name"])){
 }
 	
 $attachFileData = array();
-for ($file_num=0; $file_num<count($_FILES["attachfile"]["tmp_name"]); $file_num++){
+for ($file_num=0; $file_num<count($_FILES['attachfile']['tmp_name']); $file_num++){
 	/*
 		Perform some checks before proceeding with storage
 		Ensure files were uploaded to the server via HTTP POST
+
 	*/
-	if (is_uploaded_file($_FILES["attachfile"]["tmp_name"][$file_num])){
+
+	if (is_uploaded_file($_FILES['attachfile']['tmp_name'][$file_num])){
 		// Check for a size of 0
-	    if ($_FILES["attachfile"]["size"][$file_num] == 0) {
+	    if ($_FILES['attachfile']['size'][$file_num] == 0) {
 	        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_zerosize"));
 	    }
 	    // Check for max file size of 60MB
-	    if ($_FILES["attachfile"]["size"][$file_num] > 60*1024*1024) {
-	        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),$_FILES["attachfile"]["name"][$file_num] . " " . getMLText("uploading_maxsize"));
+	    if ($_FILES['attachfile']['size'][$file_num] > 60*1024*1024) {
+	        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),$_FILES['attachfile']['name'][$file_num] . " " . getMLText("uploading_maxsize"));
 	    }
 	    // Check for any logged errors
 	    if ($_FILES['attachfile']['error'][$file_num] != 0){
 	        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
 	    }
-	}
 
-	$attachInfo = array();
-	$attachInfo['name'] = null;
-	$attachInfo['attachFileTmp'] = $_FILES['attachfile']['tmp_name'][$file_num];
-	// MIME type of file
-	$attachInfo['attachFileType'] = $_FILES['attachfile']['type'][$file_num];
-	
+	    /*
+	    	If checks pass add the attachment file(s)
+	    	Location of file in tmp directory
+	 	*/
+	   	$attachInfoFile = array();
+	   	$attachInfoFile['name'] = null;
+		$attachInfoFile['attachFileTmp'] = $_FILES['attachfile']['tmp_name'][$file_num];
+		// MIME type of file
+		$attachInfoFile['attachFileType'] = $_FILES['attachfile']['type'][$file_num];
+		
 
-	// Original file name
-	$filename = $_FILES['attachfile']['name'][$file_num];
+		// Original file name
+		$filename = $_FILES['attachfile']['name'][$file_num];
 
-	$attachInfo['fileType'] = ".".pathinfo($filename, PATHINFO_EXTENSION);
-	$attachInfo['attachFileName'] = basename($filename);
+		$attachInfoFile['fileType'] = ".".pathinfo($filename, PATHINFO_EXTENSION);
+		$attachInfoFile['attachFileName'] = basename($filename);
 
-	if($settings->_overrideMimeType) {
-		$finfo = finfo_open(FILEINFO_MIME_TYPE);
-		$attachInfo['attachFileType'] = finfo_file($finfo, $attachInfo['attachFileTmp']);
-	}
-	$attachFileData[$file_num] = $attachInfo;
+		if($settings->_overrideMimeType) {
+			$finfo = finfo_open(FILEINFO_MIME_TYPE);
+			$attachInfoFile['attachFileType'] = finfo_file($finfo, $attachInfoFile['attachFileTmp']);
+		}
+		if($FILES['attachfilePDF']){
+		if (is_uploaded_file($_FILES['attachfilePDF']['tmp_name'][$file_num])){
+			// Check for a size of 0
+		    if ($_FILES['attachfilePDF']['size'][$file_num] == 0) {
+		        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_zerosize"));
+		    }
+		    // Check for max file size of 60MB
+		    if ($_FILES['attachfilePDF']['size'][$file_num] > 60*1024*1024) {
+		        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),$_FILES['attachfile']['name'][$file_num] . " " . getMLText("uploading_maxsize"));
+		    }
+		    // Check for any logged errors
+		    if ($_FILES['attachfilePDF']['error'][$file_num] != 0){
+		        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
+		    }
+
+		    /*
+		    	If checks pass add the attachment file(s)
+		    	Location of file in tmp directory
+		 	*/
+		   	$attachInfoPDF = array();
+		   	$attachInfoPDF['name'] = null;
+			$attachInfoFile['attachFileTmp'] = $_FILES['attachfilePDF']['tmp_name'][$file_num];
+			// MIME type of file
+			$attachInfoFile['attachFileType'] = $_FILES['attachfilePDF']['type'][$file_num];
+			
+
+			// Original file name
+			$filename = $_FILES['attachfilePDF']['name'][$file_num];
+
+			$attachInfoFile['fileType'] = ".".pathinfo($filename, PATHINFO_EXTENSION);
+			$attachInfoFile['attachFileName'] = basename($filename);
+
+			if($settings->_overrideMimeType) {
+				$finfo = finfo_open(FILEINFO_MIME_TYPE);
+				$attachInfoFile['attachFileType'] = finfo_file($finfo, $attachInfoFile['attachFileTmp']);
+			}
+			$attachInfo['pdfFile'] = $attachInfoPDF;
+		}}
+
+		$attachInfo['file'] = $attachInfoFile;
+		$attachFileData[] = $attachInfo;
+		
+	} 
 }
-
 if(count($attachFileData) == 0) {
 	$attachFileData = null;
 }
 
 $contentResult=$document->addContent($comment, $user, $userfiletmp, basename($userfilename), $fileType, $userfiletype, $reviewers, $approvers, $version=0, $attributes, $workflow, $pdfData, $attachFileData);
 
-if (is_bool($contentResult) && !$contentResult) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+if (is_bool($contentResult[0]) && !$contentResult[0]) {
+	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),$contentResult[1]);
 }
 else {
 	// Temporary fix to update doc links using remove all. 
 	// Next version will update database to version document links.
+	$content = $contentResult[1];
 	if(!$document->removeAllDocumentLinks()){
 		UI::exitError(getMLText("document_title", array("documentname" => $document->getID())),$linkID);
 	}
@@ -383,7 +430,7 @@ else {
 		$params['folder_path'] = $folder->getFolderPathPlain();
 		$params['username'] = $user->getFullName();
 		$params['comment'] = $document->getComment();
-		$params['version_comment'] = $contentResult->getContent()->getComment();
+		$params['version_comment'] = $content->getComment();
 		$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?docnum=".$document->getDocNum();
 		$params['sitename'] = $settings->_siteName;
 		$params['http_root'] = $settings->_httpRoot;

@@ -66,8 +66,8 @@ $(document).ready(function() {
 	var addUploader = function() {
 	    var template = $('#upload-template').html();
 	    $('#uploads').prepend(template);
-	  };
-	 addUploader();
+	};
+	addUploader();
 	/*$('#new-file').click(function(event) {
 			$("#upload-file").clone().appendTo("#upload-files").removeAttr("id").children('div').children('input').val('');
 	});*/
@@ -80,9 +80,9 @@ $(document).ready(function() {
 	    addUploader();
 	  });
 
-	 $('#uploads').on('click', '.delete', function() {
+	$('#uploads').on('click', '.delete', function() {
 	    $(this).parents('.upload').remove();
-	  });
+	});
 
 	$('#userfilePDF').change(function(event) {
 		msg = new Array();

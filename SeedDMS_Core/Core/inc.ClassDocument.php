@@ -1221,7 +1221,7 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 	 * @param array $attachFileData contains all attachment files with associated data
 	 * @return bool/array false in case of an error or a result set
 	 */
-	function addContent($comment, $user, $tmpFile, $orgFileName, $fileType, $mimeType, $reviewers=array(), $approvers=array(), $version=0, $attributes=array(), $workflow=null, $pdfData=null, $attachFileData=null) { /* {{{ */
+	function addContent($comment, $user, $tmpFile, $orgFileName, $fileType, $mimeType, $reviewers=array(), $approvers=array(), $version=0, $attributes=array(), $workflow=null, $pdfData=null, $attachFileData=null, $date=null, $status=null, $name=null) { /* {{{ */
 		$db = $this->_dms->getDB();
 
 		// the doc path is id/version.filetype
@@ -1244,11 +1244,15 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 		$checksum = SeedDMS_Core_File::checksum($tmpFile);
 
 		$db->startTransaction();
-		$queryStr = "INSERT INTO tblDocumentContent (document, version, comment, date, createdBy, dir, orgFileName, fileType, mimeType, fileSize, checksum) VALUES ".
-						"(".$this->_id.", ".(int)$version.",".$db->qstr($comment).", ".$db->getCurrentTimestamp().", ".$user->getID().", ".$db->qstr($dir).", ".$db->qstr($orgFileName).", ".$db->qstr($fileType).", ".$db->qstr($mimeType).", ".$filesize.", ".$db->qstr($checksum).")";
+		if(!$date) {
+			$date = $db->getCurrentTimestamp();
+		}
+		$queryStr = "INSERT INTO tblDocumentContent (document, version, comment, date, createdBy, dir, orgFileName, fileType, mimeType, fileSize, checksum, name) VALUES ".
+						"(".$this->_id.", ".(int)$version.",".$db->qstr($comment).", ".$date.", ".$user->getID().", ".$db->qstr($dir).", ".$db->qstr($orgFileName).", ".$db->qstr($fileType).", ".$db->qstr($mimeType).", ".$filesize.", ".$db->qstr($checksum).", ".$db->qstr($name).")";
+
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();
-			return array(false, "Error adding document content");
+			return array(false, "Error adding document content " . $queryStr);
 		}
 
 		$contentID = $db->getInsertID();
@@ -1269,8 +1273,8 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 
 		unset($this->_content);
 		unset($this->_latestContent);
-		$content = $this->getLatestContent($contentID);
-//		$content = new SeedDMS_Core_DocumentContent($contentID, $this, $version, $comment, $date, $user->getID(), $dir, $orgFileName, $fileType, $mimeType, $filesize, $checksum);
+		$content = $this->getContentByID($contentID);
+
 		if($workflow)
 			$content->setWorkflow($workflow, $user);
 		$docResultSet = new SeedDMS_Core_AddContentResultSet($content);
@@ -1350,7 +1354,8 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 		elseif($workflow) {
 			$status = S_IN_WORKFLOW;
 			$comment = ", workflow: ".$workflow->getName();
-		} else {
+		} 
+		elseif($status == null) {
 			$status = S_RELEASED;
 			$comment = "";
 		}
@@ -1365,8 +1370,7 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 
 		/* Add PDF Counterpart for content file */
 		if($pdfData != null) {
-			$pdfVersion = $this->getLatestContent()->getVersion();
-			$res = $this->addContentPDF($comment, $user, $pdfData['pdfFileTmp'], $pdfData['pdfFileName'], $pdfData['fileType'], $pdfData['pdfFileType'], $pdfVersion);
+			$res = $this->addContentPDF($comment, $user, $pdfData['pdfFileTmp'], $pdfData['pdfFileName'], $pdfData['fileType'], $pdfData['pdfFileType'], $version, $pdfData['name']);
 
 			if(is_bool($res[0]) && !$res[0]) {
 				$db->rollbackTransaction();
@@ -1394,18 +1398,18 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 		if($attachFileData != null) {
 			for($i=0; $i < count($attachFileData); $i++) {
 				$fileData = $attachFileData[$i]['file'];
-				$pdfFileData = $attachFileData[$i]['pdfFile'];
 				$file = null;
 				if($fileData) {
-					$res = $this->addDocumentFile("", "", $user, $fileData['attachFileTmp'], $fileData['attachFileName'], $fileData['fileType'], $fileData['attachFileType']);
+					$res = $this->addDocumentFile($fileData['name'], "", $user, $fileData['attachFileTmp'], $fileData['attachFileName'], $fileData['fileType'], $fileData['attachFileType']);
 					if(is_bool($res[0]) && !$res[0]) {
 						$db->rollbackTransaction();
 						return $res;
 					}
 					$file = $res[1];
 				} 
-				if($pdfFileData) {
-					$res = $file->addDocumentFilePDF("", "", $user, $pdfFileData['attachFileTmp'], $pdfFileData['attachFileName'], $pdfFileData['fileType'], $pdfFileData['attachFileType']);
+				if($attachFileData[$i]['pdfFile']) {
+					$pdfFileData = $attachFileData[$i]['pdfFile'];
+					$res = $file->addDocumentFilePDF($pdfFileData['name'], "", $user, $pdfFileData['attachFileTmp'], $pdfFileData['attachFileName'], $pdfFileData['fileType'], $pdfFileData['attachFileType']);
 					if(is_bool($res[0]) && !$res[0]) {
 						$db->rollbackTransaction();
 						return $res;
@@ -1566,6 +1570,20 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 		return $this->_latestContent;
 	} /* }}} */
 
+	function getContentByID($ID) { /* {{{ */
+		$db = $this->_dms->getDB();
+		$queryStr = "SELECT * FROM tblDocumentContent WHERE id = ".$ID;
+		$resArr = $db->getResultArray($queryStr);
+		if (is_bool($resArr) && !$resArr)
+			return false;
+		if (count($resArr) != 1)
+			return false;
+
+		$resArr = $resArr[0];
+		$this->_content = new SeedDMS_Core_DocumentContent($resArr["id"], $this, $resArr["version"], $resArr["comment"], $resArr["date"], $resArr["createdBy"], $resArr["dir"], $resArr["orgFileName"], $resArr["fileType"], $resArr["mimeType"], $resArr['fileSize'], $resArr['checksum']);
+		return $this->_content;
+	} /* }}} */
+
 	function removeContent($version) { /* {{{ */
 		$db = $this->_dms->getDB();
 
@@ -1691,16 +1709,16 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
      * @param string $mimeType MimeType of the content
      * @return contentPDF insert id or false in case of an error
      */
-    function addContentPDF($comment, $user, $tmpFile, $orgFileName, $fileType, $mimeType, $version=0) { /* {{{ */
+    function addContentPDF($comment, $user, $tmpFile, $orgFileName, $fileType, $mimeType, $version=0, $name=null) { /* {{{ */
         $db = $this->_dms->getDB();
-        $content = $this->getLatestContent();
+        $content = $this->_content;
         $filesize = SeedDMS_Core_File::fileSize($tmpFile);
         $checksum = SeedDMS_Core_File::checksum($tmpFile);
+        $queryStr = "INSERT INTO tblDocumentContentPDF (content, version, comment, date, createdBy, dir, orgFileName, fileType, mimeType, fileSize, checksum, name) VALUES ".
+                        "(" . $content->getID() . ", " . $content->getVersion() . ", '" . $comment . "', " . $content->getDate() . ", " . $content->getUser()->getID() . ", '" . $content->getDir() . "', " . $db->qstr($orgFileName) . ", " . $db->qstr($fileType) . ", " . $db->qstr($mimeType) . ", " . $filesize . ", " . $db->qstr($checksum) . ", " . $db->qstr($name) . ")";
 
-        $queryStr = "INSERT INTO tblDocumentContentPDF (content, version, comment, date, createdBy, dir, orgFileName, fileType, mimeType, fileSize, checksum) VALUES ".
-                        "(" . $content->getID() . ", " . $content->getVersion() . ", '" . $comment . "', " . $content->getDate() . ", " . $content->getUser()->getID() . ", '" . $content->getDir() . "', " . $db->qstr($orgFileName) . ", " . $db->qstr($fileType) . ", " . $db->qstr($mimeType) . ", " . $filesize . ", " . $db->qstr($checksum) .")";
         if (!$db->getResult($queryStr)) {
-            return array(false, "Error adding pdf content");
+            return array(false, "Error adding pdf content: " . $queryStr);
         }
 
         $pdfID = $db->getInsertID();
@@ -1894,16 +1912,16 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 
 	function getDocumentFile($ID) { /* {{{ */
 		$db = $this->_dms->getDB();
-		$latest_content = $this->getLatestContent();
+		$content = $this->_content;
 
 		if (!is_numeric($ID)) return false;
-		$queryStr = "SELECT * FROM tblDocumentFiles WHERE content = " . $latest_content->_id ." AND id = " . (int) $ID;
+		$queryStr = "SELECT * FROM tblDocumentFiles WHERE content = " . $content->_id ." AND id = " . (int) $ID;
 		$resArr = $db->getResultArray($queryStr);
 		if ((is_bool($resArr) && !$resArr) || count($resArr)==0) return false;
 
 		$resArr = $resArr[0];
 
-		return new SeedDMS_Core_DocumentFile($resArr["id"], $latest_content, $resArr["userID"], $resArr["comment"], $resArr["date"], $resArr["dir"], $resArr["fileType"], $resArr["mimeType"], $resArr["orgFileName"], $resArr["name"], $resArr["fileSize"], $resArr["checksum"]);
+		return new SeedDMS_Core_DocumentFile($resArr["id"], $content, $resArr["userID"], $resArr["comment"], $resArr["date"], $resArr["dir"], $resArr["fileType"], $resArr["mimeType"], $resArr["orgFileName"], $resArr["name"], $resArr["fileSize"], $resArr["checksum"]);
 	} /* }}} */
 
 	function getDocumentFiles() { /* {{{ */
@@ -1955,13 +1973,14 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 	function addDocumentFile($name, $comment, $user, $tmpFile, $orgFileName, $fileType, $mimeType) { /* {{{ */
 		$db = $this->_dms->getDB();
 		$dir = $this->getDir();
-		$content = $this->getLatestContent();
+		$content = $this->_content;
 		$filesize = SeedDMS_Core_File::fileSize($tmpFile);
 		$checksum = SeedDMS_Core_File::checksum($tmpFile);
 
 		$queryStr = "INSERT INTO tblDocumentFiles (comment, userID, date, dir, content, fileType, mimeType, orgFileName, name, fileSize, checksum) VALUES ".
-			"(".$db->qstr($comment).", ".$user->getID().", ".$db->getCurrentTimestamp().", ".$db->qstr($dir).", ".$content->getID().", ".$db->qstr($fileType).", ".$db->qstr($mimeType).", ".$db->qstr($orgFileName).",".$db->qstr($name).", ".$filesize.", ".$db->qstr($checksum).")";
-		if (!$db->getResult($queryStr)) return array(false, "Error adding document file");
+			"(".$db->qstr($comment).", ".$user->getID().", ".$content->getDate().", ".$db->qstr($dir).", ".$content->getID().", ".$db->qstr($fileType).", ".$db->qstr($mimeType).", ".$db->qstr($orgFileName).",".$db->qstr($name).", ".$filesize.", ".$db->qstr($checksum).")";
+
+		if (!$db->getResult($queryStr)) return array(false, "Error adding document file ". $queryStr);
 
 		$id = $db->getInsertID();
 
@@ -4609,14 +4628,15 @@ class SeedDMS_Core_DocumentFile { /* {{{ */
         $document = $this->getDocument();
         $db = $document->_dms->getDB();
         $fileID = $this->getID();
-        $content = $this->getContent();
+        $content = $this->_content;
         $filesize = SeedDMS_Core_File::fileSize($tmpFile);
         $checksum = SeedDMS_Core_File::checksum($tmpFile);
 
         $queryStr = "INSERT INTO tblDocumentFilesPDF (comment, userID, date, dir, file, fileType, mimeType, orgFileName, name, fileSize, checksum) VALUES ".
-        	"(".$db->qstr($comment).", ".$user->getID().", ".$db->getCurrentTimestamp().", ".$db->qstr($this->_dir).", ".$fileID.", ".$db->qstr($fileType).", ".$db->qstr($mimeType).", ".$db->qstr($orgFileName).",".$db->qstr($name).", ".$filesize.", ".$db->qstr($checksum).")";
+        	"(".$db->qstr($comment).", ".$user->getID().", ".$content->getDate().", ".$db->qstr($this->_dir).", ".$fileID.", ".$db->qstr($fileType).", ".$db->qstr($mimeType).", ".$db->qstr($orgFileName).",".$db->qstr($name).", ".$filesize.", ".$db->qstr($checksum).")";
+
         if (!$db->getResult($queryStr)) {
-            return array(false, "Error adding attachment pdf file");
+            return array(false, "Error adding attachment pdf file " . $queryStr);
         }
 
         $attachPDFID = $db->getInsertID();

@@ -263,6 +263,7 @@ if (is_uploaded_file($_FILES["userfilePDF"]["tmp_name"])){
     	Location of file in tmp directory
  	*/
 	$pdfData = array();
+	$pdfData['name'] = null;
 	$pdfData['pdfFileTmp'] = $_FILES['userfilePDF']['tmp_name'];
 	// MIME type of file
 	$pdfData['pdfFileType'] = $_FILES['userfilePDF']['type'];
@@ -299,6 +300,7 @@ for ($file_num=0; $file_num<count($_FILES["attachfile"]["tmp_name"]); $file_num+
 	}
 
 	$attachInfo = array();
+	$attachInfo['name'] = null;
 	$attachInfo['attachFileTmp'] = $_FILES['attachfile']['tmp_name'][$file_num];
 	// MIME type of file
 	$attachInfo['attachFileType'] = $_FILES['attachfile']['type'][$file_num];

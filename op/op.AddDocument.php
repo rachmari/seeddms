@@ -63,7 +63,7 @@ if($version_comment == "" && isset($_POST["use_comment"]))
 	$version_comment = $comment;
 
 if(isset($_POST['setDocNumber'])) {
-	$setDocNumber = $_POST['setDocNumber'];
+	$setDocNumber = $user->_login . "-" . $_POST['setDocNumber'];
 } else {
 	$setDocNumber = null;
 }
@@ -345,6 +345,7 @@ if (is_uploaded_file($_FILES["userfilePDF"]["tmp_name"])){
 		Location of file in tmp directory
 	*/
     $pdfData = array();
+    $pdfData['name'] = null;
 	$pdfData['pdfFileTmp'] = $_FILES['userfilePDF']['tmp_name'];
 	// MIME type of file
 	$pdfData['pdfFileType'] = $_FILES['userfilePDF']['type'];
@@ -393,6 +394,7 @@ for ($file_num=0; $file_num<count($_FILES['attachfile']['tmp_name']); $file_num+
 	    	Location of file in tmp directory
 	 	*/
 	   	$attachInfoFile = array();
+	   	$attachInfoFile['name'] = null;
 		$attachInfoFile['attachFileTmp'] = $_FILES['attachfile']['tmp_name'][$file_num];
 		// MIME type of file
 		$attachInfoFile['attachFileType'] = $_FILES['attachfile']['type'][$file_num];
@@ -408,7 +410,7 @@ for ($file_num=0; $file_num<count($_FILES['attachfile']['tmp_name']); $file_num+
 			$finfo = finfo_open(FILEINFO_MIME_TYPE);
 			$attachInfoFile['attachFileType'] = finfo_file($finfo, $attachInfoFile['attachFileTmp']);
 		}
-		
+		if($FILES['attachfilePDF']){
 		if (is_uploaded_file($_FILES['attachfilePDF']['tmp_name'][$file_num])){
 			// Check for a size of 0
 		    if ($_FILES['attachfilePDF']['size'][$file_num] == 0) {
@@ -428,6 +430,7 @@ for ($file_num=0; $file_num<count($_FILES['attachfile']['tmp_name']); $file_num+
 		    	Location of file in tmp directory
 		 	*/
 		   	$attachInfoPDF = array();
+		   	$attachInfoPDF['name'] = null;
 			$attachInfoFile['attachFileTmp'] = $_FILES['attachfilePDF']['tmp_name'][$file_num];
 			// MIME type of file
 			$attachInfoFile['attachFileType'] = $_FILES['attachfilePDF']['type'][$file_num];
@@ -443,10 +446,10 @@ for ($file_num=0; $file_num<count($_FILES['attachfile']['tmp_name']); $file_num+
 				$finfo = finfo_open(FILEINFO_MIME_TYPE);
 				$attachInfoFile['attachFileType'] = finfo_file($finfo, $attachInfoFile['attachFileTmp']);
 			}
-		}
+			$attachInfo['pdfFile'] = $attachInfoPDF;
+		}}
 
 		$attachInfo['file'] = $attachInfoFile;
-		$attachInfo['pdfFile'] = $attachInfoPDF;
 		$attachFileData[] = $attachInfo;
 		
 	} 

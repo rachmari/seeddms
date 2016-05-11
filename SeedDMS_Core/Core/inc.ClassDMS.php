@@ -563,6 +563,8 @@ class SeedDMS_Core_DMS {
 
 		if (is_bool($resArr) && !$resArr)
 			return false;
+		if(!$resArr)
+			return false;
 		return  $resArr[0]['myDoc'];
 	} /* }}} */
 

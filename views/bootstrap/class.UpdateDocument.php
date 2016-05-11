@@ -34,6 +34,16 @@ class SeedDMS_View_UpdateDocument extends SeedDMS_Bootstrap_Style {
 	function __takeOverButton($name, $users) { /* {{{ */
 ?>
 	<span id="<?php echo $name; ?>_btn" style="cursor: pointer;" title="<?php printMLText("takeOver".$name); ?>"><i class="icon-arrow-left"></i></span>
+<script id="upload-template" type="text/template">
+  <div class="upload ">
+  	<span class='myLabel'></span>
+    <input class="upload-input" type="file" name="attachfile[]">
+    <div class="file hidden">
+      <span class="filename"></span>
+      <span class='delete btn no-button-effects no-pointer'><i class='icon-remove delete-row'></i>
+    </div>
+  </div>
+</script>
 <script>
 $(document).ready( function() {
 	$('#<?php echo $name; ?>_btn').click(function(ev){
@@ -58,6 +68,27 @@ $(document).ready( function() {
 ?>
 
 $(document).ready( function() {
+	var addUploader = function() {
+	    var template = $('#upload-template').html();
+	    $('#uploads').prepend(template);
+	  };
+	addUploader();
+	/*$('#new-file').click(function(event) {
+			$("#upload-file").clone().appendTo("#upload-files").removeAttr("id").children('div').children('input').val('');
+	});*/
+	$('#uploads').on('change', '.upload-input', function() {
+	    var fileName = $(this).val().replace(/^.*[\\\/]/, '');
+	    $(this).addClass('hidden');
+	    $(this).siblings('.file').removeClass('hidden');
+	    $(this).siblings('.myLabel').addClass('hidden');
+	    $(this).siblings('.file').children('.filename').text(fileName);
+	    addUploader();
+	  });
+
+	 $('#uploads').on('click', '.delete', function() {
+	    $(this).parents('.upload').remove();
+	  });
+
 	$('#userfilePDF').change(function(event) {
 		msg = new Array();
 		var file = this.files[0];
@@ -320,11 +351,7 @@ $(document).ready( function() {
         </tr>
 		<tr>
             <td><?php printMLText("attach_file");?>:</td>
-            <td>
-<?php
-    $this->printFileChooser('attachfile[]', true);
-?>
-            </td>
+            <td><div id='uploads'></div></td>
         </tr>
 <?php if($dropfolderdir) { ?>
 		<tr>

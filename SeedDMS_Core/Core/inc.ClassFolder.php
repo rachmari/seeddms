@@ -785,13 +785,16 @@ class SeedDMS_Core_Folder extends SeedDMS_Core_Object {
 	 * @param array $version_attributes list of document version attributes.
 	 *        The element key must be the id of the attribute definition.
 	 * @param object $workflow
+	 * @param string $docNumber the document numbmer to manually enter 
+	 * @param int $parade 1 if a parade doc 0 if a cypress doc
 	 * @param array $pdfData list of pdf file data.
 	 * @param array $attachFileData contains all attachment files with associated data
+	 * @param integer $access the default access mode for the document. Set to M_READ by default.
 	 * @return array/boolean false in case of error, otherwise an array
 	 *        containing two elements. The first one is the new document, the
 	 *        second one is the result set returned when inserting the content.
 	 */
-	function addDocument($name, $comment, $expires, $owner, $keywords, $categories, $tmpFile, $orgFileName, $fileType, $mimeType, $sequence, $reviewers=array(), $approvers=array(),$reqversion=0,$version_comment="", $attributes=array(), $version_attributes=array(), $workflow=null, $docNumber=null, $paradeDoc=1, $pdfData=null, $attachFileData=null) { /* {{{ */
+	function addDocument($name, $comment, $expires, $owner, $keywords, $categories, $tmpFile, $orgFileName, $fileType, $mimeType, $sequence, $reviewers=array(), $approvers=array(),$reqversion=0,$version_comment="", $attributes=array(), $version_attributes=array(), $workflow=null, $docNumber=null, $parade=1, $pdfData=null, $attachFileData=null, $access=M_READ, $date=null, $status=null, $fname=null) { /* {{{ */
 		$db = $this->_dms->getDB();
 
 		$expires = (!$expires) ? 0 : $expires;
@@ -808,8 +811,12 @@ class SeedDMS_Core_Folder extends SeedDMS_Core_Object {
 
 		$db->startTransaction();
 
+		if($date == null) {
+			$date = $db->getCurrentTimestamp();
+		}
+
 		$queryStr = "INSERT INTO tblDocuments (name, comment, date, expires, owner, folder, folderList, inheritAccess, defaultAccess, locked, keywords, sequence) VALUES ".
-					"(".$db->qstr($name).", ".$db->qstr($comment).", ".$db->getCurrentTimestamp().", ".(int) $expires.", ".$owner->getID().", ".$this->_id.",".$db->qstr($pathPrefix).", 0, ".M_READ.", -1, ".$db->qstr($keywords).", " . $sequence . ")";
+					"(".$db->qstr($name).", ".$db->qstr($comment).", ".$date.", ".(int) $expires.", ".$owner->getID().", ".$this->_id.",".$db->qstr($pathPrefix).", 0, ". $access .", -1, ".$db->qstr($keywords).", " . $sequence . ")";
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();
 			return array(false, "Error adding document");
@@ -817,7 +824,7 @@ class SeedDMS_Core_Folder extends SeedDMS_Core_Object {
 
 		$document = $this->_dms->getDocument($db->getInsertID());
 
-		$res = $document->addContent($version_comment, $owner, $tmpFile, $orgFileName, $fileType, $mimeType, $reviewers, $approvers, $reqversion, $version_attributes, $workflow, $pdfData, $attachFileData);
+		$res = $document->addContent($version_comment, $owner, $tmpFile, $orgFileName, $fileType, $mimeType, $reviewers, $approvers, $reqversion, $version_attributes, $workflow, $pdfData, $attachFileData, $date, $status, $fname);
 		if (is_bool($res[0]) && !$res[0]) {
 			$db->rollbackTransaction();
 			return $res;
@@ -854,13 +861,14 @@ class SeedDMS_Core_Folder extends SeedDMS_Core_Object {
 							return array(false, "Error updating incremented memo number");
 						}
 					} else {
+						$indexNumber = explode('-', $docNumber);
 						// Check for collisions with already existing numbers
 						$resArr = $db->getResultArray("SELECT COUNT(*) AS num FROM tblMemoNumbers WHERE number='" . $owner->_login. "-" . $docNumber . "' FOR UPDATE");
 						if((integer)$resArr[0]["num"] != 0) {
-							return array(false, "Error adding specified memo number");
+							return array(false, "Error selecting specified memo number");
 						} else {
 							// Allow adding previously created documents with existing numbers.
-							$queryStr = "INSERT INTO tblMemoNumbers (documentID, userID, indexNumber, number, parade) VALUES (".$document->getID().", ".$owner->getID().", ".$docNumber.", \"" . $owner->_login . "-" . $docNumber. "\", ".$paradeDoc.")";
+							$queryStr = "INSERT INTO tblMemoNumbers (documentID, userID, indexNumber, number) VALUES (".$document->getID().", ".$owner->getID().", ".$indexNumber[1].", \"" . $docNumber. "\")";
 							if (!$db->getResult($queryStr)) {
 								$db->rollbackTransaction();
 								return array(false, "Error adding specified memo number");
@@ -891,10 +899,10 @@ class SeedDMS_Core_Folder extends SeedDMS_Core_Object {
 						}
 					} else {
 						// Allow adding previously created documents with existing numbers.
-						$queryStr = "INSERT INTO tblSpecNumbers (document, number, parade) VALUES (".$document->getID().", ".$docNumber.", ".$parade.")";
+						$queryStr = "INSERT INTO tblSpecNumbers (documentID, number) VALUES (".$document->getID().", '".$docNumber."')";
 						if (!$db->getResult($queryStr)) {
 							$db->rollbackTransaction();
-							return array(false, "Error adding manual spec number");
+							return array(false, "Error adding manual spec number (".$document->getID().", '".$docNumber.")");
 						}
 					}
 				}

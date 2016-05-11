@@ -244,6 +244,7 @@ CREATE TABLE `tblDocumentContent` (
   `document` int(11) NOT NULL default '0',
   `version` smallint(5) unsigned NOT NULL,
   `comment` text,
+  `name` varchar(150) default NULL,
   `date` int(12) default NULL,
   `createdBy` int(11) default NULL,
   `dir` varchar(255) NOT NULL default '',
@@ -267,6 +268,7 @@ CREATE TABLE `tblDocumentContentPDF` (
   `content` int(11) NOT NULL default '0',
   `version` smallint(5) unsigned NOT NULL,
   `comment` text,
+  `name` varchar(150) default NULL,
   `date` int(12) default NULL,
   `createdBy` int(11) default NULL,
   `dir` varchar(255) NOT NULL default '',
@@ -366,7 +368,6 @@ CREATE TABLE `tblSpecNumbers` (
   `id` int(11) NOT NULL auto_increment,
   `documentID` int(11) NOT NULL default '0',
   `number` varchar(150) default NULL, 
-  `parade` smallint(1) default '1',
   PRIMARY KEY  (`id`),
   CONSTRAINT `tblSpecNumbers_document` FOREIGN KEY (`documentID`) REFERENCES `tblDocuments` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -381,7 +382,6 @@ CREATE TABLE `tblMemoNumbers` (
   `documentID` int(11) NOT NULL default '0',
   `indexNumber` int(11) NOT NULL default '0',
   `number` varchar(150) default NULL, 
-  `parade` smallint(1) default '1',
   PRIMARY KEY  (`id`),
   CONSTRAINT `tblMemoNumbers_document` FOREIGN KEY (`documentID`) REFERENCES `tblDocuments` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

@@ -109,7 +109,7 @@ if (isset($_GET["version"])) {
 		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_file_id"));
 	}
 	$fileid = $_GET["file"];
-	$file = $document->getDocumentFile($fileid);
+	$file = $document->getFile($fileid);
 
 	if (!is_object($file)) {
 		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_file_id"));
@@ -119,15 +119,44 @@ if (isset($_GET["version"])) {
 		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("missing_file"));
 	}
 
-	$filepath = $dms->contentDir . $file->getPath();
-	header("Content-Type: " . $file->getMimeType());
-	$efilename = rawurlencode($file->getOriginalFileName());
-	header("Content-Disposition: attachment; filename=\"" . $efilename . "\"; filename*=UTF-8''".$efilename);
-	header("Expires: 0");
-	header("Pragma: public");
-	header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-	header("Content-Length: " . filesize($filepath));
-	readfile($filepath);
+	if(isset($_GET["pdffile"])) {
+		$pdffileid = $_GET["pdffile"];
+		$pdffileid = $file->getPar
+		$pdffile = $document->getFilePDF($pdffileid);
+		$pdfpath = $dms->contentDir . $file->getPathPDF();
+
+		if (!is_object($pdffile)) {
+			UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_file_id"));
+		}
+
+		if(!file_exists($pdfpath)) {
+			UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("missing_file"));
+		}
+
+		if (isset($settings->_viewOnlineFileTypes) && is_array($settings->_viewOnlineFileTypes) && in_array(strtolower($pdffile->getFileType()), $settings->_viewOnlineFileTypes)) {
+			header("Content-Type: " . $pdffile->getMimeType());
+		}
+
+		header("Content-Type: " . $pdffile->getMimeType());
+		$efilename = rawurlencode($pdffile->getOriginalFileName());
+		header("Content-Disposition: attachment; filename=\"" . $efilename . "\"; filename*=UTF-8''".$efilename);
+		header("Expires: 0");
+		header("Pragma: public");
+		header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+		header("Content-Length: " . filesize($pdfpath));
+		readfile($pdfpath);
+	} else {
+		$filepath = $dms->contentDir . $file->getPath();
+		header("Content-Type: " . $file->getMimeType());
+		$efilename = rawurlencode($file->getOriginalFileName());
+		header("Content-Disposition: attachment; filename=\"" . $efilename . "\"; filename*=UTF-8''".$efilename);
+		header("Expires: 0");
+		header("Pragma: public");
+		header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+		header("Content-Length: " . filesize($filepath));	
+		readfile($filepath);
+	}
+	
 
 } elseif (isset($_GET["arkname"])) {
 	$filename = basename($_GET["arkname"]);

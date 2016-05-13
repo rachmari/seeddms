@@ -1956,11 +1956,24 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 		return $documentFilesByVer;
 	}
 
+	function getFile($ID) { /* {{{ */
+        $db = $this->_dms->getDB();
+        $content = $this->getContent();
+
+		$queryStr = "SELECT * FROM tblDocumentFiles WHERE id = " . (int) $ID;
+		$resArr = $db->getResultArray($queryStr);
+		if ((is_bool($resArr) && !$resArr) || count($resArr)==0) return false;
+
+		$resArr = $resArr[0];
+
+		return new SeedDMS_Core_DocumentFile($resArr["id"], $content, $resArr["userID"], $resArr["comment"], $resArr["date"], $resArr["dir"], $resArr["fileType"], $resArr["mimeType"], $resArr["orgFileName"], $resArr["name"], $resArr["fileSize"], $resArr["checksum"]);
+	} /* }}} */
+
 	function getFilePDF($ID) { /* {{{ */
         $db = $this->_dms->getDB();
         $content = $this->getContent();
 
-		$queryStr = "SELECT * FROM tblDocumentFilesPDF WHERE id = " . (int) $ID;
+		$queryStr = "SELECT * FROM tblDocumentFilesPDF WHERE file = " . (int) $ID;
 		$resArr = $db->getResultArray($queryStr);
 		if ((is_bool($resArr) && !$resArr) || count($resArr)==0) return false;
 
@@ -4603,7 +4616,7 @@ class SeedDMS_Core_DocumentFile { /* {{{ */
 	}
 
 	function getPathPDF() {
-		return $this->_dir . "fp" .$this->getParentFileID() . $this->_fileType;
+		return $this->_dir . "fp" .$this->_id . ".pdf";
 	}
 
 	function getDocument() { 
@@ -4647,10 +4660,10 @@ class SeedDMS_Core_DocumentFile { /* {{{ */
         }
 
         if($document->_dms->forceRename) {
-			$err = SeedDMS_Core_File::renameFile($tmpFile, $document->_dms->contentDir . $this->_dir . "fp" .$this->_id . $this->_fileType);
+			$err = SeedDMS_Core_File::renameFile($tmpFile, $document->_dms->contentDir . $this->_dir . "fp" .$this->_id . $fileType);
 		}
 		else {
-			$err = SeedDMS_Core_File::copyFile($tmpFile, $document->_dms->contentDir . $this->_dir . "fp" .$this->_id . $this->_fileType);
+			$err = SeedDMS_Core_File::copyFile($tmpFile, $document->_dms->contentDir . $this->_dir . "fp" .$this->_id . $fileType);
 		}
         if (!$err) {
             return array(false, "Error copying or renaming the file to the server during attachment pdf file add");

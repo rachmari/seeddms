@@ -525,7 +525,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
                 $filePDF = $file->getFilePDF();
                 $file_exists=file_exists($dms->contentDir . $file->getPath());
                 if($filePDF) {
-                    $file_exists_PDF=file_exists($dms->contentDir . $filePDF->getPathPDF());
+                    $file_exists_PDF=file_exists($dms->contentDir . $file->getPathPDF());
                 }
 
                 $responsibleUser = $latestContent->getUser();
@@ -539,7 +539,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
                     else
                         print "<a href=\"../op/op.Download.php?documentid=".$documentid."&file=".$file->getID()."\">";
                 }
-                if($file_exists) {
+                if($file_exists) { 
                     print "</a>";
                 }
                 print "</td>";
@@ -565,9 +565,9 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
                 echo "</ul><ul class=\"unstyled actions\">";
                 if($filePDF && $file_exists_PDF) {
                     print "<td class='table-align-center'><ul class=\"unstyled actions\">";
-                    print "<li><a data-toggle='tooltip' data-placement='bottom' title='" . getMLText('download') . "' href=\"../op/op.Download.php?documentid=".$documentid."&file=".$file->getID()."&pdffile=".$filePDF->getID()."\"><i class=\"icon-download\"></i></a>";
+                    print "<li><a data-toggle='tooltip' data-placement='bottom' title='" . getMLText('download') . "' href=\"../op/op.Download.php?documentid=".$documentid."&file=".$file->getID()."&pdffile=".$file->getID()."\"><i class=\"icon-download\"></i></a>";
                     if ($viewonlinefiletypes && in_array(strtolower($filePDF->getFileType()), $viewonlinefiletypes))
-                        print "<a data-toggle='tooltip' data-placement='bottom' title='" . getMLText('view_online') . "' target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&file=".$file->getID()."&pdffile=". $filePDF->getID()."\"><i class=\"icon-star\"></i></a></li>";
+                        print "<a data-toggle='tooltip' data-placement='bottom' title='" . getMLText('view_online') . "' target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&file=".$file->getID()."&pdffile=". $file->getID()."\"><i class=\"icon-star\"></i></a></li>";
                     else print "</li>";
                 } 
                 elseif($filePDF) {
@@ -1171,49 +1171,65 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 
                 $ver_files = $document->getFilesByVersion($version);
                 if(count($ver_files) > 0) {
-                    // List attachments for each version
-                    print "<tr><td></td><td colspan='4'><b>".getMLText("attach_file")."</b></td></tr>";
-                    foreach($ver_files as $ver_file) {
-                        $file_exists=file_exists($dms->contentDir . $ver_file->getPath());
+            // Attachment Listing Begin
+            print "<tr><td></td><td colspan='4'><b>".getMLText("attach_file")."</b></td></tr>";
+            foreach($files as $file) {
+                $filePDF = $file->getFilePDF();
+                $file_exists=file_exists($dms->contentDir . $file->getPath());
+                if($filePDF) {
+                    $file_exists_PDF=file_exists($dms->contentDir . $file->getPathPDF());
+                }
 
-                        $responsibleUser = $ver_file->getUser();
+                $responsibleUser = $latestContent->getUser();
 
-                        print "<tr>";
-                        print "<td>";
-                        $previewer->createPreview($ver_file, $previewwidthdetail);
-                        if($file_exists) {
-                            if ($viewonlinefiletypes && in_array(strtolower($ver_file->getFileType()), $viewonlinefiletypes))
-                                print "<a target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&file=". $ver_file->getID()."\">";
-                            else
-                                print "<a href=\"../op/op.Download.php?documentid=".$documentid."&file=".$ver_file->getID()."\">";
-                        }
-                        if($file_exists) {
-                            print "</a>";
-                        }
+                print "<tr>";
+                print "<td class='table-align-center'>";
+                $previewer->createPreview($file, $previewwidthdetail);
+                if($file_exists) {
+                    if ($viewonlinefiletypes && in_array(strtolower($file->getFileType()), $viewonlinefiletypes))
+                        print "<a target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&file=". $file->getID()."\">";
+                    else
+                        print "<a href=\"../op/op.Download.php?documentid=".$documentid."&file=".$file->getID()."\">";
+                }
+                if($file_exists) {
+                    print "</a>";
+                }
+                print "</td>";
+                print "<td><ul class=\"unstyled\">\n";
+                print "<li>".htmlspecialchars($file->getName())."</li>\n";
+                print "<li>".htmlspecialchars($file->getOriginalFileName())."</li>\n";
+                if ($file_exists)
+                    print "<li>".SeedDMS_Core_File::format_filesize(filesize($dms->contentDir . $file->getPath())) ." bytes, ".htmlspecialchars($file->getMimeType())."</li>";
+                else print "<li>".htmlspecialchars($file->getMimeType())." - <span class=\"warning\">".getMLText("document_deleted")."</span></li>";
 
-                        print "</td>";
-                        print "<td><ul class=\"unstyled\">\n";
-                        print "<li>".htmlspecialchars($ver_file->getName())."</li>\n";
-                        print "<li>".htmlspecialchars($ver_file->getOriginalFileName())."</li>\n";
+                print "<li>".getMLText("uploaded_by")." <a href=\"mailto:".$responsibleUser->getEmail()."\">".htmlspecialchars($responsibleUser->getFullName())."</a></li>";
+                print "<li>".getLongReadableDate($file->getDate())."</li>";
 
-                        if ($file_exists)
-                            print "<li>".SeedDMS_Core_File::format_filesize(filesize($dms->contentDir . $ver_file->getPath())) ." bytes, ".htmlspecialchars($ver_file->getMimeType())."</li>";
-                        else print "<li>".htmlspecialchars($ver_file->getMimeType())." - <span class=\"warning\">".getMLText("document_deleted")."</span></li>";
-
-                        print "<li>".getMLText("uploaded_by")." <a href=\"mailto:".$responsibleUser->getEmail()."\">".htmlspecialchars($responsibleUser->getFullName())."</a></li>";
-                        print "<li>".getLongReadableDate($ver_file->getDate())."</li>";
-                        print "<td>".htmlspecialchars($ver_file->getComment())."</td>";
-                        print "<td class='table-align-center'><ul class=\"unstyled actions\">";
-
-                        if ($file_exists) {
-                            print "<li><a href=\"../op/op.Download.php?documentid=".$documentid."&file=".$ver_file->getID()."\"><i class=\"icon-download\"></i></a>";
-                            if ($viewonlinefiletypes && in_array(strtolower($ver_file->getFileType()), $viewonlinefiletypes))
-                                print "<a target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&file=". $ver_file->getID()."\"><i class=\"icon-star\"></i></a></li>";
-                            else print "</li>";
-                        } else print "<li><img class=\"mimeicon\" src=\"images/icons/".$this->getMimeIcon($ver_file->getFileType())."\" title=\"".htmlspecialchars($ver_file->getMimeType())."\">";
-
-                        print "<td></td></tr>";
-                    }
+                print "<td>".htmlspecialchars($file->getComment())."</td>";
+                print "<td></td>";
+                print "<td class='table-align-center'><ul class=\"unstyled actions\">";
+                if ($file_exists) {
+                    print "<li><a data-toggle='tooltip' data-placement='bottom' title='" . getMLText('download') . "' href=\"../op/op.Download.php?documentid=".$documentid."&file=".$file->getID()."\"><i class=\"icon-download\"></i></a>";
+                    if ($viewonlinefiletypes && in_array(strtolower($file->getFileType()), $viewonlinefiletypes))
+                        print "<a data-toggle='tooltip' data-placement='bottom' title='" . getMLText('view_online') . "' target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&file=". $file->getID()."\"><i class=\"icon-star\"></i></a></li>";
+                    else print "</li>";
+                } else print "<li><img class=\"mimeicon\" src=\"images/icons/".$this->getMimeIcon($file->getFileType())."\" title=\"".htmlspecialchars($file->getMimeType())."\">";
+                echo "</ul><ul class=\"unstyled actions\">";
+                if($filePDF && $file_exists_PDF) {
+                    print "<td class='table-align-center'><ul class=\"unstyled actions\">";
+                    print "<li><a data-toggle='tooltip' data-placement='bottom' title='" . getMLText('download') . "' href=\"../op/op.Download.php?documentid=".$documentid."&file=".$file->getID()."&pdffile=".$file->getID()."\"><i class=\"icon-download\"></i></a>";
+                    if ($viewonlinefiletypes && in_array(strtolower($filePDF->getFileType()), $viewonlinefiletypes))
+                        print "<a data-toggle='tooltip' data-placement='bottom' title='" . getMLText('view_online') . "' target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&file=".$file->getID()."&pdffile=". $file->getID()."\"><i class=\"icon-star\"></i></a></li>";
+                    else print "</li>";
+                } 
+                elseif($filePDF) {
+                    print "<li><img class=\"mimeicon\" src=\"images/icons/".$this->getMimeIcon($filePDF->getFileType())."\" title=\"".htmlspecialchars($filePDF->getMimeType())."\">";
+                }
+                echo "</ul><ul class=\"unstyled actions\">";
+                print "</ul></td>";
+                print "<td></td>";
+                print "</tr>";
+            }
                 }
             print "</tbody>\n</table>\n";
             $this->contentContainerEnd();

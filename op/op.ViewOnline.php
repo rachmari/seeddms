@@ -92,7 +92,7 @@ if(isset($_GET["version"])) {
 		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
 	}
 
-	$file = $document->getDocumentFile($fileid);
+	$file = $document->getFile($fileid);
 
 	if (!is_object($file)) {
 		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_file_id"));
@@ -105,11 +105,11 @@ if(isset($_GET["version"])) {
 			UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
 		}
 
-		$pdffile = $file->getFilePDF();
+		$pdffile = $document->getFilePDF($pdffileid);
 		if (isset($settings->_viewOnlineFileTypes) && is_array($settings->_viewOnlineFileTypes) && in_array(strtolower($pdffile->getFileType()), $settings->_viewOnlineFileTypes)) {
 			header("Content-Type: " . $pdffile->getMimeType());
 		}
-		$filepath = $dms->contentDir . $pdffile->getDir() . "fp" .$file->getID() . $pdffile->getFileType();
+		$filepath = $dms->contentDir . $file->getDir() . "fp" . $pdffileid . $pdffile->getFileType();
 
 		header("Content-Disposition: filename=\"" . $pdffile->getOriginalFileName() . "\"");
 		header("Content-Length: " . filesize($filepath));

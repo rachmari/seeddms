@@ -56,8 +56,15 @@ if($settings->_quota > 0) {
 		UI::exitError(getMLText("folder_title", array("foldername" => htmlspecialchars($folder->getName()))),getMLText("quota_exceeded", array('bytes'=>SeedDMS_Core_File::format_filesize(abs($remain)))));
 	}
 }
+$name = $_POST["name"];
+if ($name == "") {
+	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),"The document must include a title.");
+}
 
 $comment  = $_POST["comment"];
+if ($comment == "") {
+    UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),"The document must include a summary.");
+} 
 $version_comment = $_POST["version_comment"];
 if($version_comment == "" && isset($_POST["use_comment"]))
 	$version_comment = $comment;
@@ -303,10 +310,6 @@ if($settings->_overrideMimeType) {
 	$userfiletype = finfo_file($finfo, $userfiletmp);
 }
 
-if ((count($_FILES["userfile"]["tmp_name"])==1)&&($_POST["name"]!=""))
-	$name = $_POST["name"];
-else $name = basename($userfilename);
-
 /* Check if name already exists in the folder */
 if(!$settings->_enableDuplicateDocNames) {
 	if($folder->hasDocumentByName($name)) {
@@ -528,13 +531,18 @@ if (is_bool($res[0]) && !$res[0]) {
 	// Send notification to subscribers of folder.
 	if($notifier) {
 		$notifyList = $document->getNotifyList();
+		$content = $document->getLatestContent();
 		$subject = "new_document_email_subject";
 		$message = "new_document_email_body";
 		$params = array();
 		$params['name'] = $name;
 		$params['username'] = $user->getFullName();
 		$params['comment'] = $comment;
+		$params['date'] = $content->getDate();
 		$params['version_comment'] = $version_comment;
+		$params['version'] = $content->getCustomVersion();
+		$params['doc_number'] = $document->getDocNum();
+		$params['notify_list'] = $notifyList["users"];
 		$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?docnum=".$document->getDocNum();
 		$params['sitename'] = $settings->_siteName;
 		$params['http_root'] = $settings->_httpRoot;

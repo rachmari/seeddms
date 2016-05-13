@@ -52,8 +52,15 @@ if($document->isLocked()) {
 	}
 }
 
-$name =     isset($_POST['name']) ? $_POST["name"] : "";
-$comment =  isset($_POST['comment']) ? $_POST["comment"] : "";
+$name = $_POST["name"];
+if ($name == "") {
+	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),"The document must include a title.");
+}
+
+$comment  = $_POST["comment"];
+if ($comment == "") {
+    UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),"The document must include a summary.");
+} 
 $keywords = isset($_POST["keywords"]) ? $_POST["keywords"] : "";
 
 $sequence = isset($_POST["sequence"]) ? $_POST["sequence"] : "keep";

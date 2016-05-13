@@ -111,9 +111,33 @@ $(document).ready(function() {
 		}
 	});
 
+	$('#submit-btn').click(function(event) {
+		event.preventDefault();
+		msg = new Array();
+		setDocNumber = "<?php echo $user->_login; ?>-" + $('#setDocNumber').val();
+		$.get('../op/op.Ajax.php', { command: 'memoAvailable', query: setDocNumber}, 
+			function(data) {
+				if(data === false) {
+					msg.push("This document number has already been used.");
+					noty({
+				  		text: msg.join('<br />'),
+				  		type: 'error',
+				      	dismissQueue: true,
+				  		layout: 'topRight',
+				  		theme: 'defaultTheme',
+						_timeout: 1500,
+				  	});
+				} else {
+					$('#add-doc-form').submit();
+				}
+			});
+
+	});
+
 	$('#add-doc-form').submit(function(event) {
 		/* Check the form for missing information */
 		var acceptedFileTypes = ['application/pdf', 'application/vnd.oasis.opendocument.text', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.oasis.opendocument.presentation'];
+
 		msg = new Array();
 		if ($('#title-input').val() === "") msg.push("<?php printMLText("js_no_name");?>");
 		if ($('#comment-input').val() === "") msg.push("<?php printMLText("js_no_comment");?>");
@@ -142,7 +166,8 @@ $(document).ready(function() {
 			}
 		});
 
-		/* If the form is missing data, display messages
+		/* 
+		 * If the form is missing data, display messages
 		 * and prevent the form from submitting
 		 */
 		if (msg != ""){
@@ -289,7 +314,7 @@ $(document).ready(function() {
 		</tr>
 		<tr>
 			<td><?php printMLText("number");?>:</td>
-			<td><?php echo $user->_login . "&nbsp;-&nbsp;" ?><input type='text' name='setDocNumber' value='<?php 
+			<td><?php echo $user->_login . "&nbsp;-&nbsp;" ?><input type='text' id='setDocNumber' name='setDocNumber' value='<?php 
 				echo $dms->getNextMemoNum($user->getID());
 			?>'></td>
 		</tr>

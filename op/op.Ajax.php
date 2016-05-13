@@ -111,6 +111,19 @@ switch($command) {
 		echo json_encode($results);
 		break; /* }}} */
 
+	case 'memoAvailable': /* {{{ */
+		$number = $_GET['query'];
+		$db = $dms->getDB();
+		$resArr = $db->getResultArray("SELECT COUNT(*) AS num FROM tblMemoNumbers WHERE number='" . $number . "' FOR UPDATE");
+		if((integer)$resArr[0]["num"] != 0) {
+			$results = false;
+		}
+		else $results = true;
+		header('Content-Type: application/json');
+		echo json_encode($results);
+		break; /* }}} */
+		/* }}} */ 
+
 	case 'searchnumber': /* {{{ */
 		$numbers = $_GET['query'];
 		$db = $dms->getDB();

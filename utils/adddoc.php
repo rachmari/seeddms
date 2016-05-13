@@ -1,5 +1,5 @@
 <?php
-include("/var/www/seeddms5.0/inc/inc.ClassSettings.php");
+include("../inc/inc.ClassSettings.php");
 
 
 /*
@@ -89,7 +89,7 @@ if(isset($options['config'])) {
 if(isset($settings->_extraPath))
 	ini_set('include_path', $settings->_extraPath. PATH_SEPARATOR .ini_get('include_path'));
 
-require_once("/var/www/seeddms5.0/SeedDMS_core/Core.php");
+require_once("../SeedDMS_Core/Core.php");
 
 if(isset($options['F'])) {
 	$folderid = (int) $options['F'];

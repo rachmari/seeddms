@@ -76,7 +76,7 @@ class SeedDMS_EmailNotify extends SeedDMS_Notify {
 		global $settings;
 		if ($recipient->isDisabled() || $recipient->getEmail()=="") return 0;
 
-		if(!is_object($recipient) && strcasecmp(get_class($recipient), "SeedDMS_Core_User")) {
+		if(!is_object($recipient) && strcasecmp(new_document_email_bodyget_class($recipient), "SeedDMS_Core_User")) {
 			return -1;
 		}
 		if (is_object($sender) && !strcasecmp(get_class($sender), "SeedDMS_Core_User")) {
@@ -97,15 +97,61 @@ class SeedDMS_EmailNotify extends SeedDMS_Notify {
 
 		$lang = $recipient->getLanguage();
 
-		$message = getMLText("email_header", array(), "", $lang)."\r\n\r\n".getMLText($message, $params, "", $lang);
-		$message .= "\r\n\r\n".getMLText("email_footer", array(), "", $lang);
+		//$message = getMLText("email_header", array(), "", $lang)."\r\n\r\n".getMLText($message, $params, "", $lang);
+		//$message .= "\r\n\r\n".getMLText("email_footer", array(), "", $lang);
+
+/*
+Title: [name]
+Summary: [comment]
+Reason for change: [version_comment]
+User: [username]
+URL: [url]',
+'new_document_email_subject' => '[sitename]: - New document',
+'new_file_email' => 'New attachment',
+'new_file_email_body' => 'New attachment: [name]
+Document: [document]
+Summary: [comment]
+User: [username]
+URL: [url]',
+'new_file_email_subject' => '[sitename]: [document] - New attachment',
+'new_folder' => 'New folder',
+'new_password' => 'New password',
+'new_subfolder_email' => 'New folder',
+'new_subfolder_email_body' => 'New folder
+Name: [name]
+Parent folder: [folder_path]
+Comment: [comment]
+User: [username]
+URL: [url]',
+*/ 
+
+		$message = "<html><body>";
+		$message .= "<table>";
+		$message .= "<tr><strong>Memo # <a href='" . $params['url']  . "'>" . $params['doc_number'] . " REV " . $params['version'] . "</a> has been released</strong></tr><tr></tr>";
+		$message .= "<tr><td><strong>Submitted by: </strong></td><td>" . $params['username'] . " on " . getReadableDate($params['date']) . "</td></tr>";
+		$message .= "<tr><td><strong>Title: </strong></td><td>" . $params['name'] . "</td></tr>";
+		$message .= "<tr><td><strong>Summary: </strong></td><td>" . $params['comment'] . "</td></tr>";
+		$message .= "<tr><td><strong>Reason for change: </strong></td><td>" . $params['version_comment'] . "</td></tr>";
+		$message .= "<tr><td><strong>Notification List: </strong></td><td>";
+		$first = 1;
+		foreach ($params["notify_list"] as $recipient) {
+			if($first) {
+				$message .= $recipient->getFullName();
+				$first = 0;
+			} else {
+				$message .= ", " . $recipient->getLogin();
+			}
+		}
+		$message .= "</td></tr>";
+		$message .= "</table>";
+		$message .= "</body></html>";
 
 		$headers = array ();
 		$headers['From'] = $from;
 		$headers['To'] = $recipient->getEmail();
 		$headers['Subject'] = getMLText($subject, $params, "", $lang);
 		$headers['MIME-Version'] = "1.0";
-		$headers['Content-type'] = "text/plain; charset=utf-8";
+		$headers['Content-type'] = "text/html; charset=utf-8";
 
 		$mail_params = array();
 		if($this->smtp_server) {

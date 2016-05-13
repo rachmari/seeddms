@@ -36,6 +36,10 @@ if (!is_object($document)) {
 	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
+if ($document->getAccessMode($user) < M_READWRITE) {
+	UI::exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))),getMLText("access_denied"));
+}
+
 if($document->isLocked()) {
 	$lockingUser = $document->getLockingUser();
 	if (($lockingUser->getID() != $user->getID()) && ($document->getAccessMode($user) != M_ALL)) {

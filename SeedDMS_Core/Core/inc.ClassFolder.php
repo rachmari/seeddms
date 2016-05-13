@@ -863,9 +863,9 @@ class SeedDMS_Core_Folder extends SeedDMS_Core_Object {
 					} else {
 						$indexNumber = explode('-', $docNumber);
 						// Check for collisions with already existing numbers
-						$resArr = $db->getResultArray("SELECT COUNT(*) AS num FROM tblMemoNumbers WHERE number='" . $owner->_login. "-" . $docNumber . "' FOR UPDATE");
+						$resArr = $db->getResultArray("SELECT COUNT(*) AS num FROM tblMemoNumbers WHERE number='" . $docNumber . "' FOR UPDATE");
 						if((integer)$resArr[0]["num"] != 0) {
-							return array(false, "Error selecting specified memo number");
+							return array(false, "This memo number has already been used.");
 						} else {
 							// Allow adding previously created documents with existing numbers.
 							$queryStr = "INSERT INTO tblMemoNumbers (documentID, userID, indexNumber, number) VALUES (".$document->getID().", ".$owner->getID().", ".$indexNumber[1].", \"" . $docNumber. "\")";

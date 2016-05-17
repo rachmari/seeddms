@@ -62,14 +62,18 @@ if(isset($_POST["comment"]))
 else
 	$comment = "";
 
+// Define acceptable file types
+$acceptedFileTypes = array('application/pdf', 'application/vnd.oasis.opendocument.text', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.oasis.opendocument.presentation', 'application/rtf', 'application/x-rtf', 'text/richtext');
+
+$imageFileTypes = array('image/bmp', 'image/x-windows-bmp', 'image/gif', 'image/jpeg', 'image/pjpeg', 'image/jpeg', 'image/png', 'image/tiff', 'image/x-tiff');
+
+$acceptedAttachTypes = array_merge($acceptedFileTypes, $imageFileTypes);
 if ($_FILES['userfile']['error'] == 0) {
 	if(!is_uploaded_file($_FILES["userfile"]["tmp_name"]))
 		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
 	// Checking for a filesize of 0
 	if($_FILES["userfile"]["size"] == 0) {
 		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("uploading_zerosize"));
-	// Ensure file type is a PDF.
-	$acceptedFileTypes = array('application/pdf', 'application/vnd.oasis.opendocument.text', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.oasis.opendocument.presentation');
 	$match = 0;
 	$fileType = $_FILES["userfile"]["type"];
 	for ($i=0; $i<count($acceptedFileTypes); $i++) {
@@ -299,6 +303,13 @@ for ($file_num=0; $file_num<count($_FILES['attachfile']['tmp_name']); $file_num+
 	    if ($_FILES['attachfile']['error'][$file_num] != 0){
 	        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
 	    }
+	    $match = 0;
+		$fileType = $_FILES['attachfile']['type'][$file_num];
+		for ($i=0; $i<count($acceptedAttachTypes); $i++) {
+			if ($fileType == $acceptedAttachTypes[$i]) $match = 1;
+		}
+		if (!$match) UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("attach_type_error"));
+
 
 	    /*
 	    	If checks pass add the attachment file(s)

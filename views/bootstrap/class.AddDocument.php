@@ -136,7 +136,9 @@ $(document).ready(function() {
 
 	$('#add-doc-form').submit(function(event) {
 		/* Check the form for missing information */
-		var acceptedFileTypes = ['application/pdf', 'application/vnd.oasis.opendocument.text', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.oasis.opendocument.presentation'];
+		var acceptedFileTypes = ['application/pdf', 'application/vnd.oasis.opendocument.text', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.oasis.opendocument.presentation', 'application/rtf', 'application/x-rtf', 'text/richtext'];
+		var imageFileTypes = ['image/bmp', 'image/x-windows-bmp', 'image/gif', 'image/jpeg', 'image/pjpeg', 'image/jpeg', 'image/png', 'image/tiff', 'image/x-tiff'];
+		var acceptedAttachTypes = acceptedFileTypes.concat(imageFileTypes);
 
 		msg = new Array();
 		if ($('#title-input').val() === "") msg.push("<?php printMLText("js_no_name");?>");
@@ -156,6 +158,18 @@ $(document).ready(function() {
 			var file = $('#userfilePDF').prop("files")[0];
 			if(file.type !== 'application/pdf') msg.push("<?php printMLText("pdf_type_error");?>");
 		}
+
+		$('.upload-input').each(function() {
+			var file = this.files[0];
+			if(file) {
+				var match = 0;
+				for(var i = 0; i < acceptedAttachTypes.length; i++) {
+					if(file.type === acceptedAttachTypes[i]) match = 1;
+				}
+				if(!match) msg.push("<?php printMLText("attach_type_error");?>");
+			}
+		});
+		
 		$('input:file').each(function() {
 			/*<?php echo ini_get('upload_max_filesize'); ?>*/
 			var file = this.files[0];

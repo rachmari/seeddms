@@ -304,7 +304,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
         </tr>
 <?php
         }
-        if($document->getKeywords()) {
+/*        if($document->getKeywords()) {
 ?>
         <tr>
         <td><?php printMLText("keywords");?>:</td>
@@ -312,6 +312,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
         </tr>
 <?php
         }
+*/
         if($cats = $document->getCategories()) {
 ?>
         <tr hidden>
@@ -520,12 +521,13 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
 
         if (count($files) > 0) {
             // Attachment Listing Begin
-            print "<tr><td></td><td colspan='4'><b>".getMLText("attach_file")."</b></td></tr>";
+            print "<tr><td></td><td colspan='5'><b>".getMLText("attach_file")."</b></td></tr>";
             foreach($files as $file) {
-                $filePDF = $file->getFilePDF();
+                $filePDF = $document->getFilePDF($file->getID());
                 $file_exists=file_exists($dms->contentDir . $file->getPath());
                 if($filePDF) {
-                    $file_exists_PDF=file_exists($dms->contentDir . $file->getPathPDF());
+                    $pdfpath = $dms->contentDir . $file->getDir() . "fp" . $file->getID() . $filePDF->getFileType();
+                    $file_exists_PDF=file_exists($pdfpath);
                 }
 
                 $responsibleUser = $latestContent->getUser();
@@ -1177,7 +1179,8 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Bootstrap_Style {
                         $file_exists=file_exists($dms->contentDir . $ver_file->getPath());
                         $filePDF = $ver_file->getFilePDF();
                         if($filePDF) {
-                            $file_exists_PDF=file_exists($dms->contentDir . $ver_file->getPathPDF());
+                            $pdfpath = $dms->contentDir . $ver_file->getDir() . "fp" . $ver_file->getID() . $filePDF->getFileType();
+                            $file_exists_PDF=file_exists($pdfpath);
                         }
 
                         $responsibleUser = $ver_file->getUser();

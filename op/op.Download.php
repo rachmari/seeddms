@@ -121,9 +121,11 @@ if (isset($_GET["version"])) {
 
 	if(isset($_GET["pdffile"])) {
 		$pdffileid = $_GET["pdffile"];
-		$pdffileid = $file->getPar
+		if (!is_numeric($fileid) || intval($fileid)<1) {
+			UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
+		}
 		$pdffile = $document->getFilePDF($pdffileid);
-		$pdfpath = $dms->contentDir . $file->getPathPDF();
+		$pdfpath = $dms->contentDir . $file->getDir() . "fp" . $pdffileid . $pdffile->getFileType();
 
 		if (!is_object($pdffile)) {
 			UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_file_id"));
@@ -157,7 +159,6 @@ if (isset($_GET["version"])) {
 		readfile($filepath);
 	}
 	
-
 } elseif (isset($_GET["arkname"])) {
 	$filename = basename($_GET["arkname"]);
 

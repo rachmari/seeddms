@@ -4615,10 +4615,6 @@ class SeedDMS_Core_DocumentFile { /* {{{ */
 		return $this->_dir . "f" .$this->_id . $this->_fileType;
 	}
 
-	function getPathPDF() {
-		return $this->_dir . "fp" .$this->_id . ".pdf";
-	}
-
 	function getDocument() { 
 		return $this->_content->getDocument(); 
 	}
@@ -4686,17 +4682,6 @@ class SeedDMS_Core_DocumentFile { /* {{{ */
 
 		return new SeedDMS_Core_DocumentFile($resArr["id"], $content, $resArr["userID"], $resArr["comment"], $resArr["date"], $resArr["dir"], $resArr["fileType"], $resArr["mimeType"], $resArr["orgFileName"], $resArr["name"], $resArr["fileSize"], $resArr["checksum"]);
 	} /* }}} */
-
-	function getParentFileID() {
-		$document = $this->getDocument();
-		$db = $document->_dms->getDB();
-		$queryStr = "SELECT * FROM tblDocumentFilesPDF WHERE id = " . $this->_id;
-		$resArr = $db->getResultArray($queryStr);
-		if ((is_bool($resArr) && !$resArr) || count($resArr)==0) return false;
-
-		$resArr = $resArr[0];
-		return $resArr['file'];
-	}
 
 
 

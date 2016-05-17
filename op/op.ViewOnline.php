@@ -101,7 +101,7 @@ if(isset($_GET["version"])) {
 	if(isset($_GET["pdffile"])) {
 		$pdffileid = $_GET["pdffile"];
 
-		if (!is_numeric($fileid) || intval($fileid)<1) {
+		if (!is_numeric($pdffileid) || intval($pdffileid)<1) {
 			UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
 		}
 

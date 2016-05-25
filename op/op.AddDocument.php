@@ -28,7 +28,7 @@ include("../inc/inc.DBInit.php");
 include("../inc/inc.Authentication.php");
 include("../inc/inc.ClassUI.php");
 
-/* Check if the form data comes for a trusted request */
+/* Check if the form data comes from a trusted request */
 if(!checkFormKey('adddocument')) {
 	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_request_token"))),getMLText("invalid_request_token"));
 }
@@ -298,21 +298,19 @@ $imageFileTypes = array('image/bmp', 'image/x-windows-bmp', 'image/gif', 'image/
 $acceptedAttachTypes = array_merge($acceptedFileTypes, $imageFileTypes);
 
 $match = 0;
-$fileType = $_FILES["userfile"]["type"];
+$sourceMimeType = $_FILES["userfile"]["type"];
 for ($i=0; $i<count($acceptedFileTypes); $i++) {
-	if ($fileType == $acceptedFileTypes[$i]) $match = 1;
+	if ($sourceMimeType == $acceptedFileTypes[$i]) $match = 1;
 }
 if (!$match) UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("source_type_error"));
 
-$userfiletmp = $_FILES["userfile"]["tmp_name"];
-$userfiletype = $_FILES["userfile"]["type"];
-$userfilename = $_FILES["userfile"]["name"];
-
-$fileType = ".".pathinfo($userfilename, PATHINFO_EXTENSION);
+$sourceFilePath = $_FILES["userfile"]["tmp_name"];
+$sourceFileName = $_FILES["userfile"]["name"];
+$sourceFileType = ".".pathinfo($sourceFileName, PATHINFO_EXTENSION);
 
 if($settings->_overrideMimeType) {
 	$finfo = finfo_open(FILEINFO_MIME_TYPE);
-	$userfiletype = finfo_file($finfo, $userfiletmp);
+	$sourceFileType = finfo_file($finfo, $sourceFilePath);
 }
 
 /* Check if name already exists in the folder */
@@ -474,8 +472,8 @@ if(count($attachFileData) == 0) {
 }
 
 $res = $folder->addDocument($name, $comment, $expires, $user, $keywords,
-							$catID, $userfiletmp, basename($userfilename),
-                            $fileType, $userfiletype, $sequence,
+							$catID, $sourceFilePath, $sourceFileName,
+                            $sourceFileType, $sourceMimeType, $sequence,
                             $reviewers, $approvers, $reqversion,
                             $version_comment, $attributes, $attributes_version, $workflow, $setDocNumber, 1, $pdfData, $attachFileData);
 

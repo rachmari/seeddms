@@ -74,25 +74,25 @@ if ($_FILES['userfile']['error'] == 0) {
 	// Checking for a filesize of 0
 	if($_FILES["userfile"]["size"] == 0) {
 		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("uploading_zerosize"));
+	}
 	$match = 0;
-	$fileType = $_FILES["userfile"]["type"];
+	$sourceMimeType = $_FILES["userfile"]["type"];
 	for ($i=0; $i<count($acceptedFileTypes); $i++) {
-		if ($fileType == $acceptedFileTypes[$i]) $match = 1;
+		if ($sourceMimeType == $acceptedFileTypes[$i]) $match = 1;
 	}
 	if (!$match) UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("source_type_error"));
-	}
 	// Checking for max file size
 	if($_FILES["userfile"]["size"] > 60*1024*1024) {
 		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),$_FILES["userfile"]["name"] . " " . getMLText("uploading_maxsize"));
 	}
-
-	$userfiletmp = $_FILES["userfile"]["tmp_name"];
-	$userfiletype = $_FILES["userfile"]["type"];
-	$userfilename = $_FILES["userfile"]["name"];
+	
+	$sourceFilePath = $_FILES["userfile"]["tmp_name"];
+	$sourceFileName = $_FILES["userfile"]["name"];
+	$sourceFileType = ".".pathinfo($sourceFileName, PATHINFO_EXTENSION);
 
 	if($settings->_overrideMimeType) {
 		$finfo = finfo_open(FILEINFO_MIME_TYPE);
-		$userfiletype = finfo_file($finfo, $userfiletmp);
+		$sourceFileType = finfo_file($finfo, $sourceFilePath);
 	}
 } elseif($settings->_dropFolderDir) {
 	if($_POST['dropfolderfileform1']) {
@@ -118,8 +118,6 @@ $lc = $document->getLatestContent();
 /*if($lc->getChecksum() == SeedDMS_Core_File::checksum($userfiletmp)) {
 	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("identical_version"));
 }*/
-
-$fileType = ".".pathinfo($userfilename, PATHINFO_EXTENSION);
 
 // Get the list of reviewers and approvers for this document.
 $reviewers = array();
@@ -332,7 +330,7 @@ for ($file_num=0; $file_num<count($_FILES['attachfile']['tmp_name']); $file_num+
 			$finfo = finfo_open(FILEINFO_MIME_TYPE);
 			$attachInfoFile['attachFileType'] = finfo_file($finfo, $attachInfoFile['attachFileTmp']);
 		}
-		if($FILES['attachfilePDF']){
+		if($_FILES['attachfilePDF']){
 		if (is_uploaded_file($_FILES['attachfilePDF']['tmp_name'][$file_num])){
 			// Check for a size of 0
 		    if ($_FILES['attachfilePDF']['size'][$file_num] == 0) {
@@ -380,7 +378,7 @@ if(count($attachFileData) == 0) {
 	$attachFileData = null;
 }
 
-$contentResult=$document->addContent($comment, $user, $userfiletmp, basename($userfilename), $fileType, $userfiletype, $reviewers, $approvers, $version=0, $attributes, $workflow, $pdfData, $attachFileData);
+$contentResult=$document->addContent($comment, $user, $sourceFilePath, $sourceFileName, $sourceFileType, $sourceMimeType, $reviewers, $approvers, $version=0, $attributes, $workflow, $pdfData, $attachFileData);
 
 if (is_bool($contentResult[0]) && !$contentResult[0]) {
 	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),$contentResult[1]);

@@ -1,5 +1,5 @@
 <?php
-include("/var/www/seeddms5.0/inc/inc.ClassSettings.php");
+include("/var/www/html/inc/inc.ClassSettings.php");
 
 function usage() { /* {{{ */
     echo "Usage:\n";
@@ -34,7 +34,7 @@ if(isset($options['config'])) {
 if(isset($settings->_extraPath))
     ini_set('include_path', $settings->_extraPath. PATH_SEPARATOR .ini_get('include_path'));
 
-require_once("/var/www/seeddms5.0/SeedDMS_core/Core.php");
+require_once("/var/www/html/SeedDMS_Core/Core.php");
 
 $db = new SeedDMS_Core_DatabaseAccess($settings->_dbDriver, $settings->_dbHostname, $settings->_dbUser, $settings->_dbPass, $settings->_dbDatabase);
 $db->connect() or die ("Could not connect to db-server \"" . $settings->_dbHostname . "\"");
@@ -55,7 +55,11 @@ if(isset($options['n'])) {
 
 $targetNumber = '';
 if(isset($options['t'])) {
-    $targetNumber = $options['t'];
+    if(is_array($options['t'])) {
+        $targetNumbers = $options['t'];
+    } else {
+        $targetNumbers = array($options['t']);
+    }
 } else {
     usage();
     exit(1);
@@ -66,20 +70,22 @@ $docID = $dms->getDocIDbyNum($docNumber);
 if($docID == false) {
     echo "Cross-reference base document " . $docNumber . " doesn't exist\n";
 } else {
-    $targetID = $dms->getDocIDbyNum($targetNumber);
-    if($targetID == false) {
-        echo "Cross-reference for base document " . $docNumber . " to target document " . $targetNumber . " doesn't exist\n";
-    } else {
-        $document = $dms->getDocument($docID);
-        $res = $document->addDocumentLink($targetID, $document->getUser()->getID(), 1);
-
-        if (is_bool($res) && !$res) {
-            echo $res;
-            exit(1);
+    foreach ($targetNumbers as $targetNumber) {
+        $targetID = $dms->getDocIDbyNum($targetNumber);
+        if($targetID == false) {
+            echo "Cross-reference for base document " . $docNumber . " to target document " . $targetNumber . " doesn't exist\n";
+        } else {
+            $document = $dms->getDocument($docID);
+            $res = $document->addDocumentLink($targetID, $document->getOwner()->getID(), 1);
+            if (is_bool($res) && $res==true) {
+                echo "Added link from " . $docNumber . " to target document " . $targetNumber . "\n";
+            } else {
+                echo "ERROR ADDING LINK TO DB \n";
+            }
         }
     }
 }
-
+exit(1);
 ?>
 
 

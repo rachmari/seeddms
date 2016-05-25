@@ -265,12 +265,13 @@ class Settings { /* {{{ */
 		// uncomment the next line for linux users
 		// $this->_convertFileTypes = array(".doc" => "mswordview -o {TARGET} {SOURCE}");
 
+
 		if (!is_null($this->_smtpServer))
-			ini_set("SMTP", $this->_smtpServer);
+			ini_set("SMTP", $this->_smtpServer); // Used under Windows only
 		if (!is_null($this->_smtpPort))
-			ini_set("smtp_port", $this->_smtpPort);
+			ini_set("smtp_port", $this->_smtpPort); // Used under Windows only
 		if (!is_null($this->_smtpSendFrom))
-			ini_set("sendmail_from", $this->_smtpSendFrom);
+			ini_set("sendmail_from", $this->_smtpSendFrom); // Used under Windows only
 		if (!is_null($this->_maxExecutionTime))
 			ini_set("max_execution_time", $this->_maxExecutionTime);
 	} /* }}} */
@@ -571,8 +572,8 @@ class Settings { /* {{{ */
 	} /* }}} */
 
 	 /**
-	 * set value for one attribut.
-	 * Create attribut if not exists.
+	 * set value for one attribute.
+	 * Create attribute if not exists.
 	 *
 	 * @param SimpleXMLElement $node node
 	 * @param string $attributName attribut name
@@ -625,249 +626,249 @@ class Settings { /* {{{ */
 	 * @return true/false
 	 */
 	function save($configFilePath=NULL) { /* {{{ */
-    if (is_null($configFilePath))
-      $configFilePath = $this->_configFilePath;
+	    if (is_null($configFilePath))
+	      $configFilePath = $this->_configFilePath;
 
-    // Load
-    $xml = simplexml_load_string(file_get_contents($configFilePath));
-    $this->getXMLNode($xml, '/', 'configuration');
+	    // Load
+	    $xml = simplexml_load_string(file_get_contents($configFilePath));
+	    $this->getXMLNode($xml, '/', 'configuration');
 
-    // XML Path: /configuration/site/display
-    $this->getXMLNode($xml, '/configuration', 'site');
-    $node = $this->getXMLNode($xml, '/configuration/site', 'display');
-    $this->setXMLAttributValue($node, "siteName", $this->_siteName);
-    $this->setXMLAttributValue($node, "footNote", $this->_footNote);
-    $this->setXMLAttributValue($node, "printDisclaimer", $this->_printDisclaimer);
-    $this->setXMLAttributValue($node, "language", $this->_language);
-    $this->setXMLAttributValue($node, "theme", $this->_theme);
-    $this->setXMLAttributValue($node, "previewWidthList", $this->_previewWidthList);
-    $this->setXMLAttributValue($node, "previewWidthDetail", $this->_previewWidthDetail);
+	    // XML Path: /configuration/site/display
+	    $this->getXMLNode($xml, '/configuration', 'site');
+	    $node = $this->getXMLNode($xml, '/configuration/site', 'display');
+	    $this->setXMLAttributValue($node, "siteName", $this->_siteName);
+	    $this->setXMLAttributValue($node, "footNote", $this->_footNote);
+	    $this->setXMLAttributValue($node, "printDisclaimer", $this->_printDisclaimer);
+	    $this->setXMLAttributValue($node, "language", $this->_language);
+	    $this->setXMLAttributValue($node, "theme", $this->_theme);
+	    $this->setXMLAttributValue($node, "previewWidthList", $this->_previewWidthList);
+	    $this->setXMLAttributValue($node, "previewWidthDetail", $this->_previewWidthDetail);
 
-    // XML Path: /configuration/site/edition
-    $node = $this->getXMLNode($xml, '/configuration/site', 'edition');
-    $this->setXMLAttributValue($node, "strictFormCheck", $this->_strictFormCheck);
-    $this->setXMLAttributValue($node, "viewOnlineFileTypes", $this->getViewOnlineFileTypesToString());
-    $this->setXMLAttributValue($node, "enableConverting", $this->_enableConverting);
-    $this->setXMLAttributValue($node, "enableEmail", $this->_enableEmail);
-    $this->setXMLAttributValue($node, "enableUsersView", $this->_enableUsersView);
-		$this->setXMLAttributValue($node, "enableClipboard", $this->_enableClipboard);
-		$this->setXMLAttributValue($node, "enableDropUpload", $this->_enableDropUpload);
-    $this->setXMLAttributValue($node, "enableFolderTree", $this->_enableFolderTree);
-    $this->setXMLAttributValue($node, "enableRecursiveCount", $this->_enableRecursiveCount);
-    $this->setXMLAttributValue($node, "maxRecursiveCount", $this->_maxRecursiveCount);
-    $this->setXMLAttributValue($node, "enableHelp", $this->_enableHelp);
-    $this->setXMLAttributValue($node, "enableLanguageSelector", $this->_enableLanguageSelector);
-    $this->setXMLAttributValue($node, "enableThemeSelector", $this->_enableThemeSelector);
-    $this->setXMLAttributValue($node, "enableFullSearch", $this->_enableFullSearch);
-    $this->setXMLAttributValue($node, "fullSearchEngine", $this->_fullSearchEngine);
-    $this->setXMLAttributValue($node, "defaultSearchMethod", $this->_defaultSearchMethod);
-    $this->setXMLAttributValue($node, "expandFolderTree", $this->_expandFolderTree);
-    $this->setXMLAttributValue($node, "stopWordsFile", $this->_stopWordsFile);
-    $this->setXMLAttributValue($node, "sortUsersInList", $this->_sortUsersInList);
-    $this->setXMLAttributValue($node, "sortFoldersDefault", $this->_sortFoldersDefault);
+	    // XML Path: /configuration/site/edition
+	    $node = $this->getXMLNode($xml, '/configuration/site', 'edition');
+	    $this->setXMLAttributValue($node, "strictFormCheck", $this->_strictFormCheck);
+	    $this->setXMLAttributValue($node, "viewOnlineFileTypes", $this->getViewOnlineFileTypesToString());
+	    $this->setXMLAttributValue($node, "enableConverting", $this->_enableConverting);
+	    $this->setXMLAttributValue($node, "enableEmail", $this->_enableEmail);
+	    $this->setXMLAttributValue($node, "enableUsersView", $this->_enableUsersView);
+			$this->setXMLAttributValue($node, "enableClipboard", $this->_enableClipboard);
+			$this->setXMLAttributValue($node, "enableDropUpload", $this->_enableDropUpload);
+	    $this->setXMLAttributValue($node, "enableFolderTree", $this->_enableFolderTree);
+	    $this->setXMLAttributValue($node, "enableRecursiveCount", $this->_enableRecursiveCount);
+	    $this->setXMLAttributValue($node, "maxRecursiveCount", $this->_maxRecursiveCount);
+	    $this->setXMLAttributValue($node, "enableHelp", $this->_enableHelp);
+	    $this->setXMLAttributValue($node, "enableLanguageSelector", $this->_enableLanguageSelector);
+	    $this->setXMLAttributValue($node, "enableThemeSelector", $this->_enableThemeSelector);
+	    $this->setXMLAttributValue($node, "enableFullSearch", $this->_enableFullSearch);
+	    $this->setXMLAttributValue($node, "fullSearchEngine", $this->_fullSearchEngine);
+	    $this->setXMLAttributValue($node, "defaultSearchMethod", $this->_defaultSearchMethod);
+	    $this->setXMLAttributValue($node, "expandFolderTree", $this->_expandFolderTree);
+	    $this->setXMLAttributValue($node, "stopWordsFile", $this->_stopWordsFile);
+	    $this->setXMLAttributValue($node, "sortUsersInList", $this->_sortUsersInList);
+	    $this->setXMLAttributValue($node, "sortFoldersDefault", $this->_sortFoldersDefault);
 
-    // XML Path: /configuration/site/calendar
-    $node = $this->getXMLNode($xml, '/configuration/site', 'calendar');
-    $this->setXMLAttributValue($node, "enableCalendar", $this->_enableCalendar);
-    $this->setXMLAttributValue($node, "calendarDefaultView", $this->_calendarDefaultView);
-    $this->setXMLAttributValue($node, "firstDayOfWeek", $this->_firstDayOfWeek);
+	    // XML Path: /configuration/site/calendar
+	    $node = $this->getXMLNode($xml, '/configuration/site', 'calendar');
+	    $this->setXMLAttributValue($node, "enableCalendar", $this->_enableCalendar);
+	    $this->setXMLAttributValue($node, "calendarDefaultView", $this->_calendarDefaultView);
+	    $this->setXMLAttributValue($node, "firstDayOfWeek", $this->_firstDayOfWeek);
 
-    // XML Path: /configuration/system/server
-    $this->getXMLNode($xml, '/configuration', 'system');
-    $node = $this->getXMLNode($xml, '/configuration/system', 'server');
-    $this->setXMLAttributValue($node, "rootDir", $this->_rootDir);
-    $this->setXMLAttributValue($node, "httpRoot", $this->_httpRoot);
-    $this->setXMLAttributValue($node, "contentDir", $this->_contentDir);
-    $this->setXMLAttributValue($node, "cacheDir", $this->_cacheDir);
-    $this->setXMLAttributValue($node, "stagingDir", $this->_stagingDir);
-    $this->setXMLAttributValue($node, "luceneDir", $this->_luceneDir);
-    $this->setXMLAttributValue($node, "dropFolderDir", $this->_dropFolderDir);
-    $this->setXMLAttributValue($node, "logFileEnable", $this->_logFileEnable);
-    $this->setXMLAttributValue($node, "logFileRotation", $this->_logFileRotation);
-    $this->setXMLAttributValue($node, "enableLargeFileUpload", $this->_enableLargeFileUpload);
-    $this->setXMLAttributValue($node, "partitionSize", $this->_partitionSize);
+	    // XML Path: /configuration/system/server
+	    $this->getXMLNode($xml, '/configuration', 'system');
+	    $node = $this->getXMLNode($xml, '/configuration/system', 'server');
+	    $this->setXMLAttributValue($node, "rootDir", $this->_rootDir);
+	    $this->setXMLAttributValue($node, "httpRoot", $this->_httpRoot);
+	    $this->setXMLAttributValue($node, "contentDir", $this->_contentDir);
+	    $this->setXMLAttributValue($node, "cacheDir", $this->_cacheDir);
+	    $this->setXMLAttributValue($node, "stagingDir", $this->_stagingDir);
+	    $this->setXMLAttributValue($node, "luceneDir", $this->_luceneDir);
+	    $this->setXMLAttributValue($node, "dropFolderDir", $this->_dropFolderDir);
+	    $this->setXMLAttributValue($node, "logFileEnable", $this->_logFileEnable);
+	    $this->setXMLAttributValue($node, "logFileRotation", $this->_logFileRotation);
+	    $this->setXMLAttributValue($node, "enableLargeFileUpload", $this->_enableLargeFileUpload);
+	    $this->setXMLAttributValue($node, "partitionSize", $this->_partitionSize);
 
-    // XML Path: /configuration/system/authentication
-    $node = $this->getXMLNode($xml, '/configuration/system', 'authentication');
-    $this->setXMLAttributValue($node, "enableGuestLogin", $this->_enableGuestLogin);
-    $this->setXMLAttributValue($node, "enableGuestAutoLogin", $this->_enableGuestAutoLogin);
-    $this->setXMLAttributValue($node, "enablePasswordForgotten", $this->_enablePasswordForgotten);
-    $this->setXMLAttributValue($node, "passwordStrength", $this->_passwordStrength);
-    $this->setXMLAttributValue($node, "passwordStrengthAlgorithm", $this->_passwordStrengthAlgorithm);
-    $this->setXMLAttributValue($node, "passwordExpiration", $this->_passwordExpiration);
-    $this->setXMLAttributValue($node, "passwordHistory", $this->_passwordHistory);
-    $this->setXMLAttributValue($node, "loginFailure", $this->_loginFailure);
-    $this->setXMLAttributValue($node, "autoLoginUser", $this->_autoLoginUser);
-    $this->setXMLAttributValue($node, "quota", $this->_quota);
-    $this->setXMLAttributValue($node, "undelUserIds", $this->_undelUserIds);
-    $this->setXMLAttributValue($node, "encryptionKey", $this->_encryptionKey);
-    $this->setXMLAttributValue($node, "cookieLifetime", $this->_cookieLifetime);
-    $this->setXMLAttributValue($node, "restricted", $this->_restricted);
-    $this->setXMLAttributValue($node, "enableUserImage", $this->_enableUserImage);
-    $this->setXMLAttributValue($node, "disableSelfEdit", $this->_disableSelfEdit);
+	    // XML Path: /configuration/system/authentication
+	    $node = $this->getXMLNode($xml, '/configuration/system', 'authentication');
+	    $this->setXMLAttributValue($node, "enableGuestLogin", $this->_enableGuestLogin);
+	    $this->setXMLAttributValue($node, "enableGuestAutoLogin", $this->_enableGuestAutoLogin);
+	    $this->setXMLAttributValue($node, "enablePasswordForgotten", $this->_enablePasswordForgotten);
+	    $this->setXMLAttributValue($node, "passwordStrength", $this->_passwordStrength);
+	    $this->setXMLAttributValue($node, "passwordStrengthAlgorithm", $this->_passwordStrengthAlgorithm);
+	    $this->setXMLAttributValue($node, "passwordExpiration", $this->_passwordExpiration);
+	    $this->setXMLAttributValue($node, "passwordHistory", $this->_passwordHistory);
+	    $this->setXMLAttributValue($node, "loginFailure", $this->_loginFailure);
+	    $this->setXMLAttributValue($node, "autoLoginUser", $this->_autoLoginUser);
+	    $this->setXMLAttributValue($node, "quota", $this->_quota);
+	    $this->setXMLAttributValue($node, "undelUserIds", $this->_undelUserIds);
+	    $this->setXMLAttributValue($node, "encryptionKey", $this->_encryptionKey);
+	    $this->setXMLAttributValue($node, "cookieLifetime", $this->_cookieLifetime);
+	    $this->setXMLAttributValue($node, "restricted", $this->_restricted);
+	    $this->setXMLAttributValue($node, "enableUserImage", $this->_enableUserImage);
+	    $this->setXMLAttributValue($node, "disableSelfEdit", $this->_disableSelfEdit);
 
-    // XML Path: /configuration/system/authentication/connectors
-    foreach($this->_usersConnectors as $keyConn => $paramConn)
-    {
-      // search XML node
-      $node = $xml->xpath('/configuration/system/authentication/connectors/connector[@type="'. $keyConn .'"]');
+	    // XML Path: /configuration/system/authentication/connectors
+	    foreach($this->_usersConnectors as $keyConn => $paramConn)
+	    {
+	      // search XML node
+	      $node = $xml->xpath('/configuration/system/authentication/connectors/connector[@type="'. $keyConn .'"]');
 
-      // Just the first is configured
-      if (isset($node))
-      {
-        if (count($node)>0)
-        {
-          $node = $node[0];
-        }
-        else
-        {
-          $nodeParent = $xml->xpath('/configuration/system/authentication/connectors');
-          $node = $nodeParent[0]->addChild("connector");
-        }
+	      // Just the first is configured
+	      if (isset($node))
+	      {
+	        if (count($node)>0)
+	        {
+	          $node = $node[0];
+	        }
+	        else
+	        {
+	          $nodeParent = $xml->xpath('/configuration/system/authentication/connectors');
+	          $node = $nodeParent[0]->addChild("connector");
+	        }
 
-        foreach($paramConn as $key => $value)
-        {
-          $this->setXMLAttributValue($node, $key, $value);
-        }
+	        foreach($paramConn as $key => $value)
+	        {
+	          $this->setXMLAttributValue($node, $key, $value);
+	        }
 
-      } // isset($node)
+	      } // isset($node)
 
-    } // foreach
+	    } // foreach
 
-    // XML Path: /configuration/system/authentication/connectors
-    // manage old settings parameters
-    if (isset($this->_ldapHost) && (strlen($this->_ldapHost)>0))
-    {
-      if ($this->_ldapType == 1)
-      {
-        $node = $xml->xpath('/configuration/system/authentication/connectors/connector[@type="AD"]');
-        $node = $node[0];
-        $this->setXMLAttributValue($node, "accountDomainName", $this->_ldapAccountDomainName);
-      }
-      else
-      {
-        $node = $xml->xpath('/configuration/system/authentication/connectors/connector[@type="ldap"]');
-        $node = $node[0];
-      }
+	    // XML Path: /configuration/system/authentication/connectors
+	    // manage old settings parameters
+	    if (isset($this->_ldapHost) && (strlen($this->_ldapHost)>0))
+	    {
+	      if ($this->_ldapType == 1)
+	      {
+	        $node = $xml->xpath('/configuration/system/authentication/connectors/connector[@type="AD"]');
+	        $node = $node[0];
+	        $this->setXMLAttributValue($node, "accountDomainName", $this->_ldapAccountDomainName);
+	      }
+	      else
+	      {
+	        $node = $xml->xpath('/configuration/system/authentication/connectors/connector[@type="ldap"]');
+	        $node = $node[0];
+	      }
 
-      $this->setXMLAttributValue($node, "host", $this->_ldapHost);
-      $this->setXMLAttributValue($node, "port", $this->_ldapPort);
-      $this->setXMLAttributValue($node, "baseDN", $this->_ldapBaseDN);
-    }
+	      $this->setXMLAttributValue($node, "host", $this->_ldapHost);
+	      $this->setXMLAttributValue($node, "port", $this->_ldapPort);
+	      $this->setXMLAttributValue($node, "baseDN", $this->_ldapBaseDN);
+	    }
 
-    // XML Path: /configuration/system/database
-    $node = $this->getXMLNode($xml, '/configuration/system', 'database');
-    $this->setXMLAttributValue($node, "dbDriver", $this->_dbDriver);
-    $this->setXMLAttributValue($node, "dbHostname", $this->_dbHostname);
-    $this->setXMLAttributValue($node, "dbDatabase", $this->_dbDatabase);
-    $this->setXMLAttributValue($node, "dbUser", $this->_dbUser);
-    $this->setXMLAttributValue($node, "dbPass", $this->_dbPass);
-    $this->setXMLAttributValue($node, "doNotCheckVersion", $this->_doNotCheckDBVersion);
+	    // XML Path: /configuration/system/database
+	    $node = $this->getXMLNode($xml, '/configuration/system', 'database');
+	    $this->setXMLAttributValue($node, "dbDriver", $this->_dbDriver);
+	    $this->setXMLAttributValue($node, "dbHostname", $this->_dbHostname);
+	    $this->setXMLAttributValue($node, "dbDatabase", $this->_dbDatabase);
+	    $this->setXMLAttributValue($node, "dbUser", $this->_dbUser);
+	    $this->setXMLAttributValue($node, "dbPass", $this->_dbPass);
+	    $this->setXMLAttributValue($node, "doNotCheckVersion", $this->_doNotCheckDBVersion);
 
-    // XML Path: /configuration/system/smtp
-    $node = $this->getXMLNode($xml, '/configuration/system', 'smtp');
-    $this->setXMLAttributValue($node, "smtpServer", $this->_smtpServer);
-    $this->setXMLAttributValue($node, "smtpPort", $this->_smtpPort);
-    $this->setXMLAttributValue($node, "smtpSendFrom", $this->_smtpSendFrom);
-    $this->setXMLAttributValue($node, "smtpUser", $this->_smtpUser);
-    $this->setXMLAttributValue($node, "smtpPassword", $this->_smtpPassword);
+	    // XML Path: /configuration/system/smtp
+	    $node = $this->getXMLNode($xml, '/configuration/system', 'smtp');
+	    $this->setXMLAttributValue($node, "smtpServer", $this->_smtpServer);
+	    $this->setXMLAttributValue($node, "smtpPort", $this->_smtpPort);
+	    $this->setXMLAttributValue($node, "smtpSendFrom", $this->_smtpSendFrom);
+	    $this->setXMLAttributValue($node, "smtpUser", $this->_smtpUser);
+	    $this->setXMLAttributValue($node, "smtpPassword", $this->_smtpPassword);
 
-    // XML Path: /configuration/advanced/display
-    $this->getXMLNode($xml, '/configuration', 'advanced');
-    $node = $this->getXMLNode($xml, '/configuration/advanced', 'display');
-    $this->setXMLAttributValue($node, "siteDefaultPage", $this->_siteDefaultPage);
-    $this->setXMLAttributValue($node, "rootFolderID", $this->_rootFolderID);
-    $this->setXMLAttributValue($node, "titleDisplayHack", $this->_titleDisplayHack);
-    $this->setXMLAttributValue($node, "showMissingTranslations", $this->_showMissingTranslations);
+	    // XML Path: /configuration/advanced/display
+	    $this->getXMLNode($xml, '/configuration', 'advanced');
+	    $node = $this->getXMLNode($xml, '/configuration/advanced', 'display');
+	    $this->setXMLAttributValue($node, "siteDefaultPage", $this->_siteDefaultPage);
+	    $this->setXMLAttributValue($node, "rootFolderID", $this->_rootFolderID);
+	    $this->setXMLAttributValue($node, "titleDisplayHack", $this->_titleDisplayHack);
+	    $this->setXMLAttributValue($node, "showMissingTranslations", $this->_showMissingTranslations);
 
-    // XML Path: /configuration/advanced/authentication
-    $node = $this->getXMLNode($xml, '/configuration/advanced', 'authentication');
-    $this->setXMLAttributValue($node, "guestID", $this->_guestID);
-    $this->setXMLAttributValue($node, "adminIP", $this->_adminIP);
+	    // XML Path: /configuration/advanced/authentication
+	    $node = $this->getXMLNode($xml, '/configuration/advanced', 'authentication');
+	    $this->setXMLAttributValue($node, "guestID", $this->_guestID);
+	    $this->setXMLAttributValue($node, "adminIP", $this->_adminIP);
 
-    // XML Path: /configuration/advanced/edition
-    $node = $this->getXMLNode($xml, '/configuration/advanced', 'edition');
-    $this->setXMLAttributValue($node, "enableAdminRevApp", $this->_enableAdminRevApp);
-    $this->setXMLAttributValue($node, "enableOwnerRevApp", $this->_enableOwnerRevApp);
-    $this->setXMLAttributValue($node, "enableSelfRevApp", $this->_enableSelfRevApp);
-    $this->setXMLAttributValue($node, "presetExpirationDate", $this->_presetExpirationDate);
-    $this->setXMLAttributValue($node, "versioningFileName", $this->_versioningFileName);
-    $this->setXMLAttributValue($node, "presetExpirationDate", $this->_presetExpirationDate);
-    $this->setXMLAttributValue($node, "workflowMode", $this->_workflowMode);
-    $this->setXMLAttributValue($node, "enableVersionDeletion", $this->_enableVersionDeletion);
-    $this->setXMLAttributValue($node, "enableVersionModification", $this->_enableVersionModification);
-    $this->setXMLAttributValue($node, "enableDuplicateDocNames", $this->_enableDuplicateDocNames);
-    $this->setXMLAttributValue($node, "overrideMimeType", $this->_overrideMimeType);
+	    // XML Path: /configuration/advanced/edition
+	    $node = $this->getXMLNode($xml, '/configuration/advanced', 'edition');
+	    $this->setXMLAttributValue($node, "enableAdminRevApp", $this->_enableAdminRevApp);
+	    $this->setXMLAttributValue($node, "enableOwnerRevApp", $this->_enableOwnerRevApp);
+	    $this->setXMLAttributValue($node, "enableSelfRevApp", $this->_enableSelfRevApp);
+	    $this->setXMLAttributValue($node, "presetExpirationDate", $this->_presetExpirationDate);
+	    $this->setXMLAttributValue($node, "versioningFileName", $this->_versioningFileName);
+	    $this->setXMLAttributValue($node, "presetExpirationDate", $this->_presetExpirationDate);
+	    $this->setXMLAttributValue($node, "workflowMode", $this->_workflowMode);
+	    $this->setXMLAttributValue($node, "enableVersionDeletion", $this->_enableVersionDeletion);
+	    $this->setXMLAttributValue($node, "enableVersionModification", $this->_enableVersionModification);
+	    $this->setXMLAttributValue($node, "enableDuplicateDocNames", $this->_enableDuplicateDocNames);
+	    $this->setXMLAttributValue($node, "overrideMimeType", $this->_overrideMimeType);
 
-    // XML Path: /configuration/advanced/notification
-    $node = $this->getXMLNode($xml, '/configuration/advanced', 'notification');
-    $this->setXMLAttributValue($node, "enableNotificationAppRev", $this->_enableNotificationAppRev);
-    $this->setXMLAttributValue($node, "enableOwnerNotification", $this->_enableOwnerNotification);
-    $this->setXMLAttributValue($node, "enableNotificationWorkflow", $this->_enableNotificationWorkflow);
+	    // XML Path: /configuration/advanced/notification
+	    $node = $this->getXMLNode($xml, '/configuration/advanced', 'notification');
+	    $this->setXMLAttributValue($node, "enableNotificationAppRev", $this->_enableNotificationAppRev);
+	    $this->setXMLAttributValue($node, "enableOwnerNotification", $this->_enableOwnerNotification);
+	    $this->setXMLAttributValue($node, "enableNotificationWorkflow", $this->_enableNotificationWorkflow);
 
-    // XML Path: /configuration/advanced/server
-    $node = $this->getXMLNode($xml, '/configuration/advanced', 'server');
-    $this->setXMLAttributValue($node, "coreDir", $this->_coreDir);
-    $this->setXMLAttributValue($node, "luceneClassDir", $this->_luceneClassDir);
-    $this->setXMLAttributValue($node, "extraPath", $this->_extraPath);
-    $this->setXMLAttributValue($node, "contentOffsetDir", $this->_contentOffsetDir);
-    $this->setXMLAttributValue($node, "maxDirID", $this->_maxDirID);
-    $this->setXMLAttributValue($node, "updateNotifyTime", $this->_updateNotifyTime);
-    $this->setXMLAttributValue($node, "maxExecutionTime", $this->_maxExecutionTime);
-    $this->setXMLAttributValue($node, "cmdTimeout", $this->_cmdTimeout);
+	    // XML Path: /configuration/advanced/server
+	    $node = $this->getXMLNode($xml, '/configuration/advanced', 'server');
+	    $this->setXMLAttributValue($node, "coreDir", $this->_coreDir);
+	    $this->setXMLAttributValue($node, "luceneClassDir", $this->_luceneClassDir);
+	    $this->setXMLAttributValue($node, "extraPath", $this->_extraPath);
+	    $this->setXMLAttributValue($node, "contentOffsetDir", $this->_contentOffsetDir);
+	    $this->setXMLAttributValue($node, "maxDirID", $this->_maxDirID);
+	    $this->setXMLAttributValue($node, "updateNotifyTime", $this->_updateNotifyTime);
+	    $this->setXMLAttributValue($node, "maxExecutionTime", $this->_maxExecutionTime);
+	    $this->setXMLAttributValue($node, "cmdTimeout", $this->_cmdTimeout);
 
-    // XML Path: /configuration/advanced/converters
-    foreach($this->_converters['fulltext'] as $mimeType => $cmd)
-    {
-      // search XML node
-      $node = $xml->xpath('/configuration/advanced/converters/converter[@mimeType="'. $mimeType .'"]');
+	    // XML Path: /configuration/advanced/converters
+	    foreach($this->_converters['fulltext'] as $mimeType => $cmd)
+	    {
+	      // search XML node
+	      $node = $xml->xpath('/configuration/advanced/converters/converter[@mimeType="'. $mimeType .'"]');
 
-      if (isset($node))
-      {
-        if (count($node)>0)
-        {
-          $node = $node[0];
-        }
-        else
-        {
-          $nodeParent = $xml->xpath('/configuration/advanced/converters');
-          $node = $nodeParent[0]->addChild("converter");
-        }
+	      if (isset($node))
+	      {
+	        if (count($node)>0)
+	        {
+	          $node = $node[0];
+	        }
+	        else
+	        {
+	          $nodeParent = $xml->xpath('/configuration/advanced/converters');
+	          $node = $nodeParent[0]->addChild("converter");
+	        }
 
-				$node[0] = $cmd;
-        $this->setXMLAttributValue($node, 'mimeType', $mimeType);
+					$node[0] = $cmd;
+	        $this->setXMLAttributValue($node, 'mimeType', $mimeType);
 
-      } // isset($node)
+	      } // isset($node)
 
-    } // foreach
+	    } // foreach
 
 
-    // XML Path: /configuration/extensions
-    $extnodes = $xml->xpath('/configuration/extensions');
-		if(!$extnodes) {
-			$nodeParent = $xml->xpath('/configuration');
-			$extnodes = $nodeParent[0]->addChild("extensions");
-		} else {
-			unset($xml->extensions);
-			$extnodes = $xml->addChild("extensions");
-		}
-    foreach($this->_extensions as $name => $extension)
-    {
-      // search XML node
-			$extnode = $extnodes->addChild('extension');
-      $this->setXMLAttributValue($extnode, 'name', $name);
-			foreach($GLOBALS['EXT_CONF'][$name]['config'] as $fieldname=>$conf) {
-				$parameter = $extnode->addChild('parameter');
-				$parameter[0] = isset($extension[$fieldname]) ? $extension[$fieldname] : '';
-				$this->setXMLAttributValue($parameter, 'name', $fieldname);
+	    // XML Path: /configuration/extensions
+	    $extnodes = $xml->xpath('/configuration/extensions');
+			if(!$extnodes) {
+				$nodeParent = $xml->xpath('/configuration');
+				$extnodes = $nodeParent[0]->addChild("extensions");
+			} else {
+				unset($xml->extensions);
+				$extnodes = $xml->addChild("extensions");
 			}
+	    foreach($this->_extensions as $name => $extension)
+	    {
+	      // search XML node
+				$extnode = $extnodes->addChild('extension');
+	      $this->setXMLAttributValue($extnode, 'name', $name);
+				foreach($GLOBALS['EXT_CONF'][$name]['config'] as $fieldname=>$conf) {
+					$parameter = $extnode->addChild('parameter');
+					$parameter[0] = isset($extension[$fieldname]) ? $extension[$fieldname] : '';
+					$this->setXMLAttributValue($parameter, 'name', $fieldname);
+				}
 
 
-    } // foreach
+	    } // foreach
 
-    // Save
-    return $xml->asXML($configFilePath);
-  } /* }}} */
+	    // Save
+	    return $xml->asXML($configFilePath);
+  	} /* }}} */
 
 	/**
 	 * search and return Config File Path
@@ -1219,17 +1220,6 @@ class Settings { /* {{{ */
 		// result
 		$result = array();
 
-		// Check Apache configuration
-		if (function_exists("apache_get_version")) {
-			$loaded_extensions = apache_get_modules();
-			if (!in_array("mod_rewrite", $loaded_extensions)) {
-				$result["apache_mod_rewrite"] = array(
-					"status" => "notfound",
-					"type" => "error",
-					"suggestion" => "activate_module"
-				);
-			}
-		}
 
 		// Check PHP version
 		if (version_compare(PHP_VERSION, '5.2.0') < 0) {
@@ -1286,6 +1276,18 @@ class Settings { /* {{{ */
 				"type" => "warning",
 				"suggestion" => "install_pear_package_webdav"
 			);
+		} else {
+			// Check Apache configuration for WebDAV requirement for mod_rewrite
+			if (function_exists("apache_get_version")) {
+				$loaded_extensions = apache_get_modules();
+				if (!in_array("mod_rewrite", $loaded_extensions)) {
+					$result["apache_mod_rewrite"] = array(
+						"status" => "notfound",
+						"type" => "error",
+						"suggestion" => "activate_module"
+					);
+				}
+			}
 		}
 
 		// Check for Zend/Search/Lucene.php

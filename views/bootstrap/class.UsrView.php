@@ -59,7 +59,7 @@ class SeedDMS_View_UsrView extends SeedDMS_Bootstrap_Style {
 			if ($currUser->isGuest())
 				continue;
 				
-			if ($currUser->isHidden()=="1") continue;
+			if ($currUser->isDisabled()=="1") continue;
 				
 			echo "<tr>\n";
 			

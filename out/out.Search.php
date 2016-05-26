@@ -162,7 +162,7 @@ if(isset($_GET["fullsearch"]) && $_GET["fullsearch"] && $settings->_enableFullSe
 		$query = $_GET["query"];
 	}
 	else {
-		$query = "";
+		$query = "";	
 	}
 
 	/* Select if only documents (0x01), only folders (0x02) or both (0x03)
@@ -355,36 +355,38 @@ if(isset($_GET["fullsearch"]) && $_GET["fullsearch"] && $settings->_enableFullSe
 
 
 	// ---------------- Start searching -----------------------------------------
-	$startTime = getTime();
-	$resArr = $dms->search($query, 0, 0 /*$limit, ($pageNumber-1)*$limit*/, $mode, $searchin, $startFolder, $owner, $status, $creationdate ? $startdate : array(), $creationdate ? $stopdate : array(), array(), array(), $categories, $attributes, $resultmode, $expirationdate ? $expstartdate : array(), $expirationdate ? $expstopdate : array());
-	$searchTime = getTime() - $startTime;
-	$searchTime = round($searchTime, 2);
-
 	$entries = array();
-	$fcount = 0;
-	if($resArr['folders']) {
-		foreach ($resArr['folders'] as $entry) {
-			if ($entry->getAccessMode($user) >= M_READ) {
-				$entries[] = $entry;
-				$fcount++;
+	$startTime = getTime();
+	if(intval(strlen($_GET["query"]) > 2)) {
+		$resArr = $dms->search($query, 0, 0 /*$limit, ($pageNumber-1)*$limit*/, $mode, $searchin, $startFolder, $owner, $status, $creationdate ? $startdate : array(), $creationdate ? $stopdate : array(), array(), array(), $categories, $attributes, $resultmode, $expirationdate ? $expstartdate : array(), $expirationdate ? $expstopdate : array());
+		$searchTime = getTime() - $startTime;
+		$searchTime = round($searchTime, 2);
+	
+		$fcount = 0;
+		if($resArr['folders']) {
+			foreach ($resArr['folders'] as $entry) {
+				if ($entry->getAccessMode($user) >= M_READ) {
+					$entries[] = $entry;
+					$fcount++;
+				}
 			}
 		}
-	}
-	$dcount = 0;
-	if($resArr['docs']) {
-		foreach ($resArr['docs'] as $entry) {
-			if ($entry->getAccessMode($user) >= M_READ) {
-				$entry->verifyLastestContentExpriry();
-				$entries[] = $entry;
-				$dcount++;
+		$dcount = 0;
+		if($resArr['docs']) {
+			foreach ($resArr['docs'] as $entry) {
+				if ($entry->getAccessMode($user) >= M_READ) {
+					$entry->verifyLastestContentExpriry();
+					$entries[] = $entry;
+					$dcount++;
+				}
 			}
 		}
+		$totalPages = (int) (count($entries)/$limit);
+		if(count($entries)%$limit)
+			$totalPages++;
+		if (!isset($_GET["pg"]) || strcasecmp($_GET["pg"], "all"))
+			$entries = array_slice($entries, ($pageNumber-1)*$limit, $limit);
 	}
-	$totalPages = (int) (count($entries)/$limit);
-	if(count($entries)%$limit)
-		$totalPages++;
-	if (!isset($_GET["pg"]) || strcasecmp($_GET["pg"], "all"))
-		$entries = array_slice($entries, ($pageNumber-1)*$limit, $limit);
 // }}}
 }
 

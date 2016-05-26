@@ -66,7 +66,7 @@ class SeedDMS_View_MyAccount extends SeedDMS_Bootstrap_Style {
 
 		print "<table class=\"table-condensed\">\n";
 		print "<tr>\n";
-		print "<td>".getMLText("name")." : </td>\n";
+		print "<td>".getMLText("user_name")." : </td>\n";
 		print "<td>".htmlspecialchars($user->getFullName()).($user->isAdmin() ? " (".getMLText("admin").")" : "")."</td>\n";
 		print "</tr>\n<tr>\n";
 		print "<td>".getMLText("user_login")." : </td>\n";

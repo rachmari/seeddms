@@ -634,7 +634,7 @@ Summary: [comment]
 Reason for change: [version_comment]
 User: [username]
 URL: [url]',
-'new_document_email_subject' => '[sitename]: - New document',
+'new_document_email_subject' => '[sitename]: [name] - New document',
 'new_file_email' => 'New attachment',
 'new_file_email_body' => 'New attachment: [name]
 Document: [document]
@@ -1409,7 +1409,7 @@ URL: [url]',
 'user_list' => 'List of Users',
 'user_login' => 'User ID',
 'user_management' => 'Users management',
-'user_name' => 'Full name',
+'user_name' => 'Name',
 'use_comment_of_document' => 'Use comment of document',
 'use_default_categories' => 'Use predefined categories',
 'use_default_keywords' => 'Use predefined keywords',

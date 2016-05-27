@@ -357,12 +357,16 @@ if(isset($_GET["fullsearch"]) && $_GET["fullsearch"] && $settings->_enableFullSe
 	// ---------------- Start searching -----------------------------------------
 	$entries = array();
 	$startTime = getTime();
-	if(intval(strlen($_GET["query"]) > 2)) {
+	$totalPages = 0;
+	$searchTime = 0;
+	$dcount = 0;
+	$fcount = 0;
+
+	if(isset($_GET["query"]) && intval(strlen($_GET["query"]) > 2)) {
 		$resArr = $dms->search($query, 0, 0 /*$limit, ($pageNumber-1)*$limit*/, $mode, $searchin, $startFolder, $owner, $status, $creationdate ? $startdate : array(), $creationdate ? $stopdate : array(), array(), array(), $categories, $attributes, $resultmode, $expirationdate ? $expstartdate : array(), $expirationdate ? $expstopdate : array());
 		$searchTime = getTime() - $startTime;
 		$searchTime = round($searchTime, 2);
 	
-		$fcount = 0;
 		if($resArr['folders']) {
 			foreach ($resArr['folders'] as $entry) {
 				if ($entry->getAccessMode($user) >= M_READ) {
@@ -371,7 +375,7 @@ if(isset($_GET["fullsearch"]) && $_GET["fullsearch"] && $settings->_enableFullSe
 				}
 			}
 		}
-		$dcount = 0;
+		
 		if($resArr['docs']) {
 			foreach ($resArr['docs'] as $entry) {
 				if ($entry->getAccessMode($user) >= M_READ) {

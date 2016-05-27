@@ -1407,7 +1407,7 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 					}
 					$file = $res[1];
 				} 
-				if($attachFileData[$i]['pdfFile']) {
+				if(array_key_exists('pdfFile', $attachFileData[$i])) {
 					$pdfFileData = $attachFileData[$i]['pdfFile'];
 					$res = $file->addDocumentFilePDF($pdfFileData['name'], "", $user, $pdfFileData['attachFileTmp'], $pdfFileData['attachFileName'], $pdfFileData['fileType'], $pdfFileData['attachFileType']);
 					if(is_bool($res[0]) && !$res[0]) {
@@ -1951,7 +1951,7 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 		$documentFilesByVer = array();
 
 		foreach ($resArr as $row) {
-			array_push($documentFilesByVer, new SeedDMS_Core_DocumentFile($row["id"], $content, $row["userID"], $row["comment"], $row["date"], $row["dir"], $row["fileType"], $row["mimeType"], $row["orgFileName"], $row["name"]));
+			array_push($documentFilesByVer, new SeedDMS_Core_DocumentFile($row["id"], $content, $row["userID"], $row["comment"], $row["date"], $row["dir"], $row["fileType"], $row["mimeType"], $row["orgFileName"], $row["name"], $row["fileSize"], $row["checksum"]));
 		}
 		return $documentFilesByVer;
 	}

@@ -127,19 +127,21 @@ URL: [url]',
 
 		$message = "<html><body>";
 		$message .= "<table>";
-		$message .= "<tr><strong>Memo # <a href='" . $params['url']  . "'>" . $params['doc_number'] . " REV " . $params['version'] . "</a> has been released</strong></tr><tr></tr>";
+		$message .= "<tr><strong>Memo # <a href='" . $params['url']  . "'>" . $params['doc_number'] . " REV " . $params['version'] . "&nbsp;</a>" . getMLText($params['status']) . "</strong></tr><tr></tr>";
 		$message .= "<tr><td><strong>Submitted by: </strong></td><td>" . $params['username'] . " on " . getReadableDate($params['date']) . "</td></tr>";
 		$message .= "<tr><td><strong>Title: </strong></td><td>" . $params['name'] . "</td></tr>";
 		$message .= "<tr><td><strong>Summary: </strong></td><td>" . $params['comment'] . "</td></tr>";
 		$message .= "<tr><td><strong>Reason for change: </strong></td><td>" . $params['version_comment'] . "</td></tr>";
 		$message .= "<tr><td><strong>Notification List: </strong></td><td>";
-		$first = 1;
-		foreach ($params["notify_list"] as $recipient) {
-			if($first) {
-				$message .= $recipient->getFullName();
-				$first = 0;
-			} else {
-				$message .= ", " . $recipient->getLogin();
+		if($params["notify_list"]) {
+			$first = 1;
+			foreach ($params["notify_list"] as $cc) {
+				if($first) {
+					$message .= $cc->getFullName();
+					$first = 0;
+				} else {
+					$message .= ", " . $cc->getFullName();
+				}
 			}
 		}
 		$message .= "</td></tr>";

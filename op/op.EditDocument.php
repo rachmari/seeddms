@@ -64,7 +64,7 @@ if ($comment == "") {
 $keywords = isset($_POST["keywords"]) ? $_POST["keywords"] : "";
 
 $sequence = isset($_POST["sequence"]) ? $_POST["sequence"] : "keep";
-$sequence = str_replace(',', '.', $_POST["sequence"]);
+$sequence = str_replace(',', '.', $sequence);
 if (!is_numeric($sequence)) {
 	$sequence="keep";
 }
@@ -73,12 +73,16 @@ if(isset($_POST["attributes"]))
 else
 	$attributes = array();
 
+
+$email_sent = false;
+
 if (($oldname = $document->getName()) != $name) {
 	if($document->setName($name)) {
 		// Send notification to subscribers.
 		if($notifier) {
 			$notifyList = $document->getNotifyList();
 			$folder = $document->getFolder();
+			$content = $document->getLatestContent();
 /*
 			$subject = "###SITENAME###: ".$oldname." - ".getMLText("document_renamed_email");
 			$message = getMLText("document_renamed_email")."\r\n";
@@ -101,7 +105,16 @@ if (($oldname = $document->getName()) != $name) {
 			$subject = "document_renamed_email_subject";
 			$message = "document_renamed_email_body";
 			$params = array();
+			$params['status'] = "document_renamed_email_status";
 			$params['name'] = $document->getName();
+			$params['folder_path'] = $folder->getFolderPathPlain();
+			$params['username'] = $user->getFullName();
+			$params['comment'] = $comment;
+			$params['date'] = $content->getDate();
+			$params['version_comment'] = "";
+			$params['version'] = $content->getCustomVersion();
+			$params['doc_number'] = $document->getDocNum();
+			$params['notify_list'] = $notifyList["users"];
 			$params['old_name'] = $oldname;
 			$params['folder_path'] = $folder->getFolderPathPlain();
 			$params['username'] = $user->getFullName();
@@ -118,6 +131,7 @@ if (($oldname = $document->getName()) != $name) {
 			foreach ($notifyList["groups"] as $grp) {
 				$notifier->toGroup($user, $grp, $subject, $message, $params);
 			}
+			$email_sent = true;
 		}
 
 	}
@@ -129,10 +143,10 @@ if (($oldname = $document->getName()) != $name) {
 if (($oldcomment = $document->getComment()) != $comment) {
 	if($document->setComment($comment)) {
 		// Send notification to subscribers.
-		if($notifier) {
+		if($notifier && !$email_sent) {
 			$notifyList = $document->getNotifyList();
 			$folder = $document->getFolder();
-
+			$content = $document->getLatestContent();
 /*
 			$subject = "###SITENAME###: ".$document->getName()." - ".getMLText("comment_changed_email");
 			$message = getMLText("document_comment_changed_email")."\r\n";
@@ -154,8 +168,16 @@ if (($oldcomment = $document->getComment()) != $comment) {
 			$subject = "document_comment_changed_email_subject";
 			$message = "document_comment_changed_email_body";
 			$params = array();
+			$params['status'] = "document_comment_changed_email_status";
 			$params['name'] = $document->getName();
 			$params['folder_path'] = $folder->getFolderPathPlain();
+			$params['username'] = $user->getFullName();
+			$params['comment'] = $comment;
+			$params['date'] = $content->getDate();
+			$params['version_comment'] = "";
+			$params['version'] = $content->getCustomVersion();
+			$params['doc_number'] = $document->getDocNum();
+			$params['notify_list'] = $notifyList["users"];
 			$params['old_comment'] = $oldcomment;
 			$params['new_comment'] = $comment;
 			$params['username'] = $user->getFullName();
@@ -172,6 +194,7 @@ if (($oldcomment = $document->getComment()) != $comment) {
 			foreach ($notifyList["groups"] as $grp) {
 				$notifier->toGroup($user, $grp, $subject, $message, $params);
 			}
+			$email_sent = true;
 		}
 	}
 	else {
@@ -194,9 +217,10 @@ if(isset($_POST['expires'])) {
 
 if ($expires != $document->getExpires()) {
 	if($document->setExpires($expires)) {
-		if($notifier) {
+		if($notifier && !$email_sent) {
 			$notifyList = $document->getNotifyList();
 			$folder = $document->getFolder();
+			$content = $document->getLatestContent();
 			// Send notification to subscribers.
 			$subject = "expiry_changed_email_subject";
 			$message = "expiry_changed_email_body";
@@ -204,6 +228,12 @@ if ($expires != $document->getExpires()) {
 			$params['name'] = $document->getName();
 			$params['folder_path'] = $folder->getFolderPathPlain();
 			$params['username'] = $user->getFullName();
+			$params['comment'] = $comment;
+			$params['date'] = $content->getDate();
+			$params['version_comment'] = "";
+			$params['version'] = $content->getCustomVersion();
+			$params['doc_number'] = $document->getDocNum();
+			$params['notify_list'] = $notifyList["users"];
 			$params['url'] = "http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?documentid=".$document->getID();
 			$params['sitename'] = $settings->_siteName;
 			$params['http_root'] = $settings->_httpRoot;

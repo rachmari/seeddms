@@ -31,13 +31,6 @@ require_once("class.Bootstrap.php");
  */
 class SeedDMS_View_UpdateDocument extends SeedDMS_Bootstrap_Style {
 
-	function __takeOverButton($name, $users) { /* {{{ */
-?>
-	<span id="<?php echo $name; ?>_btn" style="cursor: pointer;" title="<?php printMLText("takeOver".$name); ?>"><i class="icon-arrow-left"></i></span>
-
-<?php
-	} /* }}} */
-
 	function show() { /* {{{ */
 		$dms = $this->params['dms'];
 		$user = $this->params['user'];
@@ -52,7 +45,6 @@ class SeedDMS_View_UpdateDocument extends SeedDMS_Bootstrap_Style {
 		$workflowmode = $this->params['workflowmode'];
 		$presetexpiration = $this->params['presetexpiration'];
 		$documentid = $document->getId();
-		$sortusersinlist = $this->params['sortusersinlist'];
 		$notifyList = $document->getNotifyList();
 
 		$this->htmlStartPage(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))));
@@ -72,24 +64,6 @@ class SeedDMS_View_UpdateDocument extends SeedDMS_Bootstrap_Style {
 </script>
 <script language="JavaScript">
 $(document).ready( function() {
-	$('#<?php echo $name; ?>_btn').click(function(ev){
-		ev.preventDefault();
-<?php
-		foreach($users as $_id) {
-			echo "$(\"#".$name." option[value='".$_id."']\").attr(\"selected\", \"selected\");\n";
-		}
-?>
-		$("#<?php echo $name; ?>").trigger("chosen:updated");
-	});
-
-<?php
-	function js() { /* {{{ */
-		$strictformcheck = $this->params['strictformcheck'];
-		$dropfolderdir = $this->params['dropfolderdir'];
-		header('Content-Type: application/javascript');
-		$this->printDropFolderChooserJs("form1");
-	}
-?>
 	var addUploader = function() {
 	    var template = $('#upload-template').html();
 	    $('#uploads').prepend(template);

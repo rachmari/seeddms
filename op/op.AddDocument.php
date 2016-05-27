@@ -327,8 +327,8 @@ if(isset($GLOBALS['SEEDDMS_HOOKS']['addDocument'])) {
 		}
 	}
 }
-
-// Add pdf content files if they exist
+$pdfData = array();
+// Add pdf content file if it exists
 if (is_uploaded_file($_FILES["userfilePDF"]["tmp_name"])){
 	// Check for a size of 0
     if ($_FILES["userfilePDF"]["size"] == 0) {
@@ -350,7 +350,7 @@ if (is_uploaded_file($_FILES["userfilePDF"]["tmp_name"])){
 		If checks pass add the pdf file
 		Location of file in tmp directory
 	*/
-    $pdfData = array();
+    
     $pdfData['name'] = null;
 	$pdfData['pdfFileTmp'] = $_FILES['userfilePDF']['tmp_name'];
 	// MIME type of file
@@ -368,7 +368,6 @@ if (is_uploaded_file($_FILES["userfilePDF"]["tmp_name"])){
 if(count($pdfData) == 0) {
 	$pdfData = null;
 }
-
 // Add attachment files
 /* Todo: Currently there is no name or comment for attachments,
    so instantiate with an empty string. Name will be added
@@ -423,44 +422,45 @@ for ($file_num=0; $file_num<count($_FILES['attachfile']['tmp_name']); $file_num+
 			$finfo = finfo_open(FILEINFO_MIME_TYPE);
 			$attachInfoFile['attachFileType'] = finfo_file($finfo, $attachInfoFile['attachFileTmp']);
 		}
-		if($FILES['attachfilePDF']){
-		if (is_uploaded_file($_FILES['attachfilePDF']['tmp_name'][$file_num])){
-			// Check for a size of 0
-		    if ($_FILES['attachfilePDF']['size'][$file_num] == 0) {
-		        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_zerosize"));
-		    }
-		    // Check for max file size of 60MB
-		    if ($_FILES['attachfilePDF']['size'][$file_num] > 60*1024*1024) {
-		        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),$_FILES['attachfile']['name'][$file_num] . " " . getMLText("uploading_maxsize"));
-		    }
-		    // Check for any logged errors
-		    if ($_FILES['attachfilePDF']['error'][$file_num] != 0){
-		        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
-		    }
+		if(array_key_exists('attachfilePDF', $_FILES)) {
+			if (is_uploaded_file($_FILES['attachfilePDF']['tmp_name'][$file_num])){
+				// Check for a size of 0
+			    if ($_FILES['attachfilePDF']['size'][$file_num] == 0) {
+			        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_zerosize"));
+			    }
+			    // Check for max file size of 60MB
+			    if ($_FILES['attachfilePDF']['size'][$file_num] > 60*1024*1024) {
+			        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),$_FILES['attachfile']['name'][$file_num] . " " . getMLText("uploading_maxsize"));
+			    }
+			    // Check for any logged errors
+			    if ($_FILES['attachfilePDF']['error'][$file_num] != 0){
+			        UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
+			    }
 
-		    /*
-		    	If checks pass add the attachment file(s)
-		    	Location of file in tmp directory
-		 	*/
-		   	$attachInfoPDF = array();
-		   	$attachInfoPDF['name'] = null;
-			$attachInfoFile['attachFileTmp'] = $_FILES['attachfilePDF']['tmp_name'][$file_num];
-			// MIME type of file
-			$attachInfoFile['attachFileType'] = $_FILES['attachfilePDF']['type'][$file_num];
-			
+			    /*
+			    	If checks pass add the attachment file(s)
+			    	Location of file in tmp directory
+			 	*/
+			   	$attachInfoPDF = array();
+			   	$attachInfoPDF['name'] = null;
+				$attachInfoFile['attachFileTmp'] = $_FILES['attachfilePDF']['tmp_name'][$file_num];
+				// MIME type of file
+				$attachInfoFile['attachFileType'] = $_FILES['attachfilePDF']['type'][$file_num];
+				
 
-			// Original file name
-			$filename = $_FILES['attachfilePDF']['name'][$file_num];
+				// Original file name
+				$filename = $_FILES['attachfilePDF']['name'][$file_num];
 
-			$attachInfoFile['fileType'] = ".".pathinfo($filename, PATHINFO_EXTENSION);
-			$attachInfoFile['attachFileName'] = basename($filename);
+				$attachInfoFile['fileType'] = ".".pathinfo($filename, PATHINFO_EXTENSION);
+				$attachInfoFile['attachFileName'] = basename($filename);
 
-			if($settings->_overrideMimeType) {
-				$finfo = finfo_open(FILEINFO_MIME_TYPE);
-				$attachInfoFile['attachFileType'] = finfo_file($finfo, $attachInfoFile['attachFileTmp']);
+				if($settings->_overrideMimeType) {
+					$finfo = finfo_open(FILEINFO_MIME_TYPE);
+					$attachInfoFile['attachFileType'] = finfo_file($finfo, $attachInfoFile['attachFileTmp']);
+				}
+				$attachInfo['pdfFile'] = $attachInfoPDF;
 			}
-			$attachInfo['pdfFile'] = $attachInfoPDF;
-		}}
+		}
 
 		$attachInfo['file'] = $attachInfoFile;
 		$attachFileData[] = $attachInfo;
@@ -545,6 +545,7 @@ if (is_bool($res[0]) && !$res[0]) {
 		$subject = "new_document_email_subject";
 		$message = "new_document_email_body";
 		$params = array();
+		$params['status'] = "new_document_email_status";
 		$params['name'] = $name;
 		$params['username'] = $user->getFullName();
 		$params['comment'] = $comment;

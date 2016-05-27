@@ -306,7 +306,8 @@ Old summary: [old_comment]
 Summary: [new_comment]
 User: [username]
 URL: [url]',
-'document_comment_changed_email_subject' => '[sitename]: [name] - Comment changed',
+'document_comment_changed_email_status' => 'summary has changed',
+'document_comment_changed_email_subject' => '[sitename]: [name] - Summary changed',
 'document_count' => 'Number of documents',
 'document_deleted' => 'Document deleted',
 'document_deleted_email' => 'Document deleted',
@@ -336,6 +337,7 @@ Document: [name]
 Old title: [old_name]
 User: [username]
 URL: [url]',
+'document_renamed_email_status' => 'has been renamed',
 'document_renamed_email_subject' => '[sitename]: [name] - Document renamed',
 'document_status_changed_email' => 'Document status changed',
 'document_status_changed_email_body' => 'Document status changed
@@ -353,6 +355,7 @@ User: [username]
 Summary: [comment]
 Reason for change: [version_comment]
 URL: [url]',
+'document_updated_email_status' => 'has been updated',
 'document_updated_email_subject' => '[sitename]: [name] - Document updated',
 'does_not_expire' => 'Does not expire',
 'does_not_inherit_access_msg' => 'Inherit access',
@@ -555,6 +558,7 @@ URL: [url]',
 'js_no_review_group' => 'Please select a review group',
 'js_no_review_status' => 'Please select the review status',
 'js_pwd_not_conf' => 'Password and passwords-confirmation are not equal',
+'js_same_info' => 'You have not made any changes to the title or summary',
 'js_select_user' => 'Please select an user',
 'js_select_user_or_group' => 'Select at least a user or a group',
 'july' => 'July',
@@ -634,6 +638,7 @@ Summary: [comment]
 Reason for change: [version_comment]
 User: [username]
 URL: [url]',
+'new_document_email_status' => 'has been released',
 'new_document_email_subject' => '[sitename]: [name] - New document',
 'new_file_email' => 'New attachment',
 'new_file_email_body' => 'New attachment: [name]

@@ -362,7 +362,7 @@ if(isset($_GET["fullsearch"]) && $_GET["fullsearch"] && $settings->_enableFullSe
 	$dcount = 0;
 	$fcount = 0;
 
-	if(isset($_GET["query"]) && intval(strlen($_GET["query"]) > 2)) {
+	if(isset($_GET["query"]) && intval(strlen($_GET["query"]) > 2) || $owner != null) {
 		$resArr = $dms->search($query, 0, 0 /*$limit, ($pageNumber-1)*$limit*/, $mode, $searchin, $startFolder, $owner, $status, $creationdate ? $startdate : array(), $creationdate ? $stopdate : array(), array(), array(), $categories, $attributes, $resultmode, $expirationdate ? $expstartdate : array(), $expirationdate ? $expstopdate : array());
 		$searchTime = getTime() - $startTime;
 		$searchTime = round($searchTime, 2);

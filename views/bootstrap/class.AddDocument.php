@@ -137,7 +137,7 @@ $(document).ready(function() {
 	$('#add-doc-form').submit(function(event) {
 		/* Check the form for missing information */
 		var acceptedFileTypes = ['application/pdf', 'application/vnd.oasis.opendocument.text', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.oasis.opendocument.presentation', 'application/rtf', 'application/x-rtf', 'text/richtext'];
-		var imageFileTypes = ['image/bmp', 'image/x-windows-bmp', 'image/gif', 'image/jpeg', 'image/pjpeg', 'image/jpeg', 'image/png', 'image/tiff', 'image/x-tiff'];
+		var imageFileTypes = ['image/bmp', 'image/x-windows-bmp', 'image/gif', 'image/jpeg', 'image/pjpeg', 'image/jpeg', 'image/png', 'image/tiff', 'image/x-tiff', 'application/excel', 'application/vnd.oasis.opendocument.spreadsheet', 'text/csv', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
 		var acceptedAttachTypes = acceptedFileTypes.concat(imageFileTypes);
 
 		msg = new Array();

@@ -293,7 +293,7 @@ if (is_uploaded_file($_FILES["userfile"]["tmp_name"]) && $_FILES['userfile']['er
 // Ensure file types are acceptable
 $acceptedFileTypes = array('application/pdf', 'application/vnd.oasis.opendocument.text', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.oasis.opendocument.presentation', 'application/rtf', 'application/x-rtf', 'text/richtext');
 
-$imageFileTypes = array('image/bmp', 'image/x-windows-bmp', 'image/gif', 'image/jpeg', 'image/pjpeg', 'image/jpeg', 'image/png', 'image/tiff', 'image/x-tiff');
+$imageFileTypes = array('image/bmp', 'image/x-windows-bmp', 'image/gif', 'image/jpeg', 'image/pjpeg', 'image/jpeg', 'image/png', 'image/tiff', 'image/x-tiff', 'application/excel', 'application/vnd.oasis.opendocument.spreadsheet', 'text/csv', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
 $acceptedAttachTypes = array_merge($acceptedFileTypes, $imageFileTypes);
 

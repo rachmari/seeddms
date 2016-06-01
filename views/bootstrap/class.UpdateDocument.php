@@ -136,7 +136,6 @@ $(document).ready( function() {
 			var file = this.files[0];
 			if(file) {
 				var fileExt = file.name.split('.').pop();
-				console.log(fileExt);
 				var match = 0;
 				for(var i = 0; i < acceptedAttachTypes.length; i++) {
 					if(fileExt === acceptedAttachTypes[i]) match = 1;

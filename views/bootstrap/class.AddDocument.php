@@ -144,6 +144,7 @@ $(document).ready(function() {
 
 		var acceptedAttachTypes = acceptedFileTypes.concat(acceptedExtensions);
 		
+		if ($('#setDocNumber').val() === '') msg.push("<?php printMLText("js_no_number");?>");
 		if ($('#title-input').val() === '') msg.push("<?php printMLText("js_no_name");?>");
 		if ($('#comment-input').val() === '') msg.push("<?php printMLText("js_no_comment");?>");
 		if ($('#userfile').val() === '') msg.push("<?php printMLText("js_no_file");?>");

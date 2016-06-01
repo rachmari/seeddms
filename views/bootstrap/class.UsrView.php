@@ -50,7 +50,7 @@ class SeedDMS_View_UsrView extends SeedDMS_Bootstrap_Style {
 		echo "<thead>\n<tr>\n";
 		echo "<th>".getMLText("name")."</th>\n";
 		echo "<th>".getMLText("email")."</th>\n";
-		echo "<th>".getMLText("comment")."</th>\n";
+		echo "<th>".getMLText("about_me")."</th>\n";
 		if ($enableuserimage) echo "<th>".getMLText("user_image")."</th>\n";
 		echo "</tr>\n</thead>\n";
 

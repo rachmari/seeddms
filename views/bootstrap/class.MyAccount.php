@@ -75,7 +75,7 @@ class SeedDMS_View_MyAccount extends SeedDMS_Bootstrap_Style {
 		print "<td>".getMLText("email")." : </td>\n";
 		print "<td>".htmlspecialchars($user->getEmail())."</td>\n";
 		print "</tr>\n<tr>\n";
-		print "<td>".getMLText("comment")." : </td>\n";
+		print "<td>".getMLText("about_me")." : </td>\n";
 		print "<td>".htmlspecialchars($user->getComment())."</td>\n";
 		print "</tr>\n";
 		if($passwordexpiration > 0) {

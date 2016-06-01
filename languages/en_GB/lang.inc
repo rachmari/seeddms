@@ -22,6 +22,7 @@
 //    Translators: Admin (1309), dgrutsch (7), netixw (14)
 
 $text = array(
+'about_me' => 'About me',
 'accept' => 'Accept',
 'access_denied' => 'Access denied.',
 'access_inheritance' => 'Access Inheritance',

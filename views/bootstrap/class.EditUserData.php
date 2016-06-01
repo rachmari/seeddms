@@ -119,7 +119,7 @@ $(document).ready( function() {
 		<td><input type="text" id="email" name="email" value="<?php print htmlspecialchars($user->getEmail());?>" size="30"></td>
 	</tr>
 	<tr>
-		<td><?php printMLText("comment");?>:</td>
+		<td><?php printMLText("about_me");?>:</td>
 		<td><textarea name="comment" rows="4" cols="80"><?php print htmlspecialchars($user->getComment());?></textarea></td>
 	</tr>
 

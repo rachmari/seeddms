@@ -113,7 +113,6 @@ $(document).ready( function() {
 
 		var acceptedAttachTypes = acceptedFileTypes.concat(acceptedExtensions);
 
-		/*
 		if ($('#userfile').val() === '') msg.push("<?php printMLText("js_no_file");?>");
 		// Check for file type to be document, pdf, or presentation
 		else {
@@ -142,7 +141,7 @@ $(document).ready( function() {
 				}
 				if(!match) msg.push("<?php printMLText("attach_type_error");?>");
 			}
-		});*/
+		});
 
 		$('input:file').each(function() {
 			var file = this.files[0];

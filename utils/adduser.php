@@ -75,7 +75,9 @@ if(isset($options['e'])) {
 
 $user = $dms->getUserByLogin($login);
 if (is_bool($user)) {
-    $res = $dms->addUser($login, null, $fullname, $email, $settings->_language, $settings->_theme, null);
+
+
+    $res = $dms->addUser($login, null, $fullname, $email, $settings->_language, $settings->_theme, null, 0, 0, 0);
 
     if (is_bool($res) && !$res) {
         echo $res;

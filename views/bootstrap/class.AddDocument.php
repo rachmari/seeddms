@@ -135,36 +135,42 @@ $(document).ready(function() {
 	});
 
 	$('#add-doc-form').submit(function(event) {
-		/* Check the form for missing information */
-		var acceptedFileTypes = ['application/pdf', 'application/vnd.oasis.opendocument.text', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.oasis.opendocument.presentation', 'application/rtf', 'application/x-rtf', 'text/richtext'];
-		var imageFileTypes = ['text/plain', 'image/bmp', 'image/x-windows-bmp', 'image/gif', 'image/jpeg', 'image/pjpeg', 'image/jpeg', 'image/png', 'image/tiff', 'image/x-tiff', 'application/excel', 'application/vnd.oasis.opendocument.spreadsheet', 'text/csv', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel.sheet.macroenabled.12', 'application/vnd.ms-excel.addin.macroenabled.12', 'application/vnd.ms-excel.sheet.binary.macroenabled.12', 'application/vnd.ms-excel.template.macroenabled.12', 'application/vnd.openxmlformats-officedocument.spreadsheetml.template', 'application/vnd.ms-office', 'application/visio', 'application/x-visio', 'application/vnd.visio', 'application/visio.drawing', 'application/vsd', 'application/x-vsd', 'image/x-vsd', 'zz-application/zz-winassoc-vsd'];
-		var acceptedAttachTypes = acceptedFileTypes.concat(imageFileTypes);
 
 		msg = new Array();
-		if ($('#title-input').val() === "") msg.push("<?php printMLText("js_no_name");?>");
-		if ($('#comment-input').val() === "") msg.push("<?php printMLText("js_no_comment");?>");
-		if ($('#userfile').val() ==='') msg.push("<?php printMLText("js_no_file");?>");
+		var acceptedFileTypes = ['pdf', 'doc', 'docx', 'odt', 'rtf', 'ppt', 'pptx', 'odp'];
+		var acceptedExtensions = ['txt', 'csv', 'xls', 'xlt', 'xlsm', 'xlsx', 'xlsb', 
+						    	  'xltx', 'xltm', 'ods', 'bmp', 'gif', 'jpeg', 'jpg', 
+						    	  'png', 'tiff', 'vsd']
+
+		var acceptedAttachTypes = acceptedFileTypes.concat(acceptedExtensions);
+		
+		if ($('#title-input').val() === '') msg.push("<?php printMLText("js_no_name");?>");
+		if ($('#comment-input').val() === '') msg.push("<?php printMLText("js_no_comment");?>");
+		if ($('#userfile').val() === '') msg.push("<?php printMLText("js_no_file");?>");
 		// Check for file type to be document, pdf, or presentation
 		else {
 			var file = $('#userfile').prop("files")[0];
+			var fileExt = file.name.split('.').pop();
 			var match, i = 0;
 			for(i; i < acceptedFileTypes.length; i++) {
-				if(file.type === acceptedFileTypes[i]) match = 1;
+				if(fileExt === acceptedFileTypes[i]) match = 1;
 			}
 			if(!match) msg.push("<?php printMLText("source_type_error");?>");
 		}
 		// Get file object from input to check for pdf type
 		if($('#userfilePDF').prop("files")[0]) {
 			var file = $('#userfilePDF').prop("files")[0];
-			if(file.type !== 'application/pdf') msg.push("<?php printMLText("pdf_type_error");?>");
+			var fileExt = file.name.split('.').pop();
+			if(fileExt !== 'pdf') msg.push("<?php printMLText("pdf_type_error");?>");
 		}
 
 		$('.upload-input').each(function() {
 			var file = this.files[0];
 			if(file) {
+				var fileExt = file.name.split('.').pop();
 				var match = 0;
 				for(var i = 0; i < acceptedAttachTypes.length; i++) {
-					if(file.type === acceptedAttachTypes[i]) match = 1;
+					if(fileExt === acceptedAttachTypes[i]) match = 1;
 				}
 				if(!match) msg.push("<?php printMLText("attach_type_error");?>");
 			}

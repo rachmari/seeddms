@@ -290,27 +290,32 @@ if ($_FILES["userfile"]["size"] > 60*1024*1024) {
 if (is_uploaded_file($_FILES["userfile"]["tmp_name"]) && $_FILES['userfile']['error']!=0){
 	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
 }
-// Ensure file types are acceptable
-$acceptedFileTypes = array('application/pdf', 'application/vnd.oasis.opendocument.text', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.oasis.opendocument.presentation', 'application/rtf', 'application/x-rtf', 'text/richtext');
 
-$imageFileTypes = array('text/plain', 'image/bmp', 'image/x-windows-bmp', 'image/gif', 'image/jpeg', 'image/pjpeg', 'image/jpeg', 'image/png', 'image/tiff', 'image/x-tiff', 'application/excel', 'application/vnd.oasis.opendocument.spreadsheet', 'text/csv', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel.sheet.macroenabled.12', 'application/vnd.ms-excel.addin.macroenabled.12', 'application/vnd.ms-excel.sheet.binary.macroenabled.12', 'application/vnd.ms-excel.template.macroenabled.12', 'application/vnd.openxmlformats-officedocument.spreadsheetml.template', 'application/vnd.ms-office', 'application/visio', 'application/x-visio', 'application/vnd.visio', 'application/visio.drawing', 'application/vsd', 'application/x-vsd', 'image/x-vsd', 'zz-application/zz-winassoc-vsd');
+// Only accept documents, pdfs, and presentations as source files
+$acceptedFileTypes = array('pdf', 'doc', 'docx', 'odt', 'rtf', 'ppt', 'pptx', 'odp');
 
-$acceptedAttachTypes = array_merge($acceptedFileTypes, $imageFileTypes);
+// In addition to source file types, accept spreadsheet, visio, images and text types
+$acceptedExtensions = array('txt', 'csv', 'xls', 'xlt', 'xlsm', 'xlsx', 'xlsb', 
+						    'xltx', 'xltm', 'ods', 'bmp', 'gif', 'jpeg', 'jpg', 
+						    'png', 'tiff', 'vsd');
 
-$match = 0;
-$sourceMimeType = $_FILES["userfile"]["type"];
-for ($i=0; $i<count($acceptedFileTypes); $i++) {
-	if ($sourceMimeType == $acceptedFileTypes[$i]) $match = 1;
-}
-if (!$match) UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("source_type_error"));
+$acceptedAttachTypes = array_merge($acceptedFileTypes, $acceptedExtensions);
 
 $sourceFilePath = $_FILES["userfile"]["tmp_name"];
 $sourceFileName = $_FILES["userfile"]["name"];
-$sourceFileType = ".".pathinfo($sourceFileName, PATHINFO_EXTENSION);
+$sourceFileExt = pathinfo($sourceFileName, PATHINFO_EXTENSION);
+$sourceMimeType = $_FILES["userfile"]["type"];
+
+$match = 0;
+for ($i=0; $i<count($acceptedFileTypes); $i++) {
+	if ($sourceFileExt == $acceptedFileTypes[$i]) $match = 1;
+}
+if (!$match) UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("source_type_error"));
+$sourceFileExt = ".".$sourceFileExt;
 
 if($settings->_overrideMimeType) {
 	$finfo = finfo_open(FILEINFO_MIME_TYPE);
-	$sourceFileType = finfo_file($finfo, $sourceFilePath);
+	$sourceFileExt = ".".finfo_file($finfo, $sourceFilePath);
 }
 
 /* Check if name already exists in the folder */
@@ -330,6 +335,10 @@ if(isset($GLOBALS['SEEDDMS_HOOKS']['addDocument'])) {
 $pdfData = array();
 // Add pdf content file if it exists
 if (is_uploaded_file($_FILES["userfilePDF"]["tmp_name"])){
+
+	$filename = $_FILES['userfilePDF']['name'];
+	$pdfExt = pathinfo($filename, PATHINFO_EXTENSION);
+
 	// Check for a size of 0
     if ($_FILES["userfilePDF"]["size"] == 0) {
         UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_zerosize"));
@@ -343,9 +352,10 @@ if (is_uploaded_file($_FILES["userfilePDF"]["tmp_name"])){
         UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
     }
     // Ensure file type is a PDF.
-    if ($_FILES["userfilePDF"]["type"] != "application/pdf"){
+    if ($pdfExt != "pdf"){
         UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("pdf_filetype_error"));
     }
+
 	/*
 		If checks pass add the pdf file
 		Location of file in tmp directory
@@ -356,8 +366,7 @@ if (is_uploaded_file($_FILES["userfilePDF"]["tmp_name"])){
 	// MIME type of file
 	$pdfData['pdfFileType'] = $_FILES['userfilePDF']['type'];
 	// Original file name
-	$filename = $_FILES['userfilePDF']['name'];
-	$pdfData['fileType'] = ".".pathinfo($filename, PATHINFO_EXTENSION);
+	$pdfData['fileType'] = ".".$pdfExt;
 	$pdfData['pdfFileName'] = basename($filename);
 
 	if($settings->_overrideMimeType) {
@@ -395,10 +404,14 @@ for ($file_num=0; $file_num<count($_FILES['attachfile']['tmp_name']); $file_num+
 	    }
 
 		$match = 0;
+		$filepath = $_FILES['attachfile']['tmp_name'][$file_num];
 		$fileType = $_FILES['attachfile']['type'][$file_num];
+		$filename = $_FILES['attachfile']['name'][$file_num];
+		$fileExt = pathinfo($filename, PATHINFO_EXTENSION);
 		for ($i=0; $i<count($acceptedAttachTypes); $i++) {
-			if ($fileType == $acceptedAttachTypes[$i]) $match = 1;
-		}
+			if ($fileExt == $acceptedAttachTypes[$i]) $match = 1;
+		}	
+
 		if (!$match) UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("attach_type_error"));
 
 	    /*
@@ -407,15 +420,10 @@ for ($file_num=0; $file_num<count($_FILES['attachfile']['tmp_name']); $file_num+
 	 	*/
 	   	$attachInfoFile = array();
 	   	$attachInfoFile['name'] = null;
-		$attachInfoFile['attachFileTmp'] = $_FILES['attachfile']['tmp_name'][$file_num];
+		$attachInfoFile['attachFileTmp'] = $filepath;
 		// MIME type of file
-		$attachInfoFile['attachFileType'] = $_FILES['attachfile']['type'][$file_num];
-		
-
-		// Original file name
-		$filename = $_FILES['attachfile']['name'][$file_num];
-
-		$attachInfoFile['fileType'] = ".".pathinfo($filename, PATHINFO_EXTENSION);
+		$attachInfoFile['attachFileType'] = $fileType;
+		$attachInfoFile['fileType'] = ".".$fileExt;
 		$attachInfoFile['attachFileName'] = basename($filename);
 
 		if($settings->_overrideMimeType) {
@@ -473,7 +481,7 @@ if(count($attachFileData) == 0) {
 
 $res = $folder->addDocument($name, $comment, $expires, $user, $keywords,
 							$catID, $sourceFilePath, $sourceFileName,
-                            $sourceFileType, $sourceMimeType, $sequence,
+                            $sourceFileExt, $sourceMimeType, $sequence,
                             $reviewers, $approvers, $reqversion,
                             $version_comment, $attributes, $attributes_version, $workflow, $setDocNumber, 1, $pdfData, $attachFileData);
 

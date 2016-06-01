@@ -13,10 +13,13 @@ function usage() { /* {{{ */
     echo "  --config: set alternative config file.\n";
     echo "  -l login - required\n";
     echo "  -n full name - required\n";
+    echo "  -e email - required\n";
+    echo "Example: php adduser.php -l 'jack.jill' -n 'Jack Jill' -e 'jack.jill@google.com'";
+
 } /* }}} */
 
 
-$shortoptions = "l:n:hv";
+$shortoptions = "e:l:n:hv";
 $longoptions = array('help', 'version', 'config:');
 if(false === ($options = getopt($shortoptions, $longoptions))) {
     usage();
@@ -26,6 +29,8 @@ if(false === ($options = getopt($shortoptions, $longoptions))) {
 /* Set alternative config file */
 if(isset($options['config'])) {
     $settings = new Settings($options['config']);
+} elseif(file_exists('../conf/settings.xml')) {
+    $settings = new Settings('../conf/settings.xml');
 } else {
     $settings = new Settings();
 }
@@ -60,9 +65,17 @@ if(isset($options['n'])) {
     exit(1);
 }
 
+$email = '';
+if(isset($options['e'])) {
+    $email = $options['e'];
+} else {
+    usage();
+    exit(1);
+}
+
 $user = $dms->getUserByLogin($login);
 if (is_bool($user)) {
-    $res = $dms->addUser($login, null, $fullname, null, $settings->_language, $settings->_theme, null, '0', 0, 1);
+    $res = $dms->addUser($login, null, $fullname, $email, $settings->_language, $settings->_theme, null);
 
     if (is_bool($res) && !$res) {
         echo $res;

@@ -1596,27 +1596,42 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 		$status = $version->getStatus();
 		$stID = $status["statusID"];
 
+		$queryStr = "DELETE FROM tblDocumentContentPDF WHERE `content` = " . $version->getID() .	" AND `version` = " . $version->_version;
+		if (!$db->getResult($queryStr)) {
+			$db->rollbackTransaction();
+			echo "CONTENT TABLE";
+			echo "ID: " . $this->getID();
+			echo "VERSION: " . $version->_version;
+			return false;
+		}
+
 		$queryStr = "DELETE FROM tblDocumentContent WHERE `document` = " . $this->getID() .	" AND `version` = " . $version->_version;
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();
+			echo "CONTENT TABLE";
+			echo "ID: " . $this->getID();
+			echo "VERSION: " . $version->_version;
 			return false;
 		}
 
 		$queryStr = "DELETE FROM tblDocumentContentAttributes WHERE content = " . $version->getId();
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();
+			echo "CONTENT ATTRIBUTES TABLE";
 			return false;
 		}
 
 		$queryStr = "DELETE FROM `tblDocumentStatusLog` WHERE `statusID` = '".$stID."'";
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();
+			echo "STATUS LOG TABLE";
 			return false;
 		}
 
 		$queryStr = "DELETE FROM `tblDocumentStatus` WHERE `documentID` = '". $this->getID() ."' AND `version` = '" . $version->_version."'";
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();
+			echo "STATUS TABLE";
 			return false;
 		}
 
@@ -1924,6 +1939,19 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 		return new SeedDMS_Core_DocumentFile($resArr["id"], $content, $resArr["userID"], $resArr["comment"], $resArr["date"], $resArr["dir"], $resArr["fileType"], $resArr["mimeType"], $resArr["orgFileName"], $resArr["name"], $resArr["fileSize"], $resArr["checksum"]);
 	} /* }}} */
 
+	function getDocumentFileByContent($content, $ID) { /* {{{ */
+		$db = $this->_dms->getDB();
+
+		if (!is_numeric($ID)) return false;
+		$queryStr = "SELECT * FROM tblDocumentFiles WHERE content = " . $content->_id ." AND id = " . (int) $ID;
+		$resArr = $db->getResultArray($queryStr);
+		if ((is_bool($resArr) && !$resArr) || count($resArr)==0) return false;
+
+		$resArr = $resArr[0];
+
+		return new SeedDMS_Core_DocumentFile($resArr["id"], $content, $resArr["userID"], $resArr["comment"], $resArr["date"], $resArr["dir"], $resArr["fileType"], $resArr["mimeType"], $resArr["orgFileName"], $resArr["name"], $resArr["fileSize"], $resArr["checksum"]);
+	} /* }}} */
+
 	function getDocumentFiles() { /* {{{ */
 		if (!isset($this->_documentFiles)) {
 			$db = $this->_dms->getDB();
@@ -1946,7 +1974,7 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 		$db = $this->_dms->getDB();
 		$queryStr = "SELECT * FROM tblDocumentFiles WHERE content = " . $content->_id . " ORDER BY `date` DESC";
 		$resArr = $db->getResultArray($queryStr);
-		if (is_bool($resArr) && !resArr) return false;
+		if (is_bool($resArr) && !$resArr) return false;
 
 		$documentFilesByVer = array();
 
@@ -2011,12 +2039,12 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 		return array(true, $file);
 	} /* }}} */
 
-	function removeDocumentFile($ID) { /* {{{ */
+	function removeDocumentFile($content, $ID) { /* {{{ */
 		$db = $this->_dms->getDB();
 
 		if (!is_numeric($ID)) return false;
 
-		$file = $this->getDocumentFile($ID);
+		$file = $this->getDocumentFileByContent($content, $ID);
 		if (is_bool($file) && !$file) return false;
 
 		if (file_exists( $this->_dms->contentDir . $file->getPath() )){
@@ -2027,7 +2055,11 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 		$name=$file->getName();
 		$comment=$file->getcomment();
 
-		$queryStr = "DELETE FROM tblDocumentFiles WHERE document = " . $this->getID() . " AND id = " . (int) $ID;
+		$queryStr = "DELETE FROM tblDocumentFilesPDF WHERE file = " . (int) $ID;
+		if (!$db->getResult($queryStr))
+			return false;
+
+		$queryStr = "DELETE FROM tblDocumentFiles WHERE id = " . (int) $ID;
 		if (!$db->getResult($queryStr))
 			return false;
 
@@ -2051,7 +2083,7 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 	 */
 	function remove() { /* {{{ */
 		$db = $this->_dms->getDB();
-
+		echo "IN REMOVE  ";
 		/* Check if 'onPreRemoveDocument' callback is set */
 		if(isset($this->_dms->callbacks['onPreRemoveDocument'])) {
 			$callback = $this->_dms->callbacks['onPreRemoveDocument'];
@@ -2061,72 +2093,103 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 		}
 
 		$res = $this->getContent();
-		if (is_bool($res) && !$res) return false;
+		if (is_bool($res) && !$res) {
+			echo "NO CONTENT ";
+			return false;
+		} 
 
 		$db->startTransaction();
-
+		echo "BEGIN LOOP: ";
 		// FIXME: call a new function removeContent instead
 		foreach ($this->_content as $version) {
+			// remove document file
+			$res = $this->getFilesByVersion($version);
+			if (is_bool($res) && !$res) {
+				$db->rollbackTransaction();
+				echo "GET FILE FAILURE";
+				return false;
+			}
+
+			foreach ($res as $documentfile)
+			{
+				if(!$this->removeDocumentFile($version, $documentfile->getId())) {
+					$db->rollbackTransaction();
+					echo "FILE FAILURE";
+					return false;
+				}
+			}
+
 			if (!$this->removeContent($version)) {
 				$db->rollbackTransaction();
+				echo "CONTENT FAILURE";
 				return false;
 			}
 		}
-
-		// remove document file
-		$res = $this->getDocumentFiles();
-		if (is_bool($res) && !$res) {
-			$db->rollbackTransaction();
-			return false;
-		}
-
-		foreach ($res as $documentfile)
-			if(!$this->removeDocumentFile($documentfile->getId())) {
-				$db->rollbackTransaction();
-				return false;
-			}
-
+		echo "END LOOP: ";
 		// TODO: versioning file?
 
 		if (file_exists( $this->_dms->contentDir . $this->getDir() ))
 			if (!SeedDMS_Core_File::removeDir( $this->_dms->contentDir . $this->getDir() )) {
 				$db->rollbackTransaction();
+				echo "REMOVING DIR: ";
 				return false;
 			}
 
 		$queryStr = "DELETE FROM tblDocuments WHERE id = " . $this->_id;
 		if (!$db->getResult($queryStr)) {
+			echo "RM tblDocuments   ";
 			$db->rollbackTransaction();
 			return false;
 		}
 		$queryStr = "DELETE FROM tblDocumentAttributes WHERE document = " . $this->_id;
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();
+			echo "RM tblDocumentAttributes   ";
 			return false;
 		}
 		$queryStr = "DELETE FROM tblACLs WHERE target = " . $this->_id . " AND targetType = " . T_DOCUMENT;
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();
+			echo "RM tblACLs   ";
 			return false;
 		}
 		$queryStr = "DELETE FROM tblDocumentLinks WHERE document = " . $this->_id . " OR target = " . $this->_id;
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();
+			echo "RM tblDocumentLinks   ";
 			return false;
 		}
 		$queryStr = "DELETE FROM tblDocumentLocks WHERE document = " . $this->_id;
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();
+			echo "RM tblDocumentLocks   ";
 			return false;
 		}
+		/* THIS IS A DUPLICATE
 		$queryStr = "DELETE FROM tblDocumentFiles WHERE document = " . $this->_id;
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();
 			return false;
 		}
+		*/
+		$queryStr = "DELETE FROM tblMemoNumbers WHERE documentID = " . $this->_id;
+		if (!$db->getResult($queryStr)) {
+			$db->rollbackTransaction();
+			echo "RM tblMemoNumbers   ";
+			return false;
+		}
+
+		$queryStr = "DELETE FROM tblSpecNumbers WHERE documentID = " . $this->_id;
+		if (!$db->getResult($queryStr)) {
+			$db->rollbackTransaction();
+			echo "RM tblSpecNumbers   ";
+			return false;
+		}
+
 		$queryStr = "DELETE FROM tblDocumentCategory WHERE documentID = " . $this->_id;
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();
+			echo "RM tblDocumentCategory   ";
 			return false;
 		}
 
@@ -2134,6 +2197,7 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 		$queryStr = "DELETE FROM tblNotify WHERE target = " . $this->_id . " AND targetType = " . T_DOCUMENT;
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();
+			echo "RM tblNotify   ";
 			return false;
 		}
 

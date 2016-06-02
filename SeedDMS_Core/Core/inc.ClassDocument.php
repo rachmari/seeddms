@@ -1599,39 +1599,30 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 		$queryStr = "DELETE FROM tblDocumentContentPDF WHERE `content` = " . $version->getID() .	" AND `version` = " . $version->_version;
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();
-			echo "CONTENT TABLE";
-			echo "ID: " . $this->getID();
-			echo "VERSION: " . $version->_version;
 			return false;
 		}
 
 		$queryStr = "DELETE FROM tblDocumentContent WHERE `document` = " . $this->getID() .	" AND `version` = " . $version->_version;
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();
-			echo "CONTENT TABLE";
-			echo "ID: " . $this->getID();
-			echo "VERSION: " . $version->_version;
 			return false;
 		}
 
 		$queryStr = "DELETE FROM tblDocumentContentAttributes WHERE content = " . $version->getId();
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();
-			echo "CONTENT ATTRIBUTES TABLE";
 			return false;
 		}
 
 		$queryStr = "DELETE FROM `tblDocumentStatusLog` WHERE `statusID` = '".$stID."'";
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();
-			echo "STATUS LOG TABLE";
 			return false;
 		}
 
 		$queryStr = "DELETE FROM `tblDocumentStatus` WHERE `documentID` = '". $this->getID() ."' AND `version` = '" . $version->_version."'";
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();
-			echo "STATUS TABLE";
 			return false;
 		}
 
@@ -2083,7 +2074,6 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 	 */
 	function remove() { /* {{{ */
 		$db = $this->_dms->getDB();
-		echo "IN REMOVE  ";
 		/* Check if 'onPreRemoveDocument' callback is set */
 		if(isset($this->_dms->callbacks['onPreRemoveDocument'])) {
 			$callback = $this->_dms->callbacks['onPreRemoveDocument'];
@@ -2094,19 +2084,16 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 
 		$res = $this->getContent();
 		if (is_bool($res) && !$res) {
-			echo "NO CONTENT ";
 			return false;
 		} 
 
 		$db->startTransaction();
-		echo "BEGIN LOOP: ";
 		// FIXME: call a new function removeContent instead
 		foreach ($this->_content as $version) {
 			// remove document file
 			$res = $this->getFilesByVersion($version);
 			if (is_bool($res) && !$res) {
 				$db->rollbackTransaction();
-				echo "GET FILE FAILURE";
 				return false;
 			}
 
@@ -2114,55 +2101,46 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 			{
 				if(!$this->removeDocumentFile($version, $documentfile->getId())) {
 					$db->rollbackTransaction();
-					echo "FILE FAILURE";
 					return false;
 				}
 			}
 
 			if (!$this->removeContent($version)) {
 				$db->rollbackTransaction();
-				echo "CONTENT FAILURE";
 				return false;
 			}
 		}
-		echo "END LOOP: ";
 		// TODO: versioning file?
 
 		if (file_exists( $this->_dms->contentDir . $this->getDir() ))
 			if (!SeedDMS_Core_File::removeDir( $this->_dms->contentDir . $this->getDir() )) {
 				$db->rollbackTransaction();
-				echo "REMOVING DIR: ";
 				return false;
 			}
 
 		$queryStr = "DELETE FROM tblDocuments WHERE id = " . $this->_id;
 		if (!$db->getResult($queryStr)) {
-			echo "RM tblDocuments   ";
 			$db->rollbackTransaction();
 			return false;
 		}
 		$queryStr = "DELETE FROM tblDocumentAttributes WHERE document = " . $this->_id;
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();
-			echo "RM tblDocumentAttributes   ";
 			return false;
 		}
 		$queryStr = "DELETE FROM tblACLs WHERE target = " . $this->_id . " AND targetType = " . T_DOCUMENT;
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();
-			echo "RM tblACLs   ";
 			return false;
 		}
 		$queryStr = "DELETE FROM tblDocumentLinks WHERE document = " . $this->_id . " OR target = " . $this->_id;
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();
-			echo "RM tblDocumentLinks   ";
 			return false;
 		}
 		$queryStr = "DELETE FROM tblDocumentLocks WHERE document = " . $this->_id;
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();
-			echo "RM tblDocumentLocks   ";
 			return false;
 		}
 		/* THIS IS A DUPLICATE
@@ -2175,21 +2153,18 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 		$queryStr = "DELETE FROM tblMemoNumbers WHERE documentID = " . $this->_id;
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();
-			echo "RM tblMemoNumbers   ";
 			return false;
 		}
 
 		$queryStr = "DELETE FROM tblSpecNumbers WHERE documentID = " . $this->_id;
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();
-			echo "RM tblSpecNumbers   ";
 			return false;
 		}
 
 		$queryStr = "DELETE FROM tblDocumentCategory WHERE documentID = " . $this->_id;
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();
-			echo "RM tblDocumentCategory   ";
 			return false;
 		}
 
@@ -2197,7 +2172,6 @@ class SeedDMS_Core_Document extends SeedDMS_Core_Object { /* {{{ */
 		$queryStr = "DELETE FROM tblNotify WHERE target = " . $this->_id . " AND targetType = " . T_DOCUMENT;
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();
-			echo "RM tblNotify   ";
 			return false;
 		}
 

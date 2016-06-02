@@ -143,9 +143,10 @@ $(document).ready(function() {
 						    	  'png', 'tiff', 'vsd']
 
 		var acceptedAttachTypes = acceptedFileTypes.concat(acceptedExtensions);
-		
+
 		if ($('#setDocNumber').val() === '') msg.push("<?php printMLText("js_no_number");?>");
-		if (!Number.isInteger($('#setDocNumber').val())) msg.push("<?php printMLText("js_no_number_int");?>");
+		// Ensure that the memo number is not a 0 and is an integer
+		if (!/^[1-9]\d*$/.test($('#setDocNumber').val())) msg.push("<?php printMLText("js_no_number_int");?>");
 		if ($('#title-input').val() === '') msg.push("<?php printMLText("js_no_name");?>");
 		if ($('#comment-input').val() === '') msg.push("<?php printMLText("js_no_comment");?>");
 		if ($('#userfile').val() === '') msg.push("<?php printMLText("js_no_file");?>");

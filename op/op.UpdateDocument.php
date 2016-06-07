@@ -87,7 +87,7 @@ if ($_FILES['userfile']['error'] == 0) {
 
 	$sourceFilePath = $_FILES["userfile"]["tmp_name"];
 	$sourceFileName = $_FILES["userfile"]["name"];
-	$sourceFileExt = pathinfo($sourceFileName, PATHINFO_EXTENSION);
+	$sourceFileExt = strtolower(pathinfo($sourceFileName, PATHINFO_EXTENSION));
 	$sourceMimeType = $_FILES["userfile"]["type"];
 
 	$match = 0;
@@ -254,7 +254,7 @@ $pdfData = array();
 if (is_uploaded_file($_FILES["userfilePDF"]["tmp_name"])){
 
 	$filename = $_FILES['userfilePDF']['name'];
-	$pdfExt = pathinfo($filename, PATHINFO_EXTENSION);
+	$pdfExt = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
 	// Check for a size of 0
     if ($_FILES["userfilePDF"]["size"] == 0) {
@@ -317,7 +317,7 @@ for ($file_num=0; $file_num<count($_FILES['attachfile']['tmp_name']); $file_num+
 		$filepath = $_FILES['attachfile']['tmp_name'][$file_num];
 		$fileType = $_FILES['attachfile']['type'][$file_num];
 		$filename = $_FILES['attachfile']['name'][$file_num];
-		$fileExt = pathinfo($filename, PATHINFO_EXTENSION);
+		$fileExt = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 		for ($i=0; $i<count($acceptedAttachTypes); $i++) {
 			if ($fileExt == $acceptedAttachTypes[$i]) $match = 1;
 		}	

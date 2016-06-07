@@ -153,7 +153,7 @@ $(document).ready(function() {
 		// Check for file type to be document, pdf, or presentation
 		else {
 			var file = $('#userfile').prop("files")[0];
-			var fileExt = file.name.split('.').pop();
+			var fileExt = file.name.split('.').pop().toLowerCase();
 			var match, i = 0;
 			for(i; i < acceptedFileTypes.length; i++) {
 				if(fileExt === acceptedFileTypes[i]) match = 1;
@@ -163,14 +163,14 @@ $(document).ready(function() {
 		// Get file object from input to check for pdf type
 		if($('#userfilePDF').prop("files")[0]) {
 			var file = $('#userfilePDF').prop("files")[0];
-			var fileExt = file.name.split('.').pop();
+			var fileExt = file.name.split('.').pop().toLowerCase();
 			if(fileExt !== 'pdf') msg.push("<?php printMLText("pdf_type_error");?>");
 		}
 
 		$('.upload-input').each(function() {
 			var file = this.files[0];
 			if(file) {
-				var fileExt = file.name.split('.').pop();
+				var fileExt = file.name.split('.').pop().toLowerCase();
 				var match = 0;
 				for(var i = 0; i < acceptedAttachTypes.length; i++) {
 					if(fileExt === acceptedAttachTypes[i]) match = 1;

@@ -242,6 +242,7 @@ for ($i = 0; $i < count($attachname); $i++) {
 			$attachInfoFile['name'] = null;
 		}
 	}
+	$attachInfo['file'] = $attachInfoFile;
 	if($attachpdfname[$i]) {
 		if($attachpdfname[$i] != 'X') {
 			$attachInfoPDF = getFileInfo($attachpdfname[$i]);
@@ -252,10 +253,9 @@ for ($i = 0; $i < count($attachname); $i++) {
 					$attachInfoPDF['name'] = null;
 				}
 			}
+			$attachInfo['pdfFile'] = $attachInfoPDF;
 		}
 	}
-	$attachInfo['file'] = $attachInfoFile;
-	$attachInfo['pdfFile'] = $attachInfoPDF;
 	$attachFileData[$i] = $attachInfo;
 }
 

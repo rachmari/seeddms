@@ -1,5 +1,5 @@
 <?php
-include("/var/www/html/inc/inc.ClassSettings.php");
+include("../inc/inc.ClassSettings.php");
 
 function usage() { /* {{{ */
     echo "Usage:\n";

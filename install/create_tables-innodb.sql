@@ -781,7 +781,7 @@ CREATE TABLE `tblVersion` (
 -- Initial content for database
 --
 
-INSERT INTO tblUsers VALUES (1, 'admin', '026bf1cf040d6ed2386a9c2fd6f48f60', 'Administrator', 'rachael.sewell@paradetech.com', '', '', '', 1, 0, '0000-00-00 00:00:00', 0, 0, 0, NULL);
+INSERT INTO tblUsers VALUES (1, 'admin', '21232f297a57a5a743894a0e4a801fc3', 'Administrator', 'admin@yourdomain.com', '', '', '', 1, 0, '0000-00-00 00:00:00', 0, 0, 0, NULL);
 INSERT INTO tblUsers VALUES (2, 'guest', NULL, 'Guest User', NULL, '', '', '', 2, 0, '0000-00-00 00:00:00', 0, 0, 0, NULL);
 INSERT INTO tblFolders VALUES (1, 'DMS', 0, '', 'DMS root', UNIX_TIMESTAMP(), 1, 0, 3, 0);
 INSERT INTO tblVersion VALUES (NOW(), 5, 0, 1);

@@ -396,15 +396,9 @@ if(isset($_GET["fullsearch"]) && $_GET["fullsearch"] && $settings->_enableFullSe
 
 // -------------- Output results --------------------------------------------
 
-if(count($entries) == 1) {
-	$entry = $entries[0];
-	if(get_class($entry) == $dms->getClassname('document')) {
-		header('Location: ../out/out.ViewDocument.php?documentid='.$entry->getID());
-		exit;
-	} elseif(get_class($entry) == $dms->getClassname('folder')) {
-		header('Location: ../out/out.ViewFolder.php?folderid='.$entry->getID());
-		exit;
-	}
+if( (count($entries) == 1) && (get_class($entries[0]) == $dms->getClassname('folder')) ) {
+	header('Location: ../out/out.ViewFolder.php?folderid='.$entry->getID());
+	exit;
 } else {
 	$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
 	$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'query'=>$query, 'searchhits'=>$entries, 'totalpages'=>$totalPages, 'pagenumber'=>$pageNumber, 'searchtime'=>$searchTime, 'urlparams'=>$_GET, 'cachedir'=>$settings->_cacheDir));

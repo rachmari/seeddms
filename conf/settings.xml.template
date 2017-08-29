@@ -91,17 +91,17 @@
        - cacheDir: where the preview images are saved
     -->
     <server
-      rootDir = ""
-      httpRoot = "/seeddms/"
-      contentDir = ""
-      stagingDir = ""
-      luceneDir = ""
+      rootDir = "/var/www/html/"
+      httpRoot = "/"
+      contentDir = "/var/www/data/"
+      stagingDir = "/var/www/data/staging/"
+      luceneDir = "/var/www/data/lucene/"
       logFileEnable = "true"
       logFileRotation = "d"
       enableLargeFileUpload = "true"
       partitionSize = "2000000"
       dropFolderDir = ""
-      cacheDir = ""
+      cacheDir = "/var/www/data/cache/"
     />
     <!--
        - enableGuestLogin: If you want anybody to login as guest, set the following line to true
@@ -124,7 +124,7 @@
     <authentication
       enableGuestLogin = "false"
       enablePasswordForgotten = "false"
-      restricted = "true"
+      restricted = "false"
       enableUserImage = "false"
       disableSelfEdit = "false"
       passwordStrength = "0"
@@ -136,7 +136,7 @@
       quota = "0"
       undelUserIds = ""
       encryptionKey = "b8c75fa53c0c7a18a84adb6ca815bd94"
-      cookieLifetime = "0">
+      cookieLifetime = "172800">
       <connectors>
         <!-- ***** CONNECTOR LDAP  *****
            - enable: enable/disable connector
@@ -192,11 +192,11 @@
     -->
     <database
       ADOdbPath = ""
-      dbDriver = "_DBC_DBTYPE_"
-      dbHostname = "_DBC_DBSERVER_"
-      dbDatabase = "_DBC_DBNAME_"
-      dbUser = "_DBC_DBUSER_"
-      dbPass = "_DBC_DBPASS_"
+      dbDriver = "mysql"
+      dbHostname = "localhost"
+      dbDatabase = "seeddms"
+      dbUser = "seeddms"
+      dbPass = "seeddms"
       doNotCheckVersion = "false"
     />
     <!--
@@ -222,7 +222,7 @@
        - showMissingTranslations: XXX
     -->
     <display
-      siteDefaultPage = ""
+      siteDefaultPage = "out/out.Search.php"
       rootFolderID = "1"
       titleDisplayHack = "true"
       showMissingTranslations = "false"
@@ -250,9 +250,9 @@
     <edition
       enableAdminRevApp = "false"
       versioningFileName = "versioning_info.txt"
-      workflowMode = "advanced"
-      enableVersionDeletion = "true"
-      enableVersionModification = "true"
+      workflowMode = "traditional"
+      enableVersionDeletion = "false"
+      enableVersionModification = "false"
       enableDuplicateDocNames = "true"
       enableOwnerRevApp = "false"
       enableSelfRevApp = "false"
@@ -274,14 +274,14 @@
        - cmdTimeout: XXX
     -->
     <server
-      coreDir = ""
+      coreDir = "/var/www/html/SeedDMS_Core/"
       luceneClassDir = ""
       contentOffsetDir = "1048576"
       maxDirID = "0"
       updateNotifyTime = "86400"
       extraPath = ""
       maxExecutionTime = "30"
-      cmdTimeout = "1"
+      cmdTimeout = "5"
     />
     <!--
        - enableNotificationAppRev: XXX
@@ -290,8 +290,8 @@
     -->
     <notification
       enableNotificationAppRev = "true"
-      enableOwnerNotification = "false"
-      enableNotificationWorkflow = "false"
+      enableOwnerNotification = "true"
+      enableNotificationWorkflow = "true"
     />
   </advanced>
   <extensions/>

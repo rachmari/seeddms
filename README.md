@@ -33,3 +33,13 @@ touch /var/www/html/conf/ENABLE_INSTALL_TOOL
 This install tool takes input from a web form, when you navigate to the root address in the browser. This tool takes input from the browser and stores it to a file called `/var/www/html/conf/settings.xml`. This tool is limited in the settings that it allows you to configure, but it provides some checks to ensure that you have installed all of the packages that SeedDMS requires.
 
 It's recommended to perform a manual install by setting the configuration values in the `/var/www/html/settings.xml` file to ensure you have configured all available settings like ldap and SMTP. To do this copy the /var/www/html/settings.xml.template file and review all available settings and save the file as `settings.xml`. Defaults are already set for the required parameters and work seamlessly with [seedBox](https://github.com/rachmari/seedBox). If you have a server that has a different directory structure than [seedBox](https://github.com/rachmari/seedBox) you will need to update your path settings.
+
+## SeedDMS Modules
+
+[seedBox](https://github.com/rachmari/seedBox) documents are requirements to install the SeedDMS Core in the provisioning script. SeedDMS is split into 3 main modules: SeedDMS Core, SeedDMS Lucene, and SeedDMS Preview. This version of SeedDMS only modifies the Core module. The [seedBox](https://github.com/rachmari/seedBox) provisioning script installs the Lucene and Preview modules using Pear. This version of SeedDMS does not modify the Lucene and Preview modules. The original [SeedDMS 5.0.1](https://sourceforge.net/projects/seeddms/files/seeddms-5.0.1/) are used.
+
+# Data Storage
+
+Memos and specs are stored in a directory outside of the http root directory called `data` by default. This name is customizable in the `settings.xml` file. A content directory is located within the data directory named `1048576` by default. This directory name can also be changed in the `settings.xml` file. When documents are uploaded using SeedDMS, the files are stored in the `data/1048576` directory. 
+
+The directories within `1048576` are also numbered. The number corresponds to the document `id` in the mysql table `tblDocuments`. The document `id` directory is a flat directory that contains all of a document's files (including attachments) for every version of that documet. Files are named using numbers and letters. File names that only contain a number indicate the version of the document. A file prefixed with `p` is the pdf version of the source file. A file prefixed with `f` is an attachment file, and number corresponds to the file `id` in `tblDocumentFiles`. A file prefixed with `fp` is a pdf version of an attachment file, and the number also corresponds to the file `id` in `tblDocumentFiles`.

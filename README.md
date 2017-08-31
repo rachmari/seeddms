@@ -36,7 +36,7 @@ It's recommended to perform a manual install by setting the configuration values
 
 ## SeedDMS Modules
 
-[seedBox](https://github.com/rachmari/seedBox) documents are requirements to install the SeedDMS Core in the provisioning script. SeedDMS is split into 3 main modules: SeedDMS Core, SeedDMS Lucene, and SeedDMS Preview. This version of SeedDMS only modifies the Core module. The [seedBox](https://github.com/rachmari/seedBox) provisioning script installs the Lucene and Preview modules using Pear. This version of SeedDMS does not modify the Lucene and Preview modules. The original [SeedDMS 5.0.1](https://sourceforge.net/projects/seeddms/files/seeddms-5.0.1/) are used.
+The Vagrant Box [seedBox](https://github.com/rachmari/seedBox) documents all of the required packages to install SeedDMS in the provisioning script. SeedDMS includes 3 modules: SeedDMS Core, SeedDMS Lucene, and SeedDMS Preview. This version of SeedDMS only modifies the Core module, so the other two modules can be installed using Pear. The [seedBox](https://github.com/rachmari/seedBox) provisioning script installs the Lucene and Preview modules, using Pear, from the original [SeedDMS 5.0.1](https://sourceforge.net/projects/seeddms/files/seeddms-5.0.1/) repo.
 
 ## Data Storage
 

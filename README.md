@@ -38,7 +38,7 @@ It's recommended to perform a manual install by setting the configuration values
 
 [seedBox](https://github.com/rachmari/seedBox) documents are requirements to install the SeedDMS Core in the provisioning script. SeedDMS is split into 3 main modules: SeedDMS Core, SeedDMS Lucene, and SeedDMS Preview. This version of SeedDMS only modifies the Core module. The [seedBox](https://github.com/rachmari/seedBox) provisioning script installs the Lucene and Preview modules using Pear. This version of SeedDMS does not modify the Lucene and Preview modules. The original [SeedDMS 5.0.1](https://sourceforge.net/projects/seeddms/files/seeddms-5.0.1/) are used.
 
-# Data Storage
+## Data Storage
 
 Memos and specs are stored in a directory outside of the http root directory called `data` by default. This name is customizable in the `settings.xml` file. A content directory is located within the data directory named `1048576` by default. This directory name can also be changed in the `settings.xml` file. When documents are uploaded using SeedDMS, the files are stored in the `data/1048576` directory. 
 
